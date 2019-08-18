@@ -26,17 +26,15 @@ public class UIHomeBase : UIView
     // public Button btnShare;
     // public Button btnNoAd;
     public Button btnMusic;
+    public Button btnSound;
     public Button btnAdVideo;
     public float topBarHeight = 160;
-    AudioClip audioClipBtnPlay;
     static private bool isAppCheakVersion = false;
     public void Init()
     {
         Debug.Log("UIMainBase Init");
         //提前加载
         LevelManager.main.ParsePlaceList();
-
-        audioClipBtnPlay = AudioCache.main.Load(AppCommon.AUDIO_BTN_CLICK);
         if (uiHomeAppCenter != null)
         {
             uiHomeAppCenter.gameObject.SetActive(true);
@@ -74,6 +72,11 @@ public class UIHomeBase : UIView
 
     }
 
+    public void Awake()
+    {
+        UpdateBtnMusic();
+        UpdateBtnSound();
+    }
 
     // Update is called once per frame
     public void UpdateBase()
@@ -243,43 +246,69 @@ public class UIHomeBase : UIView
             TextureUtil.UpdateButtonTexture(btnMusic, ret ? AppRes.IMAGE_BtnMusicOn : AppRes.IMAGE_BtnMusicOff, false);
         }
     }
+    public void UpdateBtnSound()
+    {
+        bool ret = Common.GetBool(AppString.KEY_ENABLE_PLAYSOUND);
+        if (btnSound != null)
+        {
+            TextureUtil.UpdateButtonTexture(btnSound, ret ? AppRes.IMAGE_BtnSoundOn : AppRes.IMAGE_BtnSoundOff, false);
+        }
+    }
 
     public void OnClickBtnMusic()
-    {
+    { 
         bool ret = Common.GetBool(AppString.STR_KEY_BACKGROUND_MUSIC);
         bool value = !ret;
         Common.SetBool(AppString.STR_KEY_BACKGROUND_MUSIC, value);
         if (value)
         {
-            AudioPlay.main.PlayMusicBg();
+            MusicBgPlay.main.PlayMusicBg();
         }
         else
         {
-            AudioPlay.main.Stop();
+            MusicBgPlay.main.Stop();
         }
         UpdateBtnMusic();
     }
+    public void OnClickBtnSound()
+    { 
+        bool ret = Common.GetBool(AppString.KEY_ENABLE_PLAYSOUND);
+        bool value = !ret;
+        Common.SetBool(AppString.KEY_ENABLE_PLAYSOUND, value);
+
+        UpdateBtnSound();
+    }
+
     public void OnClickBtnMore()
-    {
+    { 
         MoreViewController.main.Show(null, null);
     }
     public void OnClickBtnSetting()
+    { 
+
+        // TextureUtil.UpdateImageTexture(imageBg, AppRes.IMAGE_SETTING_BG, true);//IMAGE_SETTING_BG 导致PlayBtnSound声音播放不完整 延迟执行
+       // Invoke("DoClickBtnSetting", 0.1f);
+       DoClickBtnSetting();
+    }
+
+    public void DoClickBtnSetting()
     {
         SettingViewController.main.Show(null, null);
     }
+
     public void OnClickBtnShare()
-    {
+    { 
         ShareViewController.main.callBackClick = OnUIShareDidClick;
         ShareViewController.main.Show(null, null);
     }
 
     public void OnClickBtnAdVideo()
-    {
+    { 
         AdKitCommon.main.ShowAdVideo();
     }
 
     public void OnClickBtnNoAd()
-    {
+    { 
         if (Config.main.APP_FOR_KIDS)
         {
             ParentGateViewController.main.Show(null, null);

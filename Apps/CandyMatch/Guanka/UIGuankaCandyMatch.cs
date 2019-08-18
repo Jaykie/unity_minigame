@@ -1,0 +1,138 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using Tacticsoft;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class UIGuankaCandyMatch : UIGuankaBase
+{
+    public Button btnBack;
+    public Text textTitle;
+    UICellItemBase cellItemPrefab;
+    UICellBase cellPrefab;//GuankaItemCell GameObject  
+    public Image imageBar;
+    // public RawImage imageBg;  
+    int heightCell;
+    List<object> listItem;
+    static public long tick;
+
+    Language languagePlace;
+    HttpRequest httpReqLanguage;
+
+    /// <summary>
+    /// Awake is called when the script instance is being loaded.
+    /// </summary>
+    void Awake()
+    {
+        LoadPrefab();
+
+        //bg
+        //  TextureUtil.UpdateRawImageTexture(imageBg, AppRes.IMAGE_GUANKA_BG, true);
+
+        LevelManager.main.ParseGuanka();
+        listItem = GameGuankaParse.main.listGuanka;
+
+    }
+    void Start()
+    {
+        LayOut();
+        OnUIDidFinish();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            OnClickBtnBack();
+        }
+    } 
+     
+    void LoadPrefab()
+    {
+        {
+            GameObject obj = PrefabCache.main.Load(AppCommon.PREFAB_UICELLBASE);
+            cellPrefab = obj.GetComponent<UICellBase>();
+        }
+        {
+            GameObject obj = PrefabCache.main.Load(AppCommon.PREFAB_GUANKA_CELL_ITEM_APP);
+            if (obj == null)
+            {
+                obj = PrefabCache.main.Load(AppCommon.PREFAB_GUANKA_CELL_ITEM_COMMON);
+            }
+
+
+            cellItemPrefab = obj.GetComponent<UICellItemBase>();
+        }
+
+    }
+
+    public override void LayOut()
+    {
+        Vector2 sizeCanvas = AppSceneBase.main.sizeCanvas;
+        // {
+        //     RectTransform rectTransform = imageBg.GetComponent<RectTransform>();
+        //     float w_image = rectTransform.rect.width;
+        //     float h_image = rectTransform.rect.height;
+        //     float scalex = sizeCanvas.x / w_image;
+        //     float scaley = sizeCanvas.y / h_image;
+        //     float scale = Mathf.Max(scalex, scaley);
+        //     imageBg.transform.localScale = new Vector3(scale, scale, 1.0f);
+        //     //屏幕坐标 现在在屏幕中央
+        //     imageBg.transform.position = new Vector2(Screen.width / 2, Screen.height / 2);
+        // }
+
+    }
+ 
+
+    void ShowShop()
+    {
+
+    }
+    void ShowParentGate()
+    {
+        ParentGateViewController.main.Show(null, null);
+        ParentGateViewController.main.ui.callbackClose = OnUIParentGateDidClose;
+
+    }
+    public void OnUIParentGateDidClose(UIParentGate ui, bool isLongPress)
+    {
+        if (isLongPress)
+        {
+            ShowShop();
+        }
+    }
+
+    public void OnClickBtnBack()
+    {
+        NaviViewController navi = this.controller.naviController;
+        if (navi != null)
+        {
+            navi.Pop();
+        }
+
+    }
+    #region GuankaItem_Delegate 
+    void GotoGame(int idx)
+    {
+        LevelManager.main.gameLevel = idx;
+        GameManager.main.GotoGame(this.controller);
+    }
+    public void OnCellItemDidClick(UICellItemBase item)
+    {
+        if (item.IsLock())
+        {
+            return;
+        }
+        tick = Common.GetCurrentTimeMs();
+        GotoGame(item.index);
+
+    }
+
+    #endregion
+
+
+
+}
+

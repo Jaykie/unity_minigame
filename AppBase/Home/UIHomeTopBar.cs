@@ -174,17 +174,17 @@ public class UIHomeTopBar : UIView
     }
 
     public void OnClickBtnMusic()
-    {
+    { 
         bool ret = Common.GetBool(AppString.STR_KEY_BACKGROUND_MUSIC);
         bool value = !ret;
         Common.SetBool(AppString.STR_KEY_BACKGROUND_MUSIC, value);
         if (value)
         {
-            AudioPlay.main.PlayMusicBg();
+            MusicBgPlay.main.PlayMusicBg();
         }
         else
         {
-            AudioPlay.main.Stop();
+            MusicBgPlay.main.Stop();
         }
         UpdateBtnMusic();
     }
@@ -195,20 +195,13 @@ public class UIHomeTopBar : UIView
 
 
     public void OnClickBtnSetting()
-    {
-        // if (audioSource == null)
-        // {
-        //     //AudioPlayer对象在场景切换后可能从当前scene移除了
-        //     GameObject audioPlayer = GameObject.Find("AudioPlayer");
-        //     audioSource = audioPlayer.GetComponent<AudioSource>();
-        // }
-        // audioSource.PlayOneShot(audioClipBtnPlay);
+    {  
         SettingViewController.main.Show(AppSceneBase.main.rootViewController, null);
     }
 
 
     public void OnClickBtnMore()
-    {
+    { 
         // if (audioSource == null)
         // {
         //     //AudioPlayer对象在场景切换后可能从当前scene移除了
@@ -222,15 +215,14 @@ public class UIHomeTopBar : UIView
     }
 
     public void OnClickBtnLearn()
-    {
-       
+    { 
         MoreViewController.main.Show(AppSceneBase.main.rootViewController, null);
 
     }
 
 
     public void OnClickBtnNoADIAP()
-    {
+    { 
         if (Config.main.APP_FOR_KIDS)
         {
             ParentGateViewController.main.Show(null, null);
@@ -268,7 +260,7 @@ public class UIHomeTopBar : UIView
     }
 
     public void OnClickBtnRestoreIAP()
-    {
+    { 
         if (Config.main.APP_FOR_KIDS && !Application.isEditor)
         {
             ParentGateViewController.main.Show(null, null);
@@ -301,7 +293,7 @@ public class UIHomeTopBar : UIView
 
 
     public void OnClickBtnShare()
-    {
+    { 
         if (Config.main.APP_FOR_KIDS)
         {
             ParentGateViewController.main.Show(null, null);

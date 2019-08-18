@@ -15,5 +15,5 @@ public class AppType
     //kidsgame2
 
 
-    //minigame 
+    //minigame
 }

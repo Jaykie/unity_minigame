@@ -200,7 +200,7 @@ public class UIPay : ScriptBase, ITableViewDataSource
 
 
     public void OnClickBtnBack()
-    {
+    { 
         Destroy(this.gameObject);
     }
  

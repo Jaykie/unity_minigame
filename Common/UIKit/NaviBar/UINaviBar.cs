@@ -41,7 +41,7 @@ public class UINaviBar : UIView
     }
 
     public void OnClickBtnBack()
-    {
+    { 
         if (callbackBackClick != null)
         {
             callbackBackClick(this);

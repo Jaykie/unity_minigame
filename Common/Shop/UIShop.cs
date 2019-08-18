@@ -369,7 +369,7 @@ public class UIShop : UIView, ITableViewDataSource
     }
 
     public void OnClickBtnBack()
-    {
+    { 
         PopViewController pop = (PopViewController)this.controller;
         if (pop != null)
         {

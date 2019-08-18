@@ -148,6 +148,7 @@ public class UIGameBase : UIView
         languageGame.Init(strlan);
         languageGame.SetLanguage(Language.main.GetLanguage());
 
+
     }
     public void UpdateBtnMusic()
     {
@@ -177,11 +178,11 @@ public class UIGameBase : UIView
         Common.SetBool(AppString.STR_KEY_BACKGROUND_MUSIC, value);
         if (value)
         {
-            AudioPlay.main.PlayMusicBg();
+            MusicBgPlay.main.PlayMusicBg();
         }
         else
         {
-            AudioPlay.main.Stop();
+            MusicBgPlay.main.Stop();
         }
         UpdateBtnMusic();
     }

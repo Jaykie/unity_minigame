@@ -136,11 +136,11 @@ public class GameViewController : PopViewController
 
     bool EnableUIAdBanner()
     {
+
         if (!AdKitCommon.main.enableBanner)
         {
             return false;
         }
-
         if (Application.isEditor)
         {
             //编辑器

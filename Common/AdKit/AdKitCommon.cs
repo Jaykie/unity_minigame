@@ -39,6 +39,7 @@ public class AdKitCommon : MonoBehaviour
             main = this;
         }
         isAdVideoFinish = false;
+        enableBanner = true;
     }
 
     // Use this for initialization
@@ -373,7 +374,7 @@ public class AdKitCommon : MonoBehaviour
         bool ret = Common.GetBool(AppString.STR_KEY_BACKGROUND_MUSIC);
         if (ret)
         {
-            AudioPlay.main.PlayMusicBg();
+            MusicBgPlay.main.PlayMusicBg();
         }
 
         if (callbackAdVideoFinish != null)
@@ -392,7 +393,7 @@ public class AdKitCommon : MonoBehaviour
         bool ret = Common.GetBool(AppString.STR_KEY_BACKGROUND_MUSIC);
         if (ret)
         {
-            AudioPlay.main.PlayMusicBg();
+            MusicBgPlay.main.PlayMusicBg();
         }
 
         if (callbackAdVideoFinish != null)
