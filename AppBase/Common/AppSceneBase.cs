@@ -11,6 +11,7 @@ public class AppSceneBase : ScriptBase
     public Image imageBg;
     public UIViewController rootViewController;
     public Canvas canvasMain;
+    public Canvas canvasCamera;
     public GameObject objMainWorld;
     public GameObject objSpriteBg;
 
@@ -36,6 +37,7 @@ public class AppSceneBase : ScriptBase
         isReLayout = false;
         IPInfo.main.StartParserInfo();
         InitScalerMatch();
+        SetCanvasScalerMatch(canvasCamera.gameObject);
         Common.CleanCache();
         InitValue();
 
@@ -108,6 +110,7 @@ public class AppSceneBase : ScriptBase
         if (Device.isScreenDidChange)
         {
             InitScalerMatch();
+            SetCanvasScalerMatch(canvasCamera.gameObject);
             isReLayout = true;
 
         }
@@ -374,6 +377,12 @@ public class AppSceneBase : ScriptBase
     public void AddObjToMainCanvas(GameObject obj)
     {
         obj.transform.parent = canvasMain.transform;
+        obj.transform.localScale = new Vector3(1f, 1f, 1f);
+    }
+
+    public void AddObjToCanvasCamera(GameObject obj)
+    {
+        obj.transform.parent = canvasCamera.transform;
         obj.transform.localScale = new Vector3(1f, 1f, 1f);
     }
     public RectTransform GetRectMainWorld()

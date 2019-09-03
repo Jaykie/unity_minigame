@@ -14,13 +14,11 @@ public class UIGameWordCollect : UIGameBase
     public GameObject objTopbar;
     public Image imageTopbar;
     public Text textTitle;
-    public UILetterConnect uiLetterConnect;
     public UIWordAnswer uiWordAnswer;
- 
-
+    public UILetterConnect uiLetterConnect;
     //prefab 
-    public GameWordCollect gameWordCollectPrefab;
-
+    public GameWordCollect gamePrefab;
+    GameWordCollect game;
 
     float barHeightCanvas = 160;
     float adBannerHeightCanvas = 0;
@@ -40,31 +38,23 @@ public class UIGameWordCollect : UIGameBase
     /// any of the Update methods is called the first time.
     /// </summary>
     void Start()
-    { 
-
-        LayOut();
-
+    {
         //LayoutChild 必须在前面执行
         UpdateGuankaLevel(LevelManager.main.gameLevel);
-
+        LayOut();
         float delaytime = 0.1f * 10;
         Invoke("OnUIDidFinish", delaytime);
     }
     void LoadPrefab()
     {
-        {
-            GameObject obj = PrefabCache.main.Load("AppCommon/Prefab/Game/GameWordCollect");
-            if (obj != null)
-            {
-                gameWordCollectPrefab = obj.GetComponent<GameWordCollect>();
-            }
-        } 
+
+
 
     }
     public override void LayOut()
     {
-        float x, y, w, h;
-
+        float x, y, z, w, h;
+        Vector2 sizeWorld = Common.GetWorldSize(mainCam);
         Vector2 sizeCanvas = this.frame.size;
         if (sizeCanvas.x <= 0)
         {
@@ -74,12 +64,53 @@ public class UIGameWordCollect : UIGameBase
         adBannerHeightCanvas = GameManager.main.heightAdCanvas;
         Debug.Log("adBannerHeightCanvas=" + adBannerHeightCanvas);
 
+        //letter connect
+        if (uiLetterConnect != null)
+        {
+            RectTransform rctan = uiLetterConnect.GetComponent<RectTransform>();
+            float oft_bottom = GameManager.main.heightAdCanvas;// + Common.ScreenToCanvasHeigt(sizeCanvas, Device.offsetBottom);
+            w = sizeCanvas.x;
+            h = sizeCanvas.y / 2 - oft_bottom;
+            rctan.sizeDelta = new Vector2(w, h);
+
+            x = 0;
+            y = (-sizeCanvas.y / 2 + oft_bottom) / 2;
+            rctan.anchoredPosition = new Vector2(x, y);
+            uiLetterConnect.LayOut();
+        }
+
+
+        //word answer
+        {
+            RectTransform rctan = uiWordAnswer.GetComponent<RectTransform>();
+            float oft_top = 160f;
+            w = sizeCanvas.x;
+            h = sizeCanvas.y / 2 - oft_top;
+            rctan.sizeDelta = new Vector2(w, h);
+
+            x = 0;
+            y = (sizeCanvas.y / 2 - oft_top) / 2;
+            rctan.anchoredPosition = new Vector2(x, y);
+
+        }
+
+        if (game != null)
+        {
+            game.LayOut();
+        }
     }
 
     public override void UpdateGuankaLevel(int level)
     {
         base.UpdateGuankaLevel(level);
         WordItemInfo info = (WordItemInfo)GameGuankaParse.main.GetGuankaItemInfo(level);
+
+        game = (GameWordCollect)GameObject.Instantiate(gamePrefab);
+        AppSceneBase.main.AddObjToMainWorld(game.gameObject);
+        UIViewController.ClonePrefabRectTransform(gamePrefab.gameObject, game.gameObject);
+        game.transform.localPosition = new Vector3(0f, 0f, -1f);
+        game.UpdateGuankaLevel(level);
+        game.letterConnect.uiLetterConnect = uiLetterConnect;
 
     }
 
@@ -110,5 +141,6 @@ public class UIGameWordCollect : UIGameBase
         ShowAdInsert(GAME_AD_INSERT_SHOW_STEP, false);
     }
 
+    
 }
 

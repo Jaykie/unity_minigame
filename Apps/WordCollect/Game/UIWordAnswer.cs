@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Moonma.Share;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 public class UIWordAnswer : UIView
 {
@@ -13,6 +14,7 @@ public class UIWordAnswer : UIView
     public UIWordList uiWordList;
 
     public UILetterItem uiLetterItemPrefab;
+
     /// <summary>
     /// Awake is called when the script instance is being loaded.
     /// </summary>
@@ -21,6 +23,7 @@ public class UIWordAnswer : UIView
         LoadPrefab();
         LayOut();
         UpdateLevel();
+    
     }
 
     void LoadPrefab()
@@ -46,10 +49,5 @@ public class UIWordAnswer : UIView
         }
         textLevel.text = str;
     }
-
-    public void UpdateGold()
-    {
-
-    }
-
+  
 }

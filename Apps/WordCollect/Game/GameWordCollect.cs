@@ -11,6 +11,8 @@ https://www.taptap.com/app/72589
  */
 public class GameWordCollect : GameBase
 {
+    public LetterConnect letterConnectPrefab;
+    public LetterConnect letterConnect;
 
     /// Awake is called when the script instance is being loaded.
     /// </summary>
@@ -25,16 +27,47 @@ public class GameWordCollect : GameBase
     /// </summary>
     void Start()
     {
-
+        LayOut();
     }
     public override void LayOut()
     {
-        float x, y, w, h;
+        float x, y, z, w, h;
+        Vector2 sizeWorld = Common.GetWorldSize(mainCam);
+        Vector2 sizeCanvas = this.frame.size;
+        if (sizeCanvas.x <= 0)
+        {
+            return;
+        }
+
+        //letter connect
+        if (letterConnect != null)
+        {
+            RectTransform rctan = letterConnect.GetComponent<RectTransform>();
+            float oft_bottom = GameManager.main.heightAdWorld;// + Common.ScreenToCanvasHeigt(sizeCanvas, Device.offsetBottom);
+            w = sizeWorld.x;
+            h = sizeWorld.y / 2 - oft_bottom;
+            rctan.sizeDelta = new Vector2(w, h);
+
+            x = 0;
+            y = (-sizeWorld.y / 2 + oft_bottom) / 2;
+            // rctan.anchoredPosition = new Vector2(x, y);
+            z = letterConnect.transform.position.z;
+            letterConnect.transform.position = new Vector3(x, y, z);
+            letterConnect.LayOut();
+        }
 
 
     }
+    public void UpdateGuankaLevel(int level)
+    {
+        WordItemInfo info = (WordItemInfo)GameGuankaParse.main.GetGuankaItemInfo(level);
+        letterConnect = (LetterConnect)GameObject.Instantiate(letterConnectPrefab);
+        //AppSceneBase.main.AddObjToMainWorld(letterConnect.gameObject); 
+        letterConnect.transform.SetParent(this.transform);
+        UIViewController.ClonePrefabRectTransform(letterConnectPrefab.gameObject, letterConnect.gameObject);
+        letterConnect.transform.localPosition = new Vector3(0f, 0f, -1f);
 
-
+    }
 
 
 }

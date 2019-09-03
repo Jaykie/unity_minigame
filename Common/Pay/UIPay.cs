@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
-public class UIPay : ScriptBase, ITableViewDataSource
+public class UIPay : UIView, ITableViewDataSource
 {
     public const string KEY_HAS_COMMENT = "KEY_HAS_COMMENT";
 
@@ -36,17 +36,17 @@ public class UIPay : ScriptBase, ITableViewDataSource
     RectTransform rctranTableviewNoarml;
 
     List<ItemInfo> listItem;
+    float topBarOffsetYNormal;
 
     /// <summary>
     /// Awake is called when the script instance is being loaded.
     /// </summary>
     void Awake()
     {
-        InitScalerMatch();
         heightCell = 256 + 128;
 
         //bg
-       TextureUtil.UpdateImageTexture(imageBg, AppRes.IMAGE_SETTING_BG,true);
+        TextureUtil.UpdateImageTexture(imageBg, AppRes.IMAGE_SETTING_BG, true);
 
         topBarOffsetYNormal = objTopBar.GetComponent<RectTransform>().offsetMax.y;
 
@@ -84,7 +84,6 @@ public class UIPay : ScriptBase, ITableViewDataSource
     // Use this for initialization
     void Start()
     {
-        isHasStarted = true;
         // InitUiScaler();
         InitAlert();
         {
@@ -94,7 +93,7 @@ public class UIPay : ScriptBase, ITableViewDataSource
             float str_w = Common.GetStringLength(str, AppString.STR_FONT_NAME, fontsize);
             RectTransform rctran = imageBar.transform as RectTransform;
             Vector2 sizeDelta = rctran.sizeDelta;
-           // float oft = AppResImage.REN_XUXIANKUANG_CIRCLE_R * AppCommon.scaleBase;
+            // float oft = AppResImage.REN_XUXIANKUANG_CIRCLE_R * AppCommon.scaleBase;
             sizeDelta.x = str_w + fontsize;
             rctran.sizeDelta = sizeDelta;
         }
@@ -111,18 +110,14 @@ public class UIPay : ScriptBase, ITableViewDataSource
             OnClickBtnBack();
         }
 
-        if (isHasStarted)
-        {
-            isHasStarted = false;
-            InitUiScaler();
-            LayOutChild();
-        }
+
     }
 
 
 
-    void LayOutChild()
+    public override void LayOut()
     {
+        Vector2 sizeCanvas = AppSceneBase.main.sizeCanvas;
         {
             RectTransform rctran = imageBg.GetComponent<RectTransform>();
             float w_image = rctran.rect.width;
@@ -200,10 +195,10 @@ public class UIPay : ScriptBase, ITableViewDataSource
 
 
     public void OnClickBtnBack()
-    { 
+    {
         Destroy(this.gameObject);
     }
- 
+
 
     #region ITableViewDataSource
 
@@ -252,10 +247,10 @@ public class UIPay : ScriptBase, ITableViewDataSource
 
                 Rect rcItem = rctran.rect;
                 Vector3 pos = new Vector3(rcItem.width * i, 0, 0);
- 
+
                 rctran.anchoredPosition = pos;
                 cell.AddItem(i, item);
- 
+
 
             }
 
@@ -283,7 +278,7 @@ public class UIPay : ScriptBase, ITableViewDataSource
         //Debug.Log(string.Format("Row {0} visibility changed to {1}", row, isVisible));
         if (isVisible)
         {
-           
+
         }
     }
 
