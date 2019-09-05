@@ -19,6 +19,7 @@ public class UIWordList : UIView
     {
         listItem = new List<UICellWord>();
         LoadPrefab();
+        UpdateItem();
         LayOut();
     }
 
@@ -55,10 +56,35 @@ public class UIWordList : UIView
         }
     }
 
+    public UICellWord GetItem(int idx)
+    {
+        UICellWord item = listItem[idx] as UICellWord;
+        return item;
+    }
+
+    public void SetStatus(int idx, UILetterItem.Status st)
+    {
+        UICellWord item = GetItem(idx);
+        item.SetStatus(st);
+    }
 
     public void OnClickGold()
     {
 
+    }
+
+    public bool IsGameWin()
+    {
+        bool ret = true;
+        foreach (UICellWord item in listItem)
+        {
+            UILetterItem.Status st = item.GetItem(0).GetStatus();
+            if (st == UILetterItem.Status.LOCK)
+            {
+                ret = false;
+            }
+        }
+        return ret;
     }
 
 

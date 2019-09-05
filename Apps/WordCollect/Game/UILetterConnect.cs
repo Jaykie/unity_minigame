@@ -20,6 +20,7 @@ public class UILetterConnect : UIView
     void Awake()
     {
         LoadPrefab();
+        ShowText(false);
         LayOut();
     }
 
@@ -34,7 +35,17 @@ public class UILetterConnect : UIView
 
     }
 
+    public void UpdateText(string str)
+    {
+        textTitle.text = str;
+        RectTransform rctran = imageTitle.GetComponent<RectTransform>();
+        float w, h;
+        int fontSize = textTitle.fontSize;
+        w = Common.GetStringLength(str, AppString.STR_FONT_NAME, fontSize) + fontSize;
+        h = rctran.sizeDelta.y;
+        rctran.sizeDelta = new Vector2(w, h);
 
+    }
 
     public void ShowText(bool isShow)
     {

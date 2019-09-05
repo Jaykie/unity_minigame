@@ -6,11 +6,9 @@ using UnityEngine;
 using UnityEngine.UI;
 public class UICellWord : UIView
 {
-
-
     public List<UILetterItem> listItem;
     public int index;
-    UILetterItem uiLetterItemPrefab;
+    public UILetterItem uiLetterItemPrefab;
     /// <summary>
     /// Awake is called when the script instance is being loaded.
     /// </summary>
@@ -23,13 +21,13 @@ public class UICellWord : UIView
 
     void LoadPrefab()
     {
-        {
-            GameObject obj = PrefabCache.main.Load(GameRes.PREFAB_LETTER_ITEM);
-            if (obj != null)
-            {
-                uiLetterItemPrefab = obj.GetComponent<UILetterItem>();
-            }
-        }
+        //     {
+        //         GameObject obj = PrefabCache.main.Load(GameRes.PREFAB_LETTER_ITEM);
+        //         if (obj != null)
+        //         {
+        //             uiLetterItemPrefab = obj.GetComponent<UILetterItem>();
+        //         }
+        //     }
     }
     public override void LayOut()
     {
@@ -49,6 +47,19 @@ public class UICellWord : UIView
             item.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
             item.UpdateItem(word.Substring(i, 1));
             listItem.Add(item);
+        }
+    }
+
+    public UILetterItem GetItem(int idx)
+    {
+        UILetterItem item = listItem[idx] as UILetterItem;
+        return item;
+    }
+    public void SetStatus(UILetterItem.Status st)
+    {
+        foreach (UILetterItem item in listItem)
+        {
+            item.SetStatus(st);
         }
     }
     public void OnClickGold()

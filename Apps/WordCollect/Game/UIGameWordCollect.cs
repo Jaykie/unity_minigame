@@ -9,7 +9,7 @@ using UnityEngine.UI;
 https://apps.apple.com/cn/app/id1299956969
 https://www.taptap.com/app/72589
  */
-public class UIGameWordCollect : UIGameBase
+public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate
 {
     public GameObject objTopbar;
     public Image imageTopbar;
@@ -81,6 +81,7 @@ public class UIGameWordCollect : UIGameBase
 
 
         //word answer
+        if (uiWordAnswer != null)
         {
             RectTransform rctan = uiWordAnswer.GetComponent<RectTransform>();
             float oft_top = 160f;
@@ -91,7 +92,7 @@ public class UIGameWordCollect : UIGameBase
             x = 0;
             y = (sizeCanvas.y / 2 - oft_top) / 2;
             rctan.anchoredPosition = new Vector2(x, y);
-
+            uiWordAnswer.LayOut();
         }
 
         if (game != null)
@@ -111,6 +112,7 @@ public class UIGameWordCollect : UIGameBase
         game.transform.localPosition = new Vector3(0f, 0f, -1f);
         game.UpdateGuankaLevel(level);
         game.letterConnect.uiLetterConnect = uiLetterConnect;
+        game.letterConnect.iDelegate = this;
 
     }
 
@@ -141,6 +143,26 @@ public class UIGameWordCollect : UIGameBase
         ShowAdInsert(GAME_AD_INSERT_SHOW_STEP, false);
     }
 
-    
+
+    //
+    public void OnLetterConnectDidRightAnswer(LetterConnect lc, int idx)
+    {
+        UICellWord item = uiWordAnswer.uiWordList.GetItem(idx);
+        if (item.GetItem(0).GetStatus() == UILetterItem.Status.LOCK)
+        {
+            item.SetStatus(UILetterItem.Status.UNLOCK);
+        }
+        else if (item.GetItem(0).GetStatus() == UILetterItem.Status.UNLOCK)
+        {
+            item.SetStatus(UILetterItem.Status.DUPLICATE);
+        }
+
+        if (uiWordAnswer.uiWordList.IsGameWin())
+        {
+            PopUpManager.main.Show<UIGameWin>("App/Prefab/Game/UIGameWin");
+        }
+    }
+    //
+
 }
 

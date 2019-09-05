@@ -7,22 +7,34 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Vectrosity;
 
+
+public interface ILetterConnectDelegate
+{
+    void OnLetterConnectDidRightAnswer(LetterConnect lc, int idx);
+
+}
+
+
 public class LineInfo
 {
     public List<Vector3> listPoint;
     public VectorLine line;
+    public int idxStart;
+    public int idxEnd;
+
 }
 
 public class LetterConnect : UIView
 {
+    public const int INDEX_END_LAST = -1;
     public GameObject objSpriteBg;
     public BoxCollider boxCollider;
     public LetterItem letterItemPrefab;
 
     public List<object> listItem;
     public List<object> listLine;
+    public List<int> listIndexClick;
     public UILetterConnect uiLetterConnect;
-
     GameObject objLine;
     float lineWidth = 20f;//屏幕像素
     Material matLine;
@@ -35,6 +47,15 @@ public class LetterConnect : UIView
     string strLetter;
     int indexClickPre;
     int indexClickCur;
+    bool isOutOfMaxItemCount;//超出范围
+
+    private ILetterConnectDelegate _delegate;
+    public ILetterConnectDelegate iDelegate
+    {
+        get { return _delegate; }
+        set { _delegate = value; }
+    }
+
     /// <summary>
     /// Awake is called when the script instance is being loaded.
     /// </summary>
@@ -42,6 +63,8 @@ public class LetterConnect : UIView
     {
         listItem = new List<object>();
         listLine = new List<object>();
+        listIndexClick = new List<int>();
+
         matLine = new Material(Shader.Find("Custom/LineConnect"));
         UITouchEventWithMove ev = this.gameObject.AddComponent<UITouchEventWithMove>();
         ev.callBackTouch = OnUITouchEvent;
@@ -153,18 +176,50 @@ public class LetterConnect : UIView
 
     public void OnLetterDidClick(int idx)
     {
-        LetterItem item = GetItem(idx);
-        strLetter += item.textTitle.text;
-        uiLetterConnect.textTitle.text = strLetter;
-        uiLetterConnect.ShowText(true);
+        listIndexClick.Add(idx);
+        UpdateConnectWord();
     }
 
-    void CreateLine()
+
+    public void UpdateConnectWord()
+    {
+        strLetter = "";
+        foreach (int idx in listIndexClick)
+        {
+            LetterItem item = GetItem(idx);
+            strLetter += item.textTitle.text;
+        }
+        uiLetterConnect.UpdateText(strLetter);
+        uiLetterConnect.ShowText(true);
+    }
+    int GetIndexRightAnswer(string str)
+    {
+        int ret = -1;
+        WordItemInfo info = GameGuankaParse.main.GetItemInfo();
+        for (int i = 0; i < info.listAnswer.Length; i++)
+        {
+            string word = info.listAnswer[i];
+            if (word.ToLower() == str.ToLower())
+            {
+                ret = i;
+                break;
+            }
+        }
+        return ret;
+    }
+
+    string GetLineName(int idx)
+    {
+        return "line" + idx.ToString();
+    }
+    LineInfo CreateLine(int start = 0, int end = 0)
     {
         LineInfo linfo = new LineInfo();
+        linfo.idxStart = start;
+        linfo.idxEnd = end;
 
         linfo.listPoint = new List<Vector3>();
-        VectorLine lineConnect = new VectorLine("line" + indexLine.ToString(), linfo.listPoint, lineWidth);
+        VectorLine lineConnect = new VectorLine(GetLineName(indexLine), linfo.listPoint, lineWidth);
         lineConnect.lineType = LineType.Continuous;
         //圆滑填充画线
         lineConnect.joins = Joins.Fill;
@@ -180,16 +235,82 @@ public class LetterConnect : UIView
         linfo.line = lineConnect;
 
         listLine.Add(linfo);
-
+        Debug.Log("CreateLine start=" + start + " end=" + end);
+        return linfo;
     }
 
+    LineInfo GetLine(int start, int end)
+    {
+        foreach (LineInfo info in listLine)
+        {
+            if ((info.idxStart == start) && (info.idxEnd == end))
+            {
+                return info;
+            }
+        }
+        return null;
+    }
+
+    LineInfo GetLineByName(string name)
+    {
+        foreach (LineInfo info in listLine)
+        {
+            if (info.line.GetObj().name == name)
+            {
+                return info;
+            }
+        }
+        return null;
+    }
+
+    bool IsLineCreated(int start, int end)
+    {
+        bool ret = false;
+        foreach (LineInfo info in listLine)
+        {
+            if ((info.idxStart == start) && (info.idxEnd == end))
+            {
+                ret = true;
+            }
+        }
+        return ret;
+    }
     void DestroyLastLine()
     {
+
         LineInfo linfo = GetLastLineInfo();
         if (linfo != null)
         {
-            DestroyImmediate(linfo.line.GetObj());
+            GameObject obj = linfo.line.GetObj();
+            Debug.Log("DestroyLastLine name = " + obj.name);
+            DestroyImmediate(obj);
         }
+        if (listLine.Count > 0)
+        {
+            listLine.RemoveAt(listLine.Count - 1);
+        }
+        indexLine = listLine.Count;
+
+        if (listIndexClick.Count > 0)
+        {
+            listIndexClick.RemoveAt(listIndexClick.Count - 1);
+        }
+        if (listIndexClick.Count > 0)
+        {
+            indexClickPre = listIndexClick[listIndexClick.Count - 1];
+        }
+        UpdateConnectWord();
+    }
+
+    public void DestroyAllLine()
+    {
+        foreach (LineInfo info in listLine)
+        {
+            DestroyImmediate(info.line.GetObj());
+        }
+        listLine.Clear();
+        indexLine = 0;
+        listIndexClick.Clear();
     }
 
     LineInfo GetLastLineInfo()
@@ -202,23 +323,41 @@ public class LetterConnect : UIView
         return listLine[idx] as LineInfo;
     }
 
+    void OnCheckAnswer()
+    {
+        int idx = GetIndexRightAnswer(strLetter);
+        if (idx >= 0)
+        {
+            //right
+            WordItemInfo info = GameGuankaParse.main.GetItemInfo();
+            if (iDelegate != null)
+            {
+                iDelegate.OnLetterConnectDidRightAnswer(this, idx);
+            }
+        }
+        else
+        {
+            //error
+        }
+    }
+
     public void OnUITouchEvent(UITouchEvent ev, PointerEventData eventData, int status)
     {
         switch (status)
         {
             case UITouchEvent.STATUS_TOUCH_DOWN:
-                onTouchDown();
+                OnTouchDown();
                 break;
             case UITouchEvent.STATUS_TOUCH_MOVE:
-                onTouchMove();
+                OnTouchMove2();
                 break;
             case UITouchEvent.STATUS_TOUCH_UP:
-                onTouchUp();
+                OnTouchUp();
                 break;
         }
     }
 
-    public void Clear()
+    public void Clear(LineInfo info = null)
     {
         // if (listPoint != null)
         // {
@@ -228,7 +367,11 @@ public class LetterConnect : UIView
         // {
         //     lineConnect.Draw3D();
         // }
-        LineInfo linfo = GetLastLineInfo();
+        LineInfo linfo = info;
+        if (linfo == null)
+        {
+            linfo = GetLastLineInfo();
+        }
         if (linfo != null)
         {
             linfo.listPoint.Clear();
@@ -245,13 +388,22 @@ public class LetterConnect : UIView
     }
 
     //添加世界坐标
-    public void AddPoint(Vector3 pos)
+    public void AddPoint(Vector3 pos, LineInfo info = null)
     {
         pos.z = 0;
-        Debug.Log("PaintLine AddPoint pos=" + pos);
-        LineInfo linfo = GetLastLineInfo();
-        linfo.listPoint.Add(GetTouchLocalPosition(pos));
-        linfo.line.Draw3D();
+        Debug.Log("AddPoint pos=" + pos);
+        LineInfo linfo = info;
+        if (linfo == null)
+        {
+            linfo = GetLastLineInfo();
+        }
+        if (linfo != null)
+        {
+            linfo.listPoint.Add(GetTouchLocalPosition(pos));
+            linfo.line.Draw3D();
+        }
+
+
     }
     Vector3 GetTouchLocalPosition(Vector3 pos)
     {
@@ -262,65 +414,211 @@ public class LetterConnect : UIView
         // posTouchWorld.z = 0;
         return loaclPos;
     }
-    void onTouchDown()
+
+    void DrawLine(LineInfo info = null)
+    {
+        Clear(info);
+        // Debug.Log("onTouchMove ptStart=" + ptStart + " ptEnd=" + ptEnd + " idx=" + idx);
+        AddPoint(ptStart, info);
+        AddPoint(ptEnd, info);
+    }
+
+    void OnDrawLine(int idx)
+    {
+        for (int i = 0; i < listIndexClick.Count; i++)
+        {
+            int idxStart = listIndexClick[i];
+            int idxEnd = 0;
+            if (i < listIndexClick.Count - 1)
+            {
+                idxEnd = listIndexClick[i + 1];
+                ptStart = GetItemWorldPos(idxStart);
+                ptEnd = GetItemWorldPos(idxEnd);
+
+                //重绘最后一条line,矫正位置
+                LineInfo infotmp = GetLine(idxStart, INDEX_END_LAST);
+                if (infotmp != null)
+                {
+                    infotmp.idxEnd = idxEnd;
+                    DrawLine(infotmp);
+                }
+
+
+                if (!IsLineCreated(idxStart, idxEnd))
+                {
+                    LineInfo info = CreateLine(idxStart, idxEnd);
+                    DrawLine(info);
+                }
+
+            }
+            else
+            {
+                if (idx >= 0)
+                {
+
+                }
+                else
+                {
+                    //最后line 动态变化
+                    ptStart = GetItemWorldPos(idxStart);
+                    ptEnd = Common.GetInputPositionWorld(mainCam);
+                    idxEnd = INDEX_END_LAST;//listIndexClick[i];
+                                            // if (!IsLineCreated(idxStart, idxEnd))
+
+
+                    // if (GetLineByName(GetLineName(listIndexClick.Count - 1)) == null)
+                    {
+                        if (!IsLineCreated(idxStart, idxEnd))
+                        {
+                            LineInfo info = CreateLine(idxStart, idxEnd);
+                        }
+                    }
+                    LineInfo last = GetLastLineInfo();
+                    DrawLine(last);
+                }
+
+            }
+
+
+        }
+    }
+    void OnTouchDown()
     {
         int idx = GetTouchItem();
         isStartLine = false;
         isEndLine = false;
-        indexClickPre = -1;
-        indexClickCur = -1;
-
-        Debug.Log("onTouchDown idx=" + idx);
+        isOutOfMaxItemCount = false;
         if (idx >= 0)
         {
+            indexClickPre = idx;
+            indexClickCur = idx;
             ptStart = GetItemWorldPos(idx);
+            Debug.Log("onTouchDown idx=" + idx + " ptStart=" + ptStart);
             isStartLine = true;
-            CreateLine();
-            //OnLetterDidClick(idx);
+            //CreateLine();
+            strLetter = "";
+            uiLetterConnect.UpdateText(strLetter);
+            OnLetterDidClick(idx);
         }
 
     }
-    void onTouchMove()
+    void OnTouchMove2()
+    {
+        int idx = GetTouchItem();
+        if (idx >= 0)
+        {
+            indexClickCur = idx;
+            if (indexClickPre != indexClickCur)
+            {
+                listIndexClick.Add(idx);
+                UpdateConnectWord();
+                indexClickPre = indexClickCur;
+            }
+        }
+        OnDrawLine(idx);
+        //Debug.Log("DestroyLastLineout idx= " + idx + "listIndexClick.Count=" + listIndexClick.Count + " listItem.Count=" + listItem.Count);
+        if (idx >= 0)
+        {
+
+            //往回画线 擦除功能
+            if (listIndexClick.Count >= 3)
+            {
+                int idxLast2 = listIndexClick[listIndexClick.Count - 3];
+                Debug.Log("onTouchMove DestroyLastLine 2 idxLast2=" + idxLast2 + " idx=" + idx + " count=" + listIndexClick.Count);
+                if (idxLast2 == idx)
+                {
+                    Debug.Log("onTouchMove DestroyLastLine 2=");
+                    //删除最后两根线
+                    DestroyLastLine();
+                    DestroyLastLine();
+
+                }
+            }
+
+
+            if (listIndexClick.Count > listItem.Count)
+            {
+                //超出最大个数 
+                // Debug.Log("DestroyLastLineout of max");
+                DestroyLastLine();
+
+            }
+
+        }
+
+
+    }
+
+    void OnTouchMove()
     {
         int idx = GetTouchItem();
         if (isStartLine)
         {
             if (idx >= 0)
             {
-                ptEnd = GetItemWorldPos(idx);
-                isStartLine = false;
-                isEndLine = true;
                 indexClickCur = idx;
                 if (indexClickPre != indexClickCur)
                 {
                     OnLetterDidClick(idx);
+                    ptEnd = GetItemWorldPos(idx);
+                    isStartLine = false;
+                    isEndLine = true;
+                    indexClickPre = indexClickCur;
+                    DrawLine();
                 }
 
-                indexClickPre = indexClickCur;
             }
             else
             {
                 ptEnd = Common.GetInputPositionWorld(mainCam);
-
+                DrawLine();
             }
-            Clear();
-            AddPoint(ptStart);
-            AddPoint(ptEnd);
+
+
+            //
+            if ((listIndexClick.Count >= 3) && (!isOutOfMaxItemCount))
+            {
+                int idxLast2 = listIndexClick[listIndexClick.Count - 3];
+                // Debug.Log("onTouchMove DestroyLastLine 2 idxLast2="+idxLast2+" idx="+idx+" count="+listIndexClick.Count);
+                if (idxLast2 == idx)
+                {
+                    Debug.Log("onTouchMove DestroyLastLine 2=");
+                    //删除最后两根线
+                    DestroyLastLine();
+                    DestroyLastLine();
+
+                }
+            }
+
+
         }
 
-        if (isEndLine)
+
+
+        if (idx >= 0)
         {
-            if (idx >= 0)
+            indexClickCur = idx;
+            // Debug.Log("onTouchMove isEndLine=" + isEndLine + " indexClickPre=" + indexClickPre + " indexClickCur=" + indexClickCur);
+            if (isEndLine)
             {
                 isEndLine = false;
                 isStartLine = true;
-                ptStart = GetItemWorldPos(idx);
-                CreateLine();
+                //  if (listIndexClick.Count < listItem.Count)
+                {
+                    //超出最大个数
+                    // isOutOfMaxItemCount = true;
+                    // DestroyLastLine();
+                    ptStart = GetItemWorldPos(idx);
+                    CreateLine();
+                }
+                indexClickPre = indexClickCur;
             }
+
+
 
         }
     }
-    void onTouchUp()
+    void OnTouchUp()
     {
         int idx = GetTouchItem();
         uiLetterConnect.ShowText(false);
@@ -330,7 +628,9 @@ public class LetterConnect : UIView
         }
         else
         {
-            DestroyLastLine();
+            //  DestroyLastLine();
         }
+        OnCheckAnswer();
+        DestroyAllLine();
     }
 }

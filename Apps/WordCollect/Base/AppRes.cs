@@ -81,7 +81,7 @@ public class AppRes
     public const string IMAGE_GUANKA_BG = "App/UI/Bg/GuankaBg";
     public const string IMAGE_LEARN_BG = "App/UI/Bg/LearnBg";
     public const string IMAGE_SETTING_BG = "App/UI/Bg/SettingBg";
-    public const string IMAGE_HOME_BG = "App/UI/Bg/HomeBg";
+     public const string IMAGE_HOME_BG = Common.GAME_DATA_DIR + "/startup.jpg";
 
     public const string IMAGE_MOREAPP_BG = "App/UI/Bg/GuankaBg";
 

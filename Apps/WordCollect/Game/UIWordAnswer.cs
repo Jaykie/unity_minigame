@@ -23,7 +23,7 @@ public class UIWordAnswer : UIView
         LoadPrefab();
         LayOut();
         UpdateLevel();
-    
+
     }
 
     void LoadPrefab()
@@ -32,13 +32,15 @@ public class UIWordAnswer : UIView
     }
     public override void LayOut()
     {
-
+        RectTransform rctan = uiWordList.GetComponent<RectTransform>();
+        rctan.offsetMax = Vector2.zero;
+        rctan.offsetMin = Vector2.zero;
     }
 
     public void UpdateLevel()
     {
         string str = Language.main.GetString("GAME_LEVEL");
-        int level = LevelManager.main.gameLevel;
+        int level = LevelManager.main.gameLevel + 1;
         if (str.Contains("xxx"))
         {
             str = str.Replace("xxx", level.ToString());
@@ -49,5 +51,7 @@ public class UIWordAnswer : UIView
         }
         textLevel.text = str;
     }
-  
+
+
+
 }
