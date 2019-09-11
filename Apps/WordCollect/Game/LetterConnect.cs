@@ -1,6 +1,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using Moonma.Share;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,7 +12,7 @@ using Vectrosity;
 public interface ILetterConnectDelegate
 {
     void OnLetterConnectDidRightAnswer(LetterConnect lc, int idx);
-
+    void OnLetterConnectDidUpdateItem(LetterConnect lc, int[] itemIndex);
 }
 
 
@@ -48,6 +49,7 @@ public class LetterConnect : UIView
     int indexClickPre;
     int indexClickCur;
     bool isOutOfMaxItemCount;//超出范围
+    int[] rdmItemIndex;
 
     private ILetterConnectDelegate _delegate;
     public ILetterConnectDelegate iDelegate
@@ -73,6 +75,13 @@ public class LetterConnect : UIView
         LayOut();
     }
 
+    /// Start is called on the frame when a script is enabled just before
+    /// any of the Update methods is called the first time.
+    /// </summary>
+    void Start()
+    {
+        InitAnimate();
+    }
     public override void LayOut()
     {
         Vector2 size = Common.GetWorldSize(mainCam);
@@ -87,11 +96,31 @@ public class LetterConnect : UIView
             rctran = item.GetComponent<RectTransform>();
             rctran.sizeDelta = new Vector2(1f, 1f);
             // rctran.anchoredPosition = GetItemPos(i);
-            item.transform.localPosition = GetItemPos(i);
+            item.transform.localPosition = GetItemPos(rdmItemIndex[i]);
         }
 
     }
 
+    public void InitAnimate()
+    {
+        float duration = 0.5f;
+        for (int i = 0; i < listItem.Count; i++)
+        {
+            LetterItem item = listItem[i] as LetterItem;
+            Vector3 posNormal = GetItemPos(rdmItemIndex[i]);
+            item.transform.localPosition = new Vector3(0, 0, posNormal.z);
+            item.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 0));
+            Sequence seq = DOTween.Sequence();
+            Tweener ani1 = item.transform.DOLocalMove(posNormal, duration);
+            float angel = -30 + Random.Range(0, 100) * 60f / 100;
+            Tweener aniAngle1 = item.transform.DOLocalRotate(new Vector3(0, 0, angel), duration);
+            seq.Append(ani1).Join(aniAngle1);
+        }
+        if (iDelegate != null)
+        {
+            iDelegate.OnLetterConnectDidUpdateItem(this, rdmItemIndex);
+        }
+    }
     public void UpdateItem()
     {
         strLetter = "";
@@ -107,6 +136,14 @@ public class LetterConnect : UIView
             //rctran.anchoredPosition = GetItemPos(i);
             item.UpdateItem(info.listLetter[i]);
             listItem.Add(item);
+        }
+
+
+        rdmItemIndex = Common.RandomIndex(listItem.Count, listItem.Count);
+
+        if (iDelegate != null)
+        {
+            iDelegate.OnLetterConnectDidUpdateItem(this, rdmItemIndex);
         }
     }
     public Vector3 GetItemPos(int idx)
@@ -178,6 +215,8 @@ public class LetterConnect : UIView
     {
         listIndexClick.Add(idx);
         UpdateConnectWord();
+        LetterItem item = GetItem(idx);
+        item.OnItemDidSelect();
     }
 
 
@@ -341,6 +380,32 @@ public class LetterConnect : UIView
         }
     }
 
+    public void OnClickAgain()
+    {
+        float duration = 0.5f;
+        rdmItemIndex = Common.RandomIndex(listItem.Count, listItem.Count);
+        for (int i = 0; i < listItem.Count; i++)
+        {
+            LetterItem item = listItem[i] as LetterItem;
+            Vector3 posNormal = GetItemPos(rdmItemIndex[i]);
+            Sequence seq = DOTween.Sequence();
+            Tweener ani0 = item.transform.DOLocalMove(new Vector3(0, 0, posNormal.z), duration);
+            Tweener aniAngle0 = item.transform.DOLocalRotate(new Vector3(0, 0, 0), duration);
+
+            Tweener ani1 = item.transform.DOLocalMove(posNormal, duration);
+
+            float angel = -30 + Random.Range(0, 100) * 60f / 100;
+            Tweener aniAngle1 = item.transform.DOLocalRotate(new Vector3(0, 0, angel), duration);
+
+            seq.Append(ani0).Join(aniAngle0).AppendInterval(duration / 10).Append(ani1).Join(aniAngle1);
+        }
+
+        if (iDelegate != null)
+        {
+            iDelegate.OnLetterConnectDidUpdateItem(this, rdmItemIndex);
+        }
+
+    }
     public void OnUITouchEvent(UITouchEvent ev, PointerEventData eventData, int status)
     {
         switch (status)
@@ -349,7 +414,7 @@ public class LetterConnect : UIView
                 OnTouchDown();
                 break;
             case UITouchEvent.STATUS_TOUCH_MOVE:
-                OnTouchMove2();
+                OnTouchMove();
                 break;
             case UITouchEvent.STATUS_TOUCH_UP:
                 OnTouchUp();
@@ -502,7 +567,7 @@ public class LetterConnect : UIView
         }
 
     }
-    void OnTouchMove2()
+    void OnTouchMove()
     {
         int idx = GetTouchItem();
         if (idx >= 0)
@@ -510,8 +575,7 @@ public class LetterConnect : UIView
             indexClickCur = idx;
             if (indexClickPre != indexClickCur)
             {
-                listIndexClick.Add(idx);
-                UpdateConnectWord();
+                OnLetterDidClick(idx);
                 indexClickPre = indexClickCur;
             }
         }
@@ -524,10 +588,12 @@ public class LetterConnect : UIView
             if (listIndexClick.Count >= 3)
             {
                 int idxLast2 = listIndexClick[listIndexClick.Count - 3];
-                Debug.Log("onTouchMove DestroyLastLine 2 idxLast2=" + idxLast2 + " idx=" + idx + " count=" + listIndexClick.Count);
+                // Debug.Log("onTouchMove DestroyLastLine 2 idxLast2=" + idxLast2 + " idx=" + idx + " count=" + listIndexClick.Count);
                 if (idxLast2 == idx)
                 {
-                    Debug.Log("onTouchMove DestroyLastLine 2=");
+                    //Debug.Log("onTouchMove DestroyLastLine 2=");
+                    LetterItem item = GetItem(listIndexClick[listIndexClick.Count - 2]);
+                    item.OnItemDidUnSelect();
                     //删除最后两根线
                     DestroyLastLine();
                     DestroyLastLine();
@@ -549,75 +615,6 @@ public class LetterConnect : UIView
 
     }
 
-    void OnTouchMove()
-    {
-        int idx = GetTouchItem();
-        if (isStartLine)
-        {
-            if (idx >= 0)
-            {
-                indexClickCur = idx;
-                if (indexClickPre != indexClickCur)
-                {
-                    OnLetterDidClick(idx);
-                    ptEnd = GetItemWorldPos(idx);
-                    isStartLine = false;
-                    isEndLine = true;
-                    indexClickPre = indexClickCur;
-                    DrawLine();
-                }
-
-            }
-            else
-            {
-                ptEnd = Common.GetInputPositionWorld(mainCam);
-                DrawLine();
-            }
-
-
-            //
-            if ((listIndexClick.Count >= 3) && (!isOutOfMaxItemCount))
-            {
-                int idxLast2 = listIndexClick[listIndexClick.Count - 3];
-                // Debug.Log("onTouchMove DestroyLastLine 2 idxLast2="+idxLast2+" idx="+idx+" count="+listIndexClick.Count);
-                if (idxLast2 == idx)
-                {
-                    Debug.Log("onTouchMove DestroyLastLine 2=");
-                    //删除最后两根线
-                    DestroyLastLine();
-                    DestroyLastLine();
-
-                }
-            }
-
-
-        }
-
-
-
-        if (idx >= 0)
-        {
-            indexClickCur = idx;
-            // Debug.Log("onTouchMove isEndLine=" + isEndLine + " indexClickPre=" + indexClickPre + " indexClickCur=" + indexClickCur);
-            if (isEndLine)
-            {
-                isEndLine = false;
-                isStartLine = true;
-                //  if (listIndexClick.Count < listItem.Count)
-                {
-                    //超出最大个数
-                    // isOutOfMaxItemCount = true;
-                    // DestroyLastLine();
-                    ptStart = GetItemWorldPos(idx);
-                    CreateLine();
-                }
-                indexClickPre = indexClickCur;
-            }
-
-
-
-        }
-    }
     void OnTouchUp()
     {
         int idx = GetTouchItem();

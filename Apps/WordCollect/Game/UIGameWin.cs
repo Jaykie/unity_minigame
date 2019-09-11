@@ -16,13 +16,10 @@ public class UIGameWin : UIViewPop, ISegmentDelegate
     public const string KEY_GAMEWIN_INFO_AUTHOR_INTRO = "KEY_GAMEWIN_INFO_AUTHOR_INTRO";
 
 
-
-
-    public UISegment uiSegment;
     public UITextView textView;
     public Text textTitle;
     public Image imageBg;
-    public Image imageHead;
+    public RawImage imageHead;
     public Button btnClose;
 
     public Button btnFriend;
@@ -43,16 +40,12 @@ public class UIGameWin : UIViewPop, ISegmentDelegate
         //Common.SetButtonText(btnAddLove, Language.main.GetString("STR_GameWin_BtnAddLove"));
 
         string str = info.title;
-        if (Common.BlankString(str))
-        {
-            str = LanguageManager.main.languageGame.GetString(info.id);
-        }
+     
         textTitle.text = str;
 
         textView.SetFontSize(80);
         textView.SetTextColor(new Color32(192, 90, 59, 255));
 
-        InitSegment();
     }
 
     /// <summary>
@@ -70,56 +63,6 @@ public class UIGameWin : UIViewPop, ISegmentDelegate
 
     }
 
-
-    public void InitSegment()
-    {
-
-        indexSegment = 0;
-        uiSegment.InitValue(64, Color.red, Color.black);
-        uiSegment.iDelegate = this;
-
-        //简介
-        {
-            ItemInfo infoSeg = new ItemInfo();
-            infoSeg.id = KEY_GAMEWIN_INFO_INTRO;
-            infoSeg.title = Language.main.GetString(infoSeg.id);
-            uiSegment.AddItem(infoSeg);
-        }
-        //原文
-        {
-            ItemInfo infoSeg = new ItemInfo();
-            infoSeg.id = KEY_GAMEWIN_INFO_YUANWEN;
-            infoSeg.title = Language.main.GetString(infoSeg.id);
-            uiSegment.AddItem(infoSeg);
-        }
-        //翻译
-        {
-            ItemInfo infoSeg = new ItemInfo();
-            infoSeg.id = KEY_GAMEWIN_INFO_TRANSLATION;
-            infoSeg.title = Language.main.GetString(infoSeg.id);
-            uiSegment.AddItem(infoSeg);
-        }
-        //赏析
-        {
-            ItemInfo infoSeg = new ItemInfo();
-            infoSeg.id = KEY_GAMEWIN_INFO_JIANSHUANG;
-            infoSeg.title = Language.main.GetString(infoSeg.id);
-            uiSegment.AddItem(infoSeg);
-        }
-        //作者简介
-        // {
-        //     ItemInfo infoSeg = new ItemInfo();
-        //     infoSeg.id = KEY_GAMEWIN_INFO_AUTHOR_INTRO;
-        //     infoSeg.title = Language.main.GetString(infoSeg.id);
-        //     uiSegment.AddItem(infoSeg);
-        // }
-
-        if (uiSegment != null)
-        {
-            uiSegment.UpdateList();
-        }
-        uiSegment.Select(indexSegment, true);
-    }
     public override void LayOut()
     {
         float x = 0, y = 0, w = 0, h = 0;

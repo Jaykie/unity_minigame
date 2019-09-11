@@ -22,7 +22,7 @@ public class UIWordAnswer : UIView
     {
         LoadPrefab();
         LayOut();
-        UpdateLevel();
+        // UpdateItem();
 
     }
 
@@ -35,6 +35,13 @@ public class UIWordAnswer : UIView
         RectTransform rctan = uiWordList.GetComponent<RectTransform>();
         rctan.offsetMax = Vector2.zero;
         rctan.offsetMin = Vector2.zero;
+        uiWordList.LayOut();
+    }
+
+    public void UpdateItem()
+    {
+        UpdateLevel();
+        uiWordList.UpdateItem();
     }
 
     public void UpdateLevel()

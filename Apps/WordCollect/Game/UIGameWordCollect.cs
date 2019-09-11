@@ -9,7 +9,7 @@ using UnityEngine.UI;
 https://apps.apple.com/cn/app/id1299956969
 https://www.taptap.com/app/72589
  */
-public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate
+public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterConnectDelegate
 {
     public GameObject objTopbar;
     public Image imageTopbar;
@@ -18,6 +18,12 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate
     public UILetterConnect uiLetterConnect;
     //prefab 
     public GameWordCollect gamePrefab;
+
+    public GameObject objGoldBar;
+    public Image imageGoldBg;
+    public Text textGold;
+
+
     GameWordCollect game;
 
     float barHeightCanvas = 160;
@@ -29,7 +35,8 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate
     {
         LoadPrefab();
         InitBg();
-
+        uiLetterConnect.iDelegate = this;
+        UpdateGold();
         LayOut();
 
     }
@@ -41,7 +48,6 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate
     {
         //LayoutChild 必须在前面执行
         UpdateGuankaLevel(LevelManager.main.gameLevel);
-        LayOut();
         float delaytime = 0.1f * 10;
         Invoke("OnUIDidFinish", delaytime);
     }
@@ -113,7 +119,9 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate
         game.UpdateGuankaLevel(level);
         game.letterConnect.uiLetterConnect = uiLetterConnect;
         game.letterConnect.iDelegate = this;
-
+        uiLetterConnect.UpdateItem();
+        uiWordAnswer.UpdateItem();
+        LayOut();
     }
 
 
@@ -128,10 +136,44 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate
     {
         ShopViewController.main.Show(null, null);
     }
+
+
+    void UpdateGold()
+    {
+        string str = Language.main.GetString("STR_GOLD") + ":" + Common.gold.ToString();
+        textGold.text = str;
+        int fontsize = textGold.fontSize;
+        float str_w = Common.GetStringLength(str, AppString.STR_FONT_NAME, fontsize);
+        RectTransform rctran = objGoldBar.transform as RectTransform;
+        Vector2 sizeDelta = rctran.sizeDelta;
+        sizeDelta.x = str_w + fontsize;
+        rctran.sizeDelta = sizeDelta;
+    }
+    public void OnNotEnoughGold(bool isUpdate)
+    {
+        if (isUpdate)
+        {
+            UpdateGold();
+        }
+        else
+        {
+            string title = Language.main.GetString(AppString.STR_UIVIEWALERT_TITLE_NOT_ENOUGH_GOLD);
+            string msg = Language.main.GetString(AppString.STR_UIVIEWALERT_MSG_NOT_ENOUGH_GOLD);
+            string yes = Language.main.GetString(AppString.STR_UIVIEWALERT_YES_NOT_ENOUGH_GOLD);
+            string no = Language.main.GetString(AppString.STR_UIVIEWALERT_NO_NOT_ENOUGH_GOLD);
+
+            ViewAlertManager.main.ShowFull(title, msg, yes, no, false, STR_KEYNAME_VIEWALERT_GOLD, OnUIViewAlertFinished);
+        }
+
+    }
     void OnGameWin()
     {
-        LevelManager.main.gameLevelFinish = LevelManager.main.gameLevel;
+        if (!uiWordAnswer.uiWordList.IsGameWin())
+        {
+            return;
+        }
 
+        LevelManager.main.gameLevelFinish = LevelManager.main.gameLevel;
 
         int step_gold = AppRes.GOLD_GUANKA_STEP;//5
 
@@ -141,9 +183,24 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate
             Common.gold += AppRes.GOLD_GUANKA;
         }
         ShowAdInsert(GAME_AD_INSERT_SHOW_STEP, false);
+        PopUpManager.main.Show<UIGameWin>("App/Prefab/Game/UIGameWin");
     }
 
+    void OnUIViewAlertFinished(UIViewAlert alert, bool isYes)
+    {
 
+
+        if (STR_KEYNAME_VIEWALERT_GOLD == alert.keyName)
+        {
+            if (isYes)
+            {
+                ShowShop();
+            }
+        }
+
+
+
+    }
     //
     public void OnLetterConnectDidRightAnswer(LetterConnect lc, int idx)
     {
@@ -151,18 +208,56 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate
         if (item.GetItem(0).GetStatus() == UILetterItem.Status.LOCK)
         {
             item.SetStatus(UILetterItem.Status.UNLOCK);
+            uiLetterConnect.RunItemAnimate(lc, item);
         }
         else if (item.GetItem(0).GetStatus() == UILetterItem.Status.UNLOCK)
         {
             item.SetStatus(UILetterItem.Status.DUPLICATE);
         }
+        Invoke("OnGameWin", uiLetterConnect.durationAnimate);
+    }
 
-        if (uiWordAnswer.uiWordList.IsGameWin())
+
+    public void OnLetterConnectDidUpdateItem(LetterConnect lc, int[] itemIndex)
+    {
+        if (uiLetterConnect != null)
         {
-            PopUpManager.main.Show<UIGameWin>("App/Prefab/Game/UIGameWin");
+            uiLetterConnect.OnLetterConnectDidUpdateItem(lc, itemIndex);
         }
     }
     //
+
+    public void OnUILetterConnectDidAgain(UILetterConnect ui)
+    {
+        if (game != null)
+        {
+            game.letterConnect.OnClickAgain();
+        }
+    }
+    public void OnUILetterConnectDidTips(UILetterConnect ui)
+    {
+        if (Common.gold <= 0)
+        {
+            OnNotEnoughGold(false);
+            return;
+        }
+
+        Common.gold--;
+        if (Common.gold < 0)
+        {
+            Common.gold = 0;
+        }
+        OnNotEnoughGold(true);
+
+        UICellWord item = uiWordAnswer.uiWordList.GetFirstLockItem();
+        if (item != null)
+        {
+            item.SetStatus(UILetterItem.Status.UNLOCK);
+        }
+        OnGameWin();
+    }
+
+
 
 }
 

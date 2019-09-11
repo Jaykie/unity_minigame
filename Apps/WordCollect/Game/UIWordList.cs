@@ -19,7 +19,7 @@ public class UIWordList : UIView
     {
         listItem = new List<UICellWord>();
         LoadPrefab();
-        UpdateItem();
+        //UpdateItem();
         LayOut();
     }
 
@@ -29,12 +29,26 @@ public class UIWordList : UIView
     }
     public override void LayOut()
     {
+        LayOutVertical ly = objScrollContent.GetComponent<LayOutVertical>();
+        if (ly != null)
+        {
+            ly.LayOut();
+        }
+    }
 
+    public void Clear()
+    {
+        foreach (UICellWord item in listItem)
+        {
+            DestroyImmediate(item.gameObject);
+        }
+        listItem.Clear();
     }
 
     public void UpdateItem()
     {
         float x, y, w, h;
+        Clear();
         WordItemInfo info = GameGuankaParse.main.GetItemInfo();
         int len = info.listAnswer.Length;
         float w_item = 128f;
@@ -54,6 +68,11 @@ public class UIWordList : UIView
             item.UpdateItem();
             listItem.Add(item);
         }
+        LayOutVertical ly = objScrollContent.GetComponent<LayOutVertical>();
+        if (ly != null)
+        {
+            ly.LayOut();
+        }
     }
 
     public UICellWord GetItem(int idx)
@@ -62,6 +81,22 @@ public class UIWordList : UIView
         return item;
     }
 
+    //
+    public UICellWord GetFirstLockItem()
+    {
+        UICellWord ret = null;
+        foreach (UICellWord item in listItem)
+        {
+            UILetterItem ltitem = item.GetItem(0);
+            if (ltitem.GetStatus() == UILetterItem.Status.LOCK)
+            {
+                ret = item;
+                break;
+            }
+
+        }
+        return ret;
+    }
     public void SetStatus(int idx, UILetterItem.Status st)
     {
         UICellWord item = GetItem(idx);
