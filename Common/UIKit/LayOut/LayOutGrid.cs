@@ -18,7 +18,7 @@ public class LayOutGrid : LayOutBase
         LayOut();
     }
     // r 行 ; c 列  返回中心位置
-    public Vector2 GetItemPostion(int r, int c)
+    public Vector2 GetItemPostion(int r, int c, GameObject obj)
     {
         float x, y, w, h;
         RectTransform rctran = this.gameObject.GetComponent<RectTransform>();
@@ -29,6 +29,28 @@ public class LayOutGrid : LayOutBase
 
         x = -w / 2 + item_w * c + item_w / 2 + space.x * c;
         y = -h / 2 + item_h * r + item_h / 2 + space.y * r;
+
+        RectTransform rctranItem = obj.GetComponent<RectTransform>(); if (alignX == Align.LEFT)
+        {
+            item_w = rctranItem.rect.width;
+            x = -w / 2 + (item_w + space.x) * c + item_w / 2;
+        }
+        if (alignX == Align.RIGHT)
+        {
+            item_w = rctranItem.rect.width;
+            x = w / 2 - (item_w + space.x) * (col - 1 - c) - item_w / 2;
+        }
+
+        if (alignY == Align.BOTTOM)
+        {
+            item_h = rctranItem.rect.height;
+            y = -h / 2 + (item_h + space.y) * r + item_h / 2;
+        }
+        if (alignY == Align.TOP)
+        {
+            item_h = rctranItem.rect.height;
+            y = h / 2 - (item_h + space.y) * (row - 1 - r) - item_h / 2;
+        }
 
         return new Vector2(x, y);
 
@@ -82,7 +104,7 @@ public class LayOutGrid : LayOutBase
             //从顶部往底部显示
             r = row - 1 - r;
 
-            Vector2 pt = GetItemPostion(r, c);
+            Vector2 pt = GetItemPostion(r, c, objtmp);
             RectTransform rctran = child.gameObject.GetComponent<RectTransform>();
             if (rctran != null)
             {

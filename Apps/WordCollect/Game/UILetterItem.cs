@@ -54,7 +54,7 @@ public class UILetterItem : UIView
             imageIcon.gameObject.SetActive(false);
 
             // 10 秒内， 物体 X,Y,Z 旋转角度在 自身-5 到 自身加 5 之间震动 
-            this.transform.DOShakeRotation(1f, new Vector3(0, 0, 10)).OnComplete(() =>
+            this.transform.DOShakeRotation(1f, new Vector3(0, 0, 30)).OnComplete(() =>
                {
                    SetStatus(Status.UNLOCK);
                });

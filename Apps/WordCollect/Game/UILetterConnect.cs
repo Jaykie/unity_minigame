@@ -140,9 +140,9 @@ public class UILetterConnect : UIView
         }
 
     }
-    void OnClickBtnLetter()
+    public void OnClickBtnHelp()
     {
-
+        HowToPlayViewController.main.Show(null, null);
     }
 
     public void OnClickAgain()

@@ -12,12 +12,14 @@ public class UIWordList : UIView
     public UICellWord uiCellWordPrefab;
 
     public List<UICellWord> listItem;
+    int colTotal;
     /// <summary>
     /// Awake is called when the script instance is being loaded.
     /// </summary>
     void Awake()
     {
         listItem = new List<UICellWord>();
+        colTotal = 1;
         LoadPrefab();
         //UpdateItem();
         LayOut();
@@ -29,13 +31,32 @@ public class UIWordList : UIView
     }
     public override void LayOut()
     {
-        LayOutVertical ly = objScrollContent.GetComponent<LayOutVertical>();
+        float x, y, w, h;
+        LayOutGrid ly = objScrollContent.GetComponent<LayOutGrid>();
         if (ly != null)
         {
             ly.LayOut();
         }
-    }
 
+        RectTransform rctran = this.GetComponent<RectTransform>();
+        SetContentHeight(rctran.rect.height);
+
+        foreach (UICellWord item in listItem)
+        {
+
+            RectTransform rctranCell = item.GetComponent<RectTransform>();
+            w = rctran.rect.width / colTotal;
+            h = rctranCell.rect.height;
+            rctranCell.sizeDelta = new Vector2(w, h);
+
+            item.LayOut();
+        }
+    }
+    public void SetContentHeight(float h)
+    {
+        RectTransform rctran = objScrollContent.GetComponent<RectTransform>();
+        rctran.sizeDelta = new Vector2(rctran.sizeDelta.x, h);
+    }
     public void Clear()
     {
         foreach (UICellWord item in listItem)
@@ -51,16 +72,39 @@ public class UIWordList : UIView
         Clear();
         WordItemInfo info = GameGuankaParse.main.GetItemInfo();
         int len = info.listAnswer.Length;
+        RectTransform rctran = this.GetComponent<RectTransform>();
+        RectTransform rctranCell = uiCellWordPrefab.GetComponent<RectTransform>();
         float w_item = 128f;
-        float h_item = 128f;
+        float h_item = rctranCell.rect.height;
+        int row_display = (int)(rctran.rect.height / h_item);
+        if ((int)(rctran.rect.height) % (int)h_item != 0)
+        {
+            row_display++;
+        }
+
+        LayOutGrid ly = objScrollContent.GetComponent<LayOutGrid>();
+        colTotal = 1;
+        ly.row = len;
+        Debug.Log("len = " + len + " row_display=" + row_display + " rctran.rect.height=" + rctran.rect.height + " h_item=" + h_item);
+
+        if (len > row_display)
+        {
+            colTotal = 2;
+            ly.row = row_display;
+        }
+
+
+        ly.col = colTotal;
+
+
         for (int i = 0; i < len; i++)
         {
             UICellWord item = GameObject.Instantiate(uiCellWordPrefab);
-            RectTransform rctran = this.GetComponent<RectTransform>();
+
             string word = info.listAnswer[i];
             w = w_item * word.Length;
             h = h_item;
-            rctran.sizeDelta = new Vector2(w, h);
+            // rctran.sizeDelta = new Vector2(w, h);
             item.index = i;
             item.transform.SetParent(objScrollContent.transform);
             item.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
@@ -68,11 +112,8 @@ public class UIWordList : UIView
             item.UpdateItem();
             listItem.Add(item);
         }
-        LayOutVertical ly = objScrollContent.GetComponent<LayOutVertical>();
-        if (ly != null)
-        {
-            ly.LayOut();
-        }
+
+        LayOut();
     }
 
     public UICellWord GetItem(int idx)

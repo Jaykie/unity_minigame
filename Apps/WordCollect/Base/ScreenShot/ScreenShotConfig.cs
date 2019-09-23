@@ -7,7 +7,7 @@ public class ScreenShotConfig
     public ShotDeviceInfo deviceInfo;
     public int GetTotalPage()
     {
-        return 4;
+        return 5;
     }
     public ShotItemInfo GetPage(ShotDeviceInfo dev, int idx)
     {
@@ -41,11 +41,17 @@ public class ScreenShotConfig
                     controller = GuankaViewController.main;
                     break;
                 case 2:
+                    LevelManager.main.gameLevel = 0;
                     controller = GameViewController.main;
                     break;
                 case 3:
-                    // controller = HowToPlayViewController.main;
+                    controller = HowToPlayViewController.main;
                     break;
+                case 4:
+                    LevelManager.main.gameLevel = 1;
+                    controller = GameViewController.main;
+                    break;
+
                 default:
                     controller = HomeViewController.main;
                     break;

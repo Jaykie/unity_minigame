@@ -59,9 +59,10 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
     }
     public override void LayOut()
     {
-        float x, y, z, w, h;
+        float x, y, z = 0, w = 0, h = 0;
         Vector2 sizeWorld = Common.GetWorldSize(mainCam);
         Vector2 sizeCanvas = this.frame.size;
+        float ratio = 1f;
         if (sizeCanvas.x <= 0)
         {
             return;
@@ -73,30 +74,51 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
         //letter connect
         if (uiLetterConnect != null)
         {
+            ratio = GameWordCollect.RATIO_RECT;
             RectTransform rctan = uiLetterConnect.GetComponent<RectTransform>();
             float oft_bottom = GameManager.main.heightAdCanvas;// + Common.ScreenToCanvasHeigt(sizeCanvas, Device.offsetBottom);
-            w = sizeCanvas.x;
-            h = sizeCanvas.y / 2 - oft_bottom;
+            if (Device.isLandscape)
+            {
+                h = (sizeCanvas.y - oft_bottom * 2) * ratio;
+                w = (sizeCanvas.x / 2) * ratio;
+                y = 0;
+                x = sizeCanvas.x / 4;
+            }
+            else
+            {
+                w = sizeCanvas.x * ratio;
+                h = (sizeCanvas.y / 2 - oft_bottom) * ratio;
+                x = 0;
+                y = (-sizeCanvas.y / 2 + oft_bottom) / 2;
+            }
             rctan.sizeDelta = new Vector2(w, h);
-
-            x = 0;
-            y = (-sizeCanvas.y / 2 + oft_bottom) / 2;
             rctan.anchoredPosition = new Vector2(x, y);
             uiLetterConnect.LayOut();
         }
 
-
+        float oft_top = 160f;
         //word answer
         if (uiWordAnswer != null)
         {
+            ratio = GameWordCollect.RATIO_RECT;
             RectTransform rctan = uiWordAnswer.GetComponent<RectTransform>();
-            float oft_top = 160f;
-            w = sizeCanvas.x;
-            h = sizeCanvas.y / 2 - oft_top;
-            rctan.sizeDelta = new Vector2(w, h);
 
-            x = 0;
-            y = (sizeCanvas.y / 2 - oft_top) / 2;
+            if (Device.isLandscape)
+            {
+                h = (sizeCanvas.y - oft_top * 2) * ratio;
+                w = (sizeCanvas.x / 2) * ratio;
+                y = 0;
+                x = -sizeCanvas.x / 4;
+            }
+            else
+            {
+                w = sizeCanvas.x * ratio;
+                h = (sizeCanvas.y / 2 - oft_top) * ratio;
+                x = 0;
+                y = (sizeCanvas.y / 2 - oft_top) / 2;
+            }
+
+            rctan.sizeDelta = new Vector2(w, h);
             rctan.anchoredPosition = new Vector2(x, y);
             uiWordAnswer.LayOut();
         }
@@ -119,11 +141,37 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
         game.UpdateGuankaLevel(level);
         game.letterConnect.uiLetterConnect = uiLetterConnect;
         game.letterConnect.iDelegate = this;
+
+        UpdateLevelTitle();
+        //UpdateItem 先layout一次
+        LayOut();
+
         uiLetterConnect.UpdateItem();
         uiWordAnswer.UpdateItem();
         LayOut();
     }
 
+
+    public void UpdateLevelTitle()
+    {
+        string str = Language.main.GetString("GAME_LEVEL");
+        int level = LevelManager.main.gameLevel + 1;
+        if (str.Contains("xxx"))
+        {
+            str = str.Replace("xxx", level.ToString());
+        }
+        else
+        {
+            str += level.ToString();
+        }
+        textTitle.text = str;
+
+        {
+            RectTransform rctran = imageTopbar.GetComponent<RectTransform>();
+            float w = Common.GetStringLength(textTitle.text, AppString.STR_FONT_NAME, textTitle.fontSize) + textTitle.fontSize;
+            rctran.sizeDelta = new Vector2(w, rctran.sizeDelta.y);
+        }
+    }
 
 
 
@@ -213,6 +261,7 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
         else if (item.GetItem(0).GetStatus() == UILetterItem.Status.UNLOCK)
         {
             item.SetStatus(UILetterItem.Status.DUPLICATE);
+            AudioPlay.main.PlayFile(GameRes.Audio_WordDuplicate);
         }
         Invoke("OnGameWin", uiLetterConnect.durationAnimate);
     }
@@ -258,6 +307,10 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
     }
 
 
+    public void OnClickGold()
+    {
+        ShowShop();
+    }
 
 }
 

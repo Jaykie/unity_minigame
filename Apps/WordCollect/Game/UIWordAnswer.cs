@@ -33,30 +33,16 @@ public class UIWordAnswer : UIView
     public override void LayOut()
     {
         RectTransform rctan = uiWordList.GetComponent<RectTransform>();
-        rctan.offsetMax = Vector2.zero;
-        rctan.offsetMin = Vector2.zero;
+        float oft = 40;
+        rctan.offsetMax = new Vector2(-oft, -oft);
+        rctan.offsetMin = new Vector2(oft, oft);
         uiWordList.LayOut();
     }
 
     public void UpdateItem()
     {
-        UpdateLevel();
+        // UpdateLevel();
         uiWordList.UpdateItem();
-    }
-
-    public void UpdateLevel()
-    {
-        string str = Language.main.GetString("GAME_LEVEL");
-        int level = LevelManager.main.gameLevel + 1;
-        if (str.Contains("xxx"))
-        {
-            str = str.Replace("xxx", level.ToString());
-        }
-        else
-        {
-            str += level.ToString();
-        }
-        textLevel.text = str;
     }
 
 

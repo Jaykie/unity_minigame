@@ -94,7 +94,16 @@ public class LetterConnect : UIView
         {
             LetterItem item = listItem[i] as LetterItem;
             rctran = item.GetComponent<RectTransform>();
-            rctran.sizeDelta = new Vector2(1f, 1f);
+            float sz = 0f;
+            if (Device.isLandscape)
+            {
+                sz = 1.2f;
+            }
+            else
+            {
+                sz = 1f;
+            }
+            rctran.sizeDelta = new Vector2(sz, sz);
             // rctran.anchoredPosition = GetItemPos(i);
             item.transform.localPosition = GetItemPos(rdmItemIndex[i]);
         }
@@ -267,7 +276,7 @@ public class LetterConnect : UIView
         //AppSceneBase.main.AddObjToMainWorld(objLine);
         objLine.transform.parent = this.transform;
         objLine.transform.localScale = new Vector3(1f, 1f, 1f);
-        objLine.transform.localPosition = Vector3.zero;
+        objLine.transform.localPosition = new Vector3(0f, 0f, -10f);
         lineConnect.material = matLine;
         lineConnect.color = Color.red;
         indexLine++;
@@ -373,10 +382,12 @@ public class LetterConnect : UIView
             {
                 iDelegate.OnLetterConnectDidRightAnswer(this, idx);
             }
+            AudioPlay.main.PlayFile(GameRes.Audio_WordRight);
         }
         else
         {
             //error
+            AudioPlay.main.PlayFile(GameRes.Audio_WordError);
         }
     }
 
@@ -629,5 +640,11 @@ public class LetterConnect : UIView
         }
         OnCheckAnswer();
         DestroyAllLine();
+
+        for (int i = 0; i < listItem.Count; i++)
+        {
+            LetterItem item = listItem[i] as LetterItem;
+            item.OnItemDidUnSelect();
+        }
     }
 }

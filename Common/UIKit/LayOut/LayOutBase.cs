@@ -4,9 +4,20 @@ using UnityEngine;
 
 public class LayOutBase : MonoBehaviour
 {
+    public enum Align
+    {
+        LEFT = 0,
+        RIGHT = 1,
+        CENTER = 2,
+        TOP = 3,
+        BOTTOM = 4
+    }
+
     public bool enableLayout = true;
     public bool enableHide = true;//是否过虑Hide
     public Vector2 space = Vector2.zero;
+    public Align alignX = Align.CENTER;
+    public Align alignY = Align.CENTER;
     public virtual void LayOut()
     {
 

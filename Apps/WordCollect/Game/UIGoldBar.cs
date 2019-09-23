@@ -15,11 +15,11 @@ public class UIGoldBar : UIView, IPopViewControllerDelegate
     void Awake()
     {
         UpdateGold();
-        LayOutChild();
+        LayOut();
     }
 
 
-    void LayOutChild()
+    public override void LayOut()
     {
 
     }

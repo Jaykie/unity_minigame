@@ -27,8 +27,6 @@ public class AppRes
     public const string AUDIO_SUCCESS_1 = "AppCommon/Audio/success-1";
     public const string AUDIO_SUCCESS_2 = "AppCommon/Audio/success-2";
 
-    public const string IMAGE_BtnSoundOn = "App/UI/Home/BtnSoundOn";
-    public const string IMAGE_BtnSoundOff = "App/UI/Home/BtnSoundOff";
     //
     public const string Audio_PopupOpen = "AppCommon/Audio/PopUp/PopupOpen";
     public const string Audio_PopupClose = "AppCommon/Audio/PopUp/PopupClose";
@@ -48,8 +46,11 @@ public class AppRes
     public const string IMAGE_UIVIEWALERT_BG_BTN = "App/UI/Setting/SettingCellBgOringe";
     static public Vector4 borderUIViewAlertBgBtn = new Vector4(18f, 18f, 18f, 18);
 
-    public const string IMAGE_BtnMusicOn = "AppCommon/UI/Home/BtnMusicOn";
-    public const string IMAGE_BtnMusicOff = "AppCommon/UI/Home/BtnMusicOff";
+
+    public const string IMAGE_BtnSoundOn = "App/UI/Home/BtnSoundOn";
+    public const string IMAGE_BtnSoundOff = "App/UI/Home/BtnSoundOff";
+    public const string IMAGE_BtnMusicOn = "App/UI/Home/BtnMusicOn";
+    public const string IMAGE_BtnMusicOff = "App/UI/Home/BtnMusicOff";
     public const string IMAGE_LOGO = "App/UI/Home/Logo";
 
     public const string IMAGE_GUANKA_ITEM_DOT0 = "App/UI/Guanka/dot0";
@@ -81,7 +82,7 @@ public class AppRes
     public const string IMAGE_GUANKA_BG = "App/UI/Bg/GuankaBg";
     public const string IMAGE_LEARN_BG = "App/UI/Bg/LearnBg";
     public const string IMAGE_SETTING_BG = "App/UI/Bg/SettingBg";
-     public const string IMAGE_HOME_BG = Common.GAME_DATA_DIR + "/startup.jpg";
+    public const string IMAGE_HOME_BG = Common.GAME_DATA_DIR + "/startup.jpg";
 
     public const string IMAGE_MOREAPP_BG = "App/UI/Bg/GuankaBg";
 

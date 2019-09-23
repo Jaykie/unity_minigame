@@ -31,14 +31,30 @@ public class UICellWord : UIView
     }
     public override void LayOut()
     {
+        LayOutBase lay = this.GetComponent<LayOutBase>();
+        if (lay != null)
+        {
+            lay.LayOut();
+        }
 
     }
 
-    public void UpdateItem()
+    public void UpdateItem(bool isHowToPlay = false)
     {
         WordItemInfo info = GameGuankaParse.main.GetItemInfo();
         string word = info.listAnswer[index];
         int len = word.Length;
+        if (isHowToPlay)
+        {
+            if (index == 0)
+            {
+                word = "SO";
+            }
+            if (index == 1)
+            {
+                word = "SOL";
+            }
+        }
         for (int i = 0; i < len; i++)
         {
             UILetterItem item = GameObject.Instantiate(uiLetterItemPrefab);
@@ -46,6 +62,18 @@ public class UICellWord : UIView
             item.transform.SetParent(this.transform);
             item.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
             item.UpdateItem(word.Substring(i, 1));
+            if (isHowToPlay)
+            {
+                if (index == 0)
+                {
+                    item.SetStatus(UILetterItem.Status.UNLOCK);
+                }
+                if (index == 1)
+                {
+                    item.SetStatus(UILetterItem.Status.LOCK);
+                }
+            }
+
             listItem.Add(item);
         }
     }
