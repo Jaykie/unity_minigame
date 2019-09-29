@@ -41,7 +41,9 @@ public class UIPlaceController : UIPlaceBase, ITableViewDataSource
             case AppType.PAINT:
                 heightCell = 400;
                 break;
-
+            case AppType.WORDCONNECT:
+                heightCell = 360;
+                break;
             default:
                 //
                 heightCell = 512;
@@ -90,9 +92,13 @@ public class UIPlaceController : UIPlaceBase, ITableViewDataSource
         {
             oneCellNum++;
         }
+        Debug.Log(" heightCell=" + heightCell);
+        heightCell = (int)(sizeCanvas.x / oneCellNum); ;
+
+
         int total = listItem.Count;
         totalItem = total;
-        Debug.Log("total:" + total + " oneCellNum=" + oneCellNum);
+        Debug.Log("total:" + total + " oneCellNum=" + oneCellNum + " heightCell=" + heightCell);
         numRows = total / oneCellNum;
         if (total % oneCellNum != 0)
         {

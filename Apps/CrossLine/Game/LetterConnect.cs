@@ -71,8 +71,7 @@ public class LetterConnect : UIView
         UITouchEventWithMove ev = this.gameObject.AddComponent<UITouchEventWithMove>();
         ev.callBackTouch = OnUITouchEvent;
 
-        UpdateItem();
-        LayOut();
+
     }
 
     /// Start is called on the frame when a script is enabled just before
@@ -80,7 +79,8 @@ public class LetterConnect : UIView
     /// </summary>
     void Start()
     {
-        InitAnimate();
+        //UpdateItem();
+        // InitAnimate();
     }
     public override void LayOut()
     {
@@ -97,11 +97,15 @@ public class LetterConnect : UIView
             float sz = 0f;
             if (Device.isLandscape)
             {
-                sz = 1.2f;
+                sz = 1f;
             }
             else
             {
-                sz = 1f;
+                sz = 0.8f;
+            }
+            if (Common.appKeyName == GameRes.GAME_IDIOM)
+            {
+                sz = sz * 0.8f;
             }
             rctran.sizeDelta = new Vector2(sz, sz);
             // rctran.anchoredPosition = GetItemPos(i);
@@ -120,10 +124,11 @@ public class LetterConnect : UIView
             item.transform.localPosition = new Vector3(0, 0, posNormal.z);
             item.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 0));
             Sequence seq = DOTween.Sequence();
-            Tweener ani1 = item.transform.DOLocalMove(posNormal, duration);
+            //Tweener ani1 = item.transform.DOLocalMove(posNormal, duration);
             float angel = -30 + Random.Range(0, 100) * 60f / 100;
             Tweener aniAngle1 = item.transform.DOLocalRotate(new Vector3(0, 0, angel), duration);
-            seq.Append(ani1).Join(aniAngle1);
+            //seq.Append(ani1).Join(aniAngle1);
+            seq.Append(aniAngle1);
         }
         if (iDelegate != null)
         {
@@ -154,17 +159,33 @@ public class LetterConnect : UIView
         {
             iDelegate.OnLetterConnectDidUpdateItem(this, rdmItemIndex);
         }
+        LayOut();
+        InitAnimate();
     }
     public Vector3 GetItemPos(int idx)
     {
         Vector3 ret = Vector2.zero;
         RectTransform rctran = this.GetComponent<RectTransform>();
-        float r = Mathf.Min(rctran.rect.size.x, rctran.rect.size.y) * 0.25f;
+
+        LetterItem item = listItem[0] as LetterItem;
+        RectTransform rctranItem = item.GetComponent<RectTransform>();
+        Debug.Log("GetItemPos rctran=" + rctran.rect.size);
+        float ratio = 0.8f;
+        float size = Mathf.Min(rctran.rect.size.x, rctran.rect.size.y);
+        float r = size / 2 * ratio;
+        float right = (size / 2) * 0.9f;
+        // if (r + rctranItem.rect.size.x / 2 > right)
+        {
+            r = right - rctranItem.rect.size.x / 2;
+        }
+
         float angle = 0f;
         int count = listItem.Count;
         angle = (Mathf.PI * 2) * idx / count;
+
         ret.x = r * Mathf.Cos(angle);
         ret.y = r * Mathf.Sin(angle);
+
         return ret;
     }
 
@@ -265,6 +286,15 @@ public class LetterConnect : UIView
         LineInfo linfo = new LineInfo();
         linfo.idxStart = start;
         linfo.idxEnd = end;
+        float w_line = 20;
+        if (Device.isLandscape)
+        {
+            lineWidth = w_line * Screen.width / 2048;
+        }
+        else
+        {
+            lineWidth = w_line * 2 * Screen.width / 1536;
+        }
 
         linfo.listPoint = new List<Vector3>();
         VectorLine lineConnect = new VectorLine(GetLineName(indexLine), linfo.listPoint, lineWidth);
@@ -276,7 +306,7 @@ public class LetterConnect : UIView
         //AppSceneBase.main.AddObjToMainWorld(objLine);
         objLine.transform.parent = this.transform;
         objLine.transform.localScale = new Vector3(1f, 1f, 1f);
-        objLine.transform.localPosition = new Vector3(0f, 0f, -10f);
+        objLine.transform.localPosition = new Vector3(0f, 0f, 0f);
         lineConnect.material = matLine;
         lineConnect.color = Color.red;
         indexLine++;

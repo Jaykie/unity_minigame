@@ -148,8 +148,6 @@ public class UIGameBase : UIView
         languageGame = new Language();
         languageGame.Init(strlan);
         languageGame.SetLanguage(Language.main.GetLanguage());
-
-
     }
     public void UpdateBtnMusic()
     {

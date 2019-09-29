@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class UIGuankaWordCollect : UIGuankaBase
+public class UIGuankaCrossLinecs : UIGuankaBase
 {
     public Button btnBack;
     public Text textTitle;

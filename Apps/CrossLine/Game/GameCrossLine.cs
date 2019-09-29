@@ -5,11 +5,15 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 /*
-参考游戏： Word Collect: Word Games
-https://apps.apple.com/cn/app/id1299956969
-https://www.taptap.com/app/72589
+参考游戏： 交叉线!
+https://www.taptap.com/app/64361
+
+线段交叉算法：
+https://www.cnblogs.com/sparkleDai/p/7604895.html
+https://blog.csdn.net/rickliuxiao/article/details/6259322
+
  */
-public class GameWordCollect : GameBase
+public class GameCrossLine : GameBase
 {
     public const float RATIO_RECT = 0.9f;
     public LetterConnect letterConnectPrefab;
@@ -19,8 +23,7 @@ public class GameWordCollect : GameBase
     /// </summary>
     void Awake()
     {
-
-
+        LayOut();
     }
     /// <summary>
     /// Start is called on the frame when a script is enabled just before
@@ -28,7 +31,7 @@ public class GameWordCollect : GameBase
     /// </summary>
     void Start()
     {
-        LayOut();
+        //  LayOut();
     }
     public override void LayOut()
     {
@@ -79,7 +82,10 @@ public class GameWordCollect : GameBase
         letterConnect.transform.SetParent(this.transform);
         UIViewController.ClonePrefabRectTransform(letterConnectPrefab.gameObject, letterConnect.gameObject);
         letterConnect.transform.localPosition = new Vector3(0f, 0f, -1f);
-
+        LayOut();
+        letterConnect.UpdateItem();
+        // LayOut();
+       // Invoke("LayOut", 0.6f);
     }
 
 

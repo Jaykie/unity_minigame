@@ -12,16 +12,26 @@ public class UIPlaceCellItemWordConnect : UICellItemBase
     public override void UpdateItem(List<object> list)
     {
         ItemInfo info = list[index] as ItemInfo;
+        string str = "";
+        if (Common.appKeyName == GameRes.GAME_WORDCONNECT)
+        {
+            str = Language.main.GetString("PLACE_LEVEL");
+            int level = index + 1;
+            if (str.Contains("xxx"))
+            {
+                str = str.Replace("xxx", level.ToString());
+            }
+            else
+            {
+                str += level.ToString();
+            }
 
-        string str = Language.main.GetString("PLACE_LEVEL");
-        int level = index + 1;
-        if (str.Contains("xxx"))
-        {
-            str = str.Replace("xxx", level.ToString());
         }
-        else
+
+        if (Common.appKeyName == GameRes.GAME_IDIOM)
         {
-            str += level.ToString();
+            LanguageManager.main.UpdateLanguagePlace();
+            str = LanguageManager.main.languagePlace.GetString("STR_PLACE_" + info.id);
         }
         textTitle.text = str;
 

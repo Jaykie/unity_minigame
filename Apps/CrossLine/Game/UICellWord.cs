@@ -55,6 +55,7 @@ public class UICellWord : UIView
                 word = "SOL";
             }
         }
+        len = word.Length;
         for (int i = 0; i < len; i++)
         {
             UILetterItem item = GameObject.Instantiate(uiLetterItemPrefab);
