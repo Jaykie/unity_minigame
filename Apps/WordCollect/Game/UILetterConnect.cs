@@ -47,6 +47,23 @@ public class UILetterConnect : UIView
     }
     public override void LayOut()
     {
+        if (rdmItemIndex == null)
+        {
+            return;
+        }
+        for (int i = 0; i < listItem.Count; i++)
+        {
+            UILetterItem item = listItem[i];
+            RectTransform rctran = item.GetComponent<RectTransform>();
+            if (i >= rdmItemIndex.Length)
+            {
+                continue;
+            }
+            Debug.Log("rdmItemIndex=" + rdmItemIndex.Length + " i=" + i + " listItem.Count=" + listItem.Count);
+            Debug.Log("rdmItemIndex[i] = " + rdmItemIndex[i]);
+
+            rctran.anchoredPosition = GetItemPos(rdmItemIndex[i]);
+        }
 
     }
 
@@ -93,6 +110,10 @@ public class UILetterConnect : UIView
             item.gameObject.SetActive(false);
             listItem.Add(item);
         }
+        rdmItemIndex = Common.RandomIndex(listItem.Count, listItem.Count);
+
+        LayOut();
+        Debug.Log("rdmItemIndex UILetterConnect =" + " listItem.Count=" + listItem.Count);
 
     }
 
@@ -112,8 +133,9 @@ public class UILetterConnect : UIView
         imageTitle.gameObject.SetActive(isShow);
     }
 
-    public void RunItemAnimate(LetterConnect lc, UICellWord cellword)
+    public void RunItemAnimate(LetterConnect lc, UICellWord cellword, UIGameWordCollect uiGame)
     {
+        WordItemInfo info = (WordItemInfo)GameGuankaParse.main.GetGuankaItemInfo(LevelManager.main.gameLevel);
         for (int i = 0; i < lc.listIndexClick.Count; i++)
         {
             UILetterItem itemAnser = cellword.GetItem(i);
@@ -121,6 +143,10 @@ public class UILetterConnect : UIView
             item.gameObject.SetActive(true);
             Vector2 posOrigin = item.transform.position;
             Vector2 posEnd = itemAnser.transform.position;
+            if (info.gameType == GameRes.GAME_TYPE_IMAGE)
+            {
+                posEnd = uiGame.uiWordAnswer.transform.position;
+            }
 
             item.transform.DOMove(posEnd, durationAnimate).OnComplete(() =>
               {
@@ -136,6 +162,13 @@ public class UILetterConnect : UIView
         {
             UILetterItem item = listItem[i];
             RectTransform rctran = item.GetComponent<RectTransform>();
+            if (i >= rdmItemIndex.Length)
+            {
+                continue;
+            }
+            Debug.Log("rdmItemIndex=" + rdmItemIndex.Length + " i=" + i + " listItem.Count=" + listItem.Count);
+            Debug.Log("rdmItemIndex[i] = " + rdmItemIndex[i]);
+
             rctran.anchoredPosition = GetItemPos(rdmItemIndex[i]);
         }
 

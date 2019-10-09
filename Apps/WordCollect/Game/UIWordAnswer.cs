@@ -9,9 +9,11 @@ public class UIWordAnswer : UIView
 {
     public Image imageBg;
     public Image imageBar;
+    public Image imageWord;
     public Text textLevel;
 
     public UIWordList uiWordList;
+    public GameObject uiWordImage;
 
     public UILetterItem uiLetterItemPrefab;
 
@@ -42,6 +44,23 @@ public class UIWordAnswer : UIView
     public void UpdateItem()
     {
         // UpdateLevel();
+
+        WordItemInfo info = (WordItemInfo)GameGuankaParse.main.GetGuankaItemInfo(LevelManager.main.gameLevel);
+
+        if ((info.gameType == GameRes.GAME_TYPE_WORDLIST) || info.gameType == GameRes.GAME_TYPE_POEM)
+        {
+            uiWordList.gameObject.SetActive(true);
+        }
+        else
+        {
+            uiWordList.gameObject.SetActive(false);
+        }
+        uiWordImage.SetActive(info.gameType == GameRes.GAME_TYPE_IMAGE ? true : false);
+        if (info.gameType == GameRes.GAME_TYPE_IMAGE)
+        {
+            TextureUtil.UpdateImageTexture(imageWord, info.pic, true);
+        }
+
         uiWordList.UpdateItem();
     }
 

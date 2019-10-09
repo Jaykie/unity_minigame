@@ -92,13 +92,12 @@ public class UIPlaceController : UIPlaceBase, ITableViewDataSource
         {
             oneCellNum++;
         }
-        Debug.Log(" heightCell=" + heightCell);
-        heightCell = (int)(sizeCanvas.x / oneCellNum); ;
 
+        heightCell = (int)(sizeCanvas.x / oneCellNum); 
 
         int total = listItem.Count;
         totalItem = total;
-        Debug.Log("total:" + total + " oneCellNum=" + oneCellNum + " heightCell=" + heightCell);
+        Debug.Log("uiplace total:" + total + " oneCellNum=" + oneCellNum + " heightCell=" + heightCell);
         numRows = total / oneCellNum;
         if (total % oneCellNum != 0)
         {

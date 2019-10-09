@@ -17,7 +17,7 @@ public class UICellItemBase : UIView
     /// </summary>
     void Awake()
     {
- 
+
     }
     // Use this for initialization
     void Start()
@@ -31,11 +31,16 @@ public class UICellItemBase : UIView
     {
 
     }
+
+    public virtual int GetCellHeight()
+    {
+        return 0;
+    }
     public virtual void UpdateItem(List<object> list)
     {
         Debug.Log("UICellItemBase UpdateItem");
-    } 
-      public virtual bool IsLock()
+    }
+    public virtual bool IsLock()
     {
         return false;
     }

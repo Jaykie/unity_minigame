@@ -36,7 +36,12 @@ public class UIHowToPlayController : UIView
         UIScrollViewTouchEvent ev = objScrollView.AddComponent<UIScrollViewTouchEvent>();
         ev.callbackTouch = OnScrollViewDrag;
         RectTransform rctran = objContent.GetComponent<RectTransform>();
-
+        WordItemInfo info = (WordItemInfo)GameGuankaParse.main.GetGuankaItemInfo(LevelManager.main.gameLevel);
+        if (info.gameType == GameRes.GAME_TYPE_IMAGE)
+        {
+            totalPage = 1;
+            uiPage1.gameObject.SetActive(false);
+        }
 
     }
     /// <summary>

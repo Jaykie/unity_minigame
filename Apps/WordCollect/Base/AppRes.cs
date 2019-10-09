@@ -6,7 +6,7 @@ using UnityEngine;
 public class AppRes
 {
     public const int GOLD_SHARE = 5;
-    public const int GOLD_GUANKA = 3;
+    public const int GOLD_GUANKA = 1;
     public const int GOLD_COMMENT = 3;
     public const int GOLD_INIT_VALUE = 10;
     public const int GOLD_GUANKA_STEP = 4;

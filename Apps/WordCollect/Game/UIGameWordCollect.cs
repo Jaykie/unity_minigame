@@ -9,25 +9,28 @@ using UnityEngine.UI;
 https://apps.apple.com/cn/app/id1299956969
 https://www.taptap.com/app/72589
  */
-public class UIGameCrossLine : UIGameBase, ILetterConnectDelegate, IUILetterConnectDelegate
+public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterConnectDelegate
 {
     public GameObject objTopbar;
     public GameObject objLayoutBtn;
     public Image imageTopbar;
     public Text textTitle;
-
+    public UIWordAnswer uiWordAnswer;
+    public UILetterConnect uiLetterConnect;
     //prefab 
-    public GameCrossLine gamePrefab;
+    public GameWordCollect gamePrefab;
 
     public GameObject objGoldBar;
     public Image imageGoldBg;
     public Text textGold;
 
 
-    GameCrossLine game;
+    GameWordCollect game;
 
     float barHeightCanvas = 160;
     float adBannerHeightCanvas = 0;
+    int indexAnswer;
+
     /// <summary>
     /// Awake is called when the script instance is being loaded.
     /// </summary>
@@ -35,6 +38,13 @@ public class UIGameCrossLine : UIGameBase, ILetterConnectDelegate, IUILetterConn
     {
         LoadPrefab();
         InitBg();
+        uiLetterConnect.iDelegate = this;
+
+        if (!AppVersion.appCheckHasFinished)
+        {
+            objGoldBar.SetActive(false);
+        }
+
         UpdateGold();
         LayOut();
 
@@ -49,6 +59,8 @@ public class UIGameCrossLine : UIGameBase, ILetterConnectDelegate, IUILetterConn
         UpdateGuankaLevel(LevelManager.main.gameLevel);
         float delaytime = 0.1f * 10;
         Invoke("OnUIDidFinish", delaytime);
+
+        // PopUpManager.main.Show<UIGameWin>("App/Prefab/Game/UIGameFail");
     }
     void LoadPrefab()
     {
@@ -72,7 +84,63 @@ public class UIGameCrossLine : UIGameBase, ILetterConnectDelegate, IUILetterConn
         adBannerHeightCanvas = GameManager.main.heightAdCanvas;
         Debug.Log("adBannerHeightCanvas=" + adBannerHeightCanvas);
 
+        //letter connect
+        if (uiLetterConnect != null)
+        {
+            ratio = GameWordCollect.RATIO_RECT;
+            RectTransform rctan = uiLetterConnect.GetComponent<RectTransform>();
+            float oft_bottom = GameManager.main.heightAdCanvas;// + Common.ScreenToCanvasHeigt(sizeCanvas, Device.offsetBottom);
+            if (Device.isLandscape)
+            {
+                h = (sizeCanvas.y - oft_bottom * 2) * ratio;
+                w = (sizeCanvas.x / 2) * ratio;
+                y = 0;
+                x = sizeCanvas.x / 4;
+            }
+            else
+            {
+                w = sizeCanvas.x * ratio;
+                h = (sizeCanvas.y / 2 - oft_bottom) * ratio;
+                x = 0;
+                y = (-sizeCanvas.y / 2 + oft_bottom) / 2;
+            }
+            rctan.sizeDelta = new Vector2(w, h);
+            rctan.anchoredPosition = new Vector2(x, y);
+            uiLetterConnect.LayOut();
+            RectTransform rctanBtn = objLayoutBtn.GetComponent<RectTransform>();
+            if (Device.isLandscape)
+            {
+                x = 0;
+            }
+            rctanBtn.anchoredPosition = new Vector2(x, y);
+        }
 
+        float oft_top = 160f;
+        //word answer
+        if (uiWordAnswer != null)
+        {
+            ratio = GameWordCollect.RATIO_RECT;
+            RectTransform rctan = uiWordAnswer.GetComponent<RectTransform>();
+
+            if (Device.isLandscape)
+            {
+                h = (sizeCanvas.y - oft_top * 2) * ratio;
+                w = (sizeCanvas.x / 2) * ratio;
+                y = 0;
+                x = -sizeCanvas.x / 4;
+            }
+            else
+            {
+                w = sizeCanvas.x * ratio;
+                h = (sizeCanvas.y / 2 - oft_top) * ratio;
+                x = 0;
+                y = (sizeCanvas.y / 2 - oft_top) / 2;
+            }
+
+            rctan.sizeDelta = new Vector2(w, h);
+            rctan.anchoredPosition = new Vector2(x, y);
+            uiWordAnswer.LayOut();
+        }
 
         if (game != null)
         {
@@ -83,22 +151,24 @@ public class UIGameCrossLine : UIGameBase, ILetterConnectDelegate, IUILetterConn
     public override void UpdateGuankaLevel(int level)
     {
         base.UpdateGuankaLevel(level);
+        LanguageManager.main.UpdateLanguage(LevelManager.main.placeLevel);
         WordItemInfo info = (WordItemInfo)GameGuankaParse.main.GetGuankaItemInfo(level);
-
-        game = (GameCrossLine)GameObject.Instantiate(gamePrefab);
+        GameGuankaParse.main.ParseItem(info);
+        indexAnswer = 0;
+        game = (GameWordCollect)GameObject.Instantiate(gamePrefab);
         AppSceneBase.main.AddObjToMainWorld(game.gameObject);
         UIViewController.ClonePrefabRectTransform(gamePrefab.gameObject, game.gameObject);
         game.transform.localPosition = new Vector3(0f, 0f, -1f);
         game.UpdateGuankaLevel(level);
-
+        game.letterConnect.uiLetterConnect = uiLetterConnect;
         game.letterConnect.iDelegate = this;
 
         UpdateLevelTitle();
         //UpdateItem 先layout一次
         LayOut();
 
-        //  uiLetterConnect.UpdateItem();
-        //   uiWordAnswer.UpdateItem();
+        uiLetterConnect.UpdateItem();
+        uiWordAnswer.UpdateItem();
         LayOut();
     }
 
@@ -141,6 +211,7 @@ public class UIGameCrossLine : UIGameBase, ILetterConnectDelegate, IUILetterConn
     void UpdateGold()
     {
         string str = Language.main.GetString("STR_GOLD") + ":" + Common.gold.ToString();
+        Debug.Log("Common.gold=" + Common.gold + " str=" + str);
         textGold.text = str;
         int fontsize = textGold.fontSize;
         float str_w = Common.GetStringLength(str, AppString.STR_FONT_NAME, fontsize);
@@ -166,15 +237,31 @@ public class UIGameCrossLine : UIGameBase, ILetterConnectDelegate, IUILetterConn
         }
 
     }
+    void DoGameWin(bool istips)
+    {
+        if (!uiWordAnswer.uiWordList.IsGameWin())
+        {
+            return;
+        }
+        if (!istips)
+        {
+            LevelManager.main.gameLevelFinish = LevelManager.main.gameLevel;
+            // int step_gold = AppRes.GOLD_GUANKA_STEP;//5
+
+            // if ((LevelManager.main.gameLevel >= step_gold) && (LevelManager.main.gameLevel % step_gold == 0))
+            {
+                Common.gold += AppRes.GOLD_GUANKA;
+            }
+            UpdateGold();
+            ShowAdInsert(GAME_AD_INSERT_SHOW_STEP, false);
+        }
+
+        PopUpManager.main.Show<UIGameWin>("App/Prefab/Game/UIGameWin");
+    }
+
     void OnGameWin()
     {
-        LevelManager.main.gameLevelFinish = LevelManager.main.gameLevel;
-
-        Common.gold += AppRes.GOLD_GUANKA;
-        UpdateGold();
-
-        ShowAdInsert(GAME_AD_INSERT_SHOW_STEP, false);
-        PopUpManager.main.Show<UIGameWin>("App/Prefab/Game/UIGameWin");
+        DoGameWin(false);
     }
 
     void OnUIViewAlertFinished(UIViewAlert alert, bool isYes)
@@ -195,13 +282,40 @@ public class UIGameCrossLine : UIGameBase, ILetterConnectDelegate, IUILetterConn
     //
     public void OnLetterConnectDidRightAnswer(LetterConnect lc, int idx)
     {
+        UICellWord item = uiWordAnswer.uiWordList.GetItem(idx);
+        if (item.GetItem(0).GetStatus() == UILetterItem.Status.LOCK)
+        {
+            item.SetStatus(UILetterItem.Status.UNLOCK);
 
+            indexAnswer++;
+            Debug.Log("indexAnswer =" + indexAnswer);
+            if (Common.appKeyName != GameRes.GAME_IDIOM)
+            {
+                GameGuankaParse.main.UpdateLetterString(indexAnswer);
+                game.letterConnect.UpdateItem();
+                uiLetterConnect.UpdateItem();
+            }
+            uiLetterConnect.RunItemAnimate(lc, item, this);
+            uiWordAnswer.uiWordList.GotoListIndex(indexAnswer);
+
+
+
+        }
+        else if (item.GetItem(0).GetStatus() == UILetterItem.Status.UNLOCK)
+        {
+            item.SetStatus(UILetterItem.Status.DUPLICATE);
+            AudioPlay.main.PlayFile(GameRes.Audio_WordDuplicate);
+        }
+        Invoke("OnGameWin", uiLetterConnect.durationAnimate);
     }
 
 
     public void OnLetterConnectDidUpdateItem(LetterConnect lc, int[] itemIndex)
     {
-
+        if (uiLetterConnect != null)
+        {
+            uiLetterConnect.OnLetterConnectDidUpdateItem(lc, itemIndex);
+        }
     }
     //
 
@@ -225,10 +339,16 @@ public class UIGameCrossLine : UIGameBase, ILetterConnectDelegate, IUILetterConn
         {
             Common.gold = 0;
         }
+        Debug.Log("Common.gold=" + Common.gold);
+        //UpdateGold();
         OnNotEnoughGold(true);
 
-
-        OnGameWin();
+        UICellWord item = uiWordAnswer.uiWordList.GetFirstLockItem();
+        if (item != null)
+        {
+            item.SetStatus(UILetterItem.Status.UNLOCK);
+        }
+        DoGameWin(true);
     }
 
 

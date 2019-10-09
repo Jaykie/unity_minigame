@@ -4,7 +4,7 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIHomeCrossLine : UIHomeBase
+public class UIHomeWordCollect : UIHomeBase
 {
     float timeAction;
     bool isActionFinish;

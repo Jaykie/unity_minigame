@@ -32,28 +32,29 @@ public class UIGuankaController : UIGuankaBase, ITableViewDataSource
     void Awake()
     {
         LoadPrefab();
-        switch (Common.appType)
+        heightCell = cellItemPrefab.GetCellHeight();
+        if (heightCell == 0)
         {
-            case AppType.PINTU:
-                heightCell = 400;
-                break;
-            case AppType.FILLCOLOR:
-                heightCell = 400;
-                break;
-            case AppType.PAINT:
-                heightCell = 400;
-                break;
-            case AppType.XIEHANZI:
-                heightCell = 320;
-                break;
-            default:
-                //
-                heightCell = 192;
-                break;
+            switch (Common.appType)
+            {
+                case AppType.PINTU:
+                    heightCell = 400;
+                    break;
+                case AppType.FILLCOLOR:
+                    heightCell = 400;
+                    break;
+                case AppType.PAINT:
+                    heightCell = 400;
+                    break;
+                case AppType.XIEHANZI:
+                    heightCell = 320;
+                    break;
+                default:
+                    //
+                    heightCell = 192;
+                    break;
+            }
         }
-
-
-
         //bg
         TextureUtil.UpdateRawImageTexture(imageBg, AppRes.IMAGE_GUANKA_BG, true);
         string strlan = Common.GAME_RES_DIR + "/place/language/language.csv";
@@ -244,9 +245,12 @@ public class UIGuankaController : UIGuankaBase, ITableViewDataSource
         {
             oneCellNum++;
         }
+
+        heightCell = (int)(sizeCanvas.x / oneCellNum);
+
         int total = LevelManager.main.maxGuankaNum;
         totalItem = total;
-        Debug.Log("total:" + total);
+        Debug.Log("uiguanka total:" + total + " oneCellNum=" + oneCellNum + " heightCell=" + heightCell);
         numRows = total / oneCellNum;
         if (total % oneCellNum != 0)
         {

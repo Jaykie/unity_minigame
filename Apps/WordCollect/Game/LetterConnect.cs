@@ -121,7 +121,7 @@ public class LetterConnect : UIView
         {
             LetterItem item = listItem[i] as LetterItem;
             Vector3 posNormal = GetItemPos(rdmItemIndex[i]);
-            item.transform.localPosition = new Vector3(0, 0, posNormal.z);
+            //item.transform.localPosition = new Vector3(0, 0, posNormal.z);
             item.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, 0));
             Sequence seq = DOTween.Sequence();
             //Tweener ani1 = item.transform.DOLocalMove(posNormal, duration);
@@ -135,11 +135,21 @@ public class LetterConnect : UIView
             iDelegate.OnLetterConnectDidUpdateItem(this, rdmItemIndex);
         }
     }
+
+    void ClearLetterItem()
+    {
+        foreach (LetterItem item in listItem)
+        {
+            DestroyImmediate(item.gameObject);
+        }
+        listItem.Clear();
+    }
     public void UpdateItem()
     {
         strLetter = "";
         WordItemInfo info = GameGuankaParse.main.GetItemInfo();
         int len = info.listLetter.Length;
+        ClearLetterItem();
         for (int i = 0; i < len; i++)
         {
             LetterItem item = GameObject.Instantiate(letterItemPrefab);
@@ -154,7 +164,7 @@ public class LetterConnect : UIView
 
 
         rdmItemIndex = Common.RandomIndex(listItem.Count, listItem.Count);
-
+        Debug.Log("rdmItemIndex UpdateItem =" + rdmItemIndex.Length+" listItem.Count="+listItem.Count);
         if (iDelegate != null)
         {
             iDelegate.OnLetterConnectDidUpdateItem(this, rdmItemIndex);

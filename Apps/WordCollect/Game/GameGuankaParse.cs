@@ -18,7 +18,7 @@ public class WordItemInfo : ItemInfo
     public string[] listLetter;
     public string[] listAnswer;//答案 LO|SOL 
     public string[] listError;
-
+    public string gameType;
     public string author;
     public string year;
     public string style;
@@ -37,6 +37,7 @@ public class GameGuankaParse : GuankaParseBase
 {
     public string strWord3500;
     Language languageGame;
+    string[] arrayPunctuation = { "。", "？", "！", "，", "、", "；", "：" };
     static private GameGuankaParse _main = null;
     public static GameGuankaParse main
     {
@@ -82,7 +83,7 @@ public class GameGuankaParse : GuankaParseBase
         languageGame.SetLanguage(SystemLanguage.Chinese);
     }
 
-    public string GetGuankaAnswer(WordItemInfo info)
+    public string GetGuankaAnswer(WordItemInfo info, int idx = 0)
     {
         //真正的答案
         string str = languageGame.GetString(info.id);
@@ -90,6 +91,12 @@ public class GameGuankaParse : GuankaParseBase
         if ((!Common.BlankString(info.head)) && (!Common.BlankString(info.end)))
         {
             return info.end;
+        }
+
+        if (Common.appKeyName == GameRes.GAME_POEM)
+        {
+            PoemContentInfo infoPoem = info.listPoemContent[idx];
+            str = infoPoem.content;
         }
         return str;
     }
@@ -140,14 +147,14 @@ public class GameGuankaParse : GuankaParseBase
         {
             return ParseGuankaWordConnect();
         }
-        if (Common.appKeyName == GameRes.GAME_IDIOM)
+        if ((Common.appKeyName == GameRes.GAME_IDIOM) || (Common.appKeyName == GameRes.GAME_POEM))
         {
-            return ParseGuankaIdiom();
+            return ParseGuankaDefault();
         }
         return 0;
     }
 
-    public int ParseGuankaIdiom()
+    public int ParseGuankaDefault()
     {
         int count = 0;
 
@@ -216,8 +223,23 @@ public class GameGuankaParse : GuankaParseBase
                 info.type = (string)item["type"];
             }
 
+            if (Common.appKeyName == GameRes.GAME_IDIOM)
+            {
+                info.gameType = GameRes.GAME_TYPE_IMAGE;
+            }
+            else if (Common.appKeyName == GameRes.GAME_POEM)
+            {
+                info.gameType = GameRes.GAME_TYPE_POEM;
+            }
+            else
+            {
+                info.gameType = GameRes.GAME_TYPE_TEXT;
+            }
 
-
+            if (Common.appKeyName == GameRes.GAME_POEM)
+            {
+                ParsePoemItem(info);
+            }
             listGuanka.Add(info);
         }
 
@@ -229,30 +251,66 @@ public class GameGuankaParse : GuankaParseBase
             string word0 = GetGuankaAnswer(info);
             int idx1 = GetRandomOtherLevelIndex(i);
             string word1 = GetGuankaAnswer(GetGuankaItemInfo(idx1) as WordItemInfo);
-           // word1 = word1.Substring(0, word1.Length / 2);
+            // word1 = word1.Substring(0, word1.Length / 2);
             string word = word0 + word1;
+            if (Common.appKeyName == GameRes.GAME_POEM)
+            {
+                word = word0;
+            }
+
+            Debug.Log("word = " + word);
+
             info.listLetter = new string[word.Length];
             for (int k = 0; k < word.Length; k++)
             {
                 info.listLetter[k] = word.Substring(k, 1);
             }
 
-            info.listAnswer = new string[2];
-            info.listAnswer[0] = word0;
-            info.listAnswer[1] = word1;
+            if (Common.appKeyName == GameRes.GAME_POEM)
+            {
+                info.listAnswer = new string[info.listPoemContent.Count];
+                for (int k = 0; k < info.listPoemContent.Count; k++)
+                {
+                    PoemContentInfo infoPoem = info.listPoemContent[k];
+                    Debug.Log("word answer = " + infoPoem.content);
+                    info.listAnswer[k] = infoPoem.content;
+                }
+            }
+            else
+            {
+                info.listAnswer = new string[1];
+                info.listAnswer[0] = word0;
+                // info.listAnswer[1] = word1;
+
+            }
         }
 
         //word3500
         filepath = Common.GAME_DATA_DIR + "/words_3500.json";
-        json = FileUtil.ReadStringAsset(filepath);
-        root = JsonMapper.ToObject(json);
-        strWord3500 = (string)root["words"];
-        Debug.Log(strWord3500);
+        if (FileUtil.FileIsExistAsset(filepath))
+        {
+            json = FileUtil.ReadStringAsset(filepath);
+            root = JsonMapper.ToObject(json);
+            strWord3500 = (string)root["words"];
+            Debug.Log(strWord3500);
+        }
+
 
         Debug.Log("ParseGame::count=" + count);
         return count;
     }
 
+    public void UpdateLetterString(int idx)
+    {
+        WordItemInfo info = GetItemInfo();
+        string word = GetGuankaAnswer(info, idx);
+        info.listLetter = new string[word.Length];
+        for (int k = 0; k < word.Length; k++)
+        {
+            info.listLetter[k] = word.Substring(k, 1);
+        }
+        Debug.Log("word = UpdateLetterString =" + word);
+    }
     public int ParseGuankaWordConnect()
     {
         int count = 0;
@@ -295,6 +353,7 @@ public class GameGuankaParse : GuankaParseBase
             str = (string)item["e"];
             info.listError = str.Split(charSplit);
 
+            info.gameType = GameRes.GAME_TYPE_WORDLIST;
             listGuanka.Add(info);
         }
 
@@ -304,4 +363,100 @@ public class GameGuankaParse : GuankaParseBase
         return count;
     }
 
+
+    public void ParseItem(WordItemInfo info)
+    {
+
+        if (Common.appKeyName == GameRes.GAME_IDIOM)
+        {
+            ParseIdiomItem(info);
+        }
+
+
+
+    }
+
+    public void ParseIdiomItem(WordItemInfo info)
+    {
+        string filepath = Common.GAME_RES_DIR + "/guanka/data/" + LanguageManager.main.languageGame.GetString(info.id) + ".json";
+        if (!FileUtil.FileIsExistAsset(filepath))
+        {
+            return;
+        }
+        //
+        //FILE_PATH
+        string json = FileUtil.ReadStringAsset(filepath);
+        JsonData root = JsonMapper.ToObject(json);
+        info.title = (string)root["title"];
+        info.album = (string)root["album"];
+        info.translation = (string)root["translation"];
+        info.pinyin = (string)root["pinyin"];
+    }
+
+    //过滤标点符号 点号：句号（ 。）、问号（ ？）、感叹号（ ！）、逗号（ ，）顿号（、）、分号（；）和冒号（：）。
+    public string FilterPunctuation(string str)
+    {
+        string ret = str;
+
+        foreach (string item in arrayPunctuation)
+        {
+            ret = ret.Replace(item, "");
+        }
+        return ret;
+    }
+    //诗词
+    public void ParsePoemItem(WordItemInfo info)
+    {
+        string filepath = Common.GAME_RES_DIR + "/guanka/poem/" + info.id + ".json";
+        if (!FileUtil.FileIsExistAsset(filepath))
+        {
+            return;
+        }
+        //
+        //FILE_PATH
+        string json = FileUtil.ReadStringAsset(filepath);
+        JsonData root = JsonMapper.ToObject(json);
+        info.title = (string)root["title"];
+        info.author = (string)root["author"];
+        info.year = (string)root["year"];
+        info.style = (string)root["style"];
+        info.album = (string)root["album"];
+        info.url = (string)root["url"];
+        info.intro = (string)root["intro"];
+        info.translation = (string)root["translation"];
+        info.appreciation = (string)root["appreciation"];
+
+        JsonData itemPoem = root["poem"];
+        info.listPoemContent = new List<PoemContentInfo>();
+        for (int i = 0; i < itemPoem.Count; i++)
+        {
+            JsonData item = itemPoem[i];
+            string str = (string)item["content"];
+            string[] strlist = new string[1];
+            strlist[0] = str;
+            if (Common.appKeyName == GameRes.GAME_POEM)
+            {
+                strlist = str.Split('，');
+            }
+            for (int k = 0; k < strlist.Length; k++)
+            {
+
+                PoemContentInfo infoPoem = new PoemContentInfo();
+                infoPoem.content = strlist[k];
+                infoPoem.pinyin = (string)item["pinyin"];
+                bool isSkip = JsonUtil.JsonGetBool(item, "skip", false);
+                if (Common.appKeyName == GameRes.GAME_POEM)
+                {
+                    infoPoem.content = FilterPunctuation(infoPoem.content);
+                    // isSkip = false;
+                }
+
+                if (!isSkip)
+                {
+                    info.listPoemContent.Add(infoPoem);
+                }
+
+            }
+        }
+    }
 }

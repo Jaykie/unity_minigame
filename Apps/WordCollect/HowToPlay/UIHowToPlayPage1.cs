@@ -20,6 +20,7 @@ public class UIHowToPlayPage1 : UIView
     /// </summary>
     void Awake()
     {
+        WordItemInfo info = (WordItemInfo)GameGuankaParse.main.GetGuankaItemInfo(LevelManager.main.gameLevel);
         textTitle.color = AppRes.colorTitle;
         textDetail.color = AppRes.colorTitle;
         LevelManager.main.ParseGuanka();
@@ -27,8 +28,11 @@ public class UIHowToPlayPage1 : UIView
         textTitle.text = Language.main.GetString("STRING_HOWTOPLAY_TITLE1");
         textDetail.text = Language.main.GetString("STRING_HOWTOPLAY_DETAIL1");
         LoadPrefab();
-        cellItem0 = AddItem(0);
-        cellItem1 = AddItem(1);
+        if (info.gameType == GameRes.GAME_TYPE_WORDLIST)
+        {
+            cellItem0 = AddItem(0);
+            cellItem1 = AddItem(1);
+        }
     }
 
     void Start()

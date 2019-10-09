@@ -12,12 +12,15 @@ public class UIWordList : UIView
     public UICellWord uiCellWordPrefab;
 
     public List<UICellWord> listItem;
+    int totalPage;
+    int cellOnePage;
     int colTotal;
     /// <summary>
     /// Awake is called when the script instance is being loaded.
     /// </summary>
     void Awake()
     {
+        totalPage = 2;
         listItem = new List<UICellWord>();
         colTotal = 1;
         LoadPrefab();
@@ -37,18 +40,15 @@ public class UIWordList : UIView
         {
             ly.LayOut();
         }
-
         RectTransform rctran = this.GetComponent<RectTransform>();
-        SetContentHeight(rctran.rect.height);
+        //SetContentHeight(rctran.rect.height);
 
         foreach (UICellWord item in listItem)
         {
-
             RectTransform rctranCell = item.GetComponent<RectTransform>();
             w = rctran.rect.width / colTotal;
             h = rctranCell.rect.height;
             rctranCell.sizeDelta = new Vector2(w, h);
-
             item.LayOut();
         }
     }
@@ -81,6 +81,16 @@ public class UIWordList : UIView
         {
             row_display++;
         }
+        totalPage = (int)(h_item * len / rctran.rect.height);
+        if ((int)(h_item * len) % (int)rctran.rect.height != 0)
+        {
+            totalPage++;
+        }
+        if (info.gameType == GameRes.GAME_TYPE_WORDLIST)
+        {
+            totalPage = 1;
+        }
+        cellOnePage = row_display;
 
         LayOutGrid ly = objScrollContent.GetComponent<LayOutGrid>();
         colTotal = 1;
@@ -93,14 +103,22 @@ public class UIWordList : UIView
             ly.row = row_display;
         }
 
+        if (info.gameType == GameRes.GAME_TYPE_POEM)
+        {
+            colTotal = 1;
+        }
 
         ly.col = colTotal;
 
 
+        // //更新scrollview 内容的长度  
+        SetContentHeight(rctran.rect.height * totalPage);
+
+        Debug.Log(" totalPage=" + totalPage + " len=" + len);
+
         for (int i = 0; i < len; i++)
         {
             UICellWord item = GameObject.Instantiate(uiCellWordPrefab);
-
             string word = info.listAnswer[i];
             w = w_item * word.Length;
             h = h_item;
@@ -163,5 +181,32 @@ public class UIWordList : UIView
         return ret;
     }
 
+    public void GotoListIndex(int idx)
+    {
+        UICellWord item = GetItem(0);
+        RectTransform rctranCell = item.GetComponent<RectTransform>();
+        RectTransform rctran = this.GetComponent<RectTransform>();
+        float h = rctranCell.rect.height;
+        float y = scrollRect.content.anchoredPosition.y;
+        float y_to = h * idx;
+
+        int page = (int)(rctranCell.rect.height * idx / rctran.rect.height);
+        if (y_to >= ((page + 1) * rctran.rect.height - h))
+        {
+            //下一页
+            scrollRect.content.anchoredPosition = new Vector2(0, y_to - h);
+        }
+
+        // SetScrollViewPage(page);
+        y = scrollRect.content.anchoredPosition.y;
+        Debug.Log("GotoListIndex y=" + y + " h=" + h);
+    }
+
+    void SetScrollViewPage(int page)
+    {
+        RectTransform rctran = this.GetComponent<RectTransform>();
+        float h = rctran.rect.height;
+        scrollRect.content.anchoredPosition = new Vector2(0, h * page);
+    }
 
 }

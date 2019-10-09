@@ -5,15 +5,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 /*
-参考游戏： 交叉线!
-https://www.taptap.com/app/64361
-
-线段交叉算法：
-https://www.cnblogs.com/sparkleDai/p/7604895.html
-https://blog.csdn.net/rickliuxiao/article/details/6259322
-
+参考游戏： Word Collect: Word Games
+https://apps.apple.com/cn/app/id1299956969
+https://www.taptap.com/app/72589
  */
-public class GameCrossLine : GameBase
+public class GameWordCollect : GameBase
 {
     public const float RATIO_RECT = 0.9f;
     public LetterConnect letterConnectPrefab;

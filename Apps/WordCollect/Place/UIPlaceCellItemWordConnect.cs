@@ -27,12 +27,18 @@ public class UIPlaceCellItemWordConnect : UICellItemBase
             }
 
         }
-
-        if (Common.appKeyName == GameRes.GAME_IDIOM)
+        else if (Common.appKeyName == GameRes.GAME_IDIOM)
         {
             LanguageManager.main.UpdateLanguagePlace();
             str = LanguageManager.main.languagePlace.GetString("STR_PLACE_" + info.id);
         }
+        else
+        {
+
+            LanguageManager.main.UpdateLanguagePlace();
+            str = LanguageManager.main.languagePlace.GetString("STR_PLACE_" + info.id);
+        }
+
         textTitle.text = str;
 
         //textTitle.gameObject.SetActive(false);
