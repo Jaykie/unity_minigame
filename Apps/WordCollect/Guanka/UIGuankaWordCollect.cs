@@ -64,6 +64,8 @@ public class UIGuankaWordCollect : UICellItemBase
         WordItemInfo info = list[index] as WordItemInfo;
         uiGuankaItem.UpdateItem(info);
 
+      
+
     }
     public void UpdateItemDefault(List<object> list)
     {

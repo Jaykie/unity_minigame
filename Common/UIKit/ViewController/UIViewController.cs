@@ -154,11 +154,13 @@ public class UIViewController
 
         RectTransform rctranPrefab = objPrefab.GetComponent<RectTransform>();
         //Debug.Log("rctranPrefab.offsetMin=" + rctranPrefab.offsetMin + " rctranPrefab.offsetMax=" + rctranPrefab.offsetMax);
-        
-        RectTransform rctran = obj.GetComponent<RectTransform>(); 
-        rctran.offsetMax = rctranPrefab.offsetMax; 
-        rctran.offsetMin = rctranPrefab.offsetMin; 
-        
+        if (rctranPrefab != null)
+        {
+            RectTransform rctran = obj.GetComponent<RectTransform>();
+            rctran.offsetMax = rctranPrefab.offsetMax;
+            rctran.offsetMin = rctranPrefab.offsetMin;
+        }
+
         //Debug.Log("rctran.offsetMin=" + rctran.offsetMin + " rctran.offsetMax=" + rctran.offsetMax);
 
     }

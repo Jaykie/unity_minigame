@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 //方格布局
 public class LayOutGrid : LayOutBase
@@ -18,7 +19,7 @@ public class LayOutGrid : LayOutBase
         LayOut();
     }
     // r 行 ; c 列  返回中心位置
-    public Vector2 GetItemPostion(int r, int c, GameObject obj)
+    public Vector2 GetItemPostion(int r, int c)
     {
         float x, y, w, h;
         RectTransform rctran = this.gameObject.GetComponent<RectTransform>();
@@ -29,28 +30,6 @@ public class LayOutGrid : LayOutBase
 
         x = -w / 2 + item_w * c + item_w / 2 + space.x * c;
         y = -h / 2 + item_h * r + item_h / 2 + space.y * r;
-
-        RectTransform rctranItem = obj.GetComponent<RectTransform>(); if (alignX == Align.LEFT)
-        {
-            item_w = rctranItem.rect.width;
-            x = -w / 2 + (item_w + space.x) * c + item_w / 2;
-        }
-        if (alignX == Align.RIGHT)
-        {
-            item_w = rctranItem.rect.width;
-            x = w / 2 - (item_w + space.x) * (col - 1 - c) - item_w / 2;
-        }
-
-        if (alignY == Align.BOTTOM)
-        {
-            item_h = rctranItem.rect.height;
-            y = -h / 2 + (item_h + space.y) * r + item_h / 2;
-        }
-        if (alignY == Align.TOP)
-        {
-            item_h = rctranItem.rect.height;
-            y = h / 2 - (item_h + space.y) * (row - 1 - r) - item_h / 2;
-        }
 
         return new Vector2(x, y);
 
@@ -82,6 +61,13 @@ public class LayOutGrid : LayOutBase
             {
                 continue;
             }
+
+            LayoutElement le = objtmp.GetComponent<LayoutElement>();
+            if (le != null && le.ignoreLayout)
+            {
+                continue;
+            }
+
             if (!enableHide)
             {
                 if (!objtmp.activeSelf)
@@ -102,9 +88,18 @@ public class LayOutGrid : LayOutBase
             c = idx - r * col;
 
             //从顶部往底部显示
-            r = row - 1 - r;
+            if (dispLayVertical == DispLayVertical.TOP_TO_BOTTOM)
+            {
+                r = row - 1 - r;
+            }
 
-            Vector2 pt = GetItemPostion(r, c, objtmp);
+            //从右往左显示
+            if (dispLayHorizontal == DispLayHorizontal.RIGHT_TO_LEFT)
+            {
+                c = col - 1 - c;
+            }
+
+            Vector2 pt = GetItemPostion(r, c);
             RectTransform rctran = child.gameObject.GetComponent<RectTransform>();
             if (rctran != null)
             {

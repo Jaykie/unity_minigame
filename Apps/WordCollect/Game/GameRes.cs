@@ -11,16 +11,23 @@ public class GameRes
     public const string GAME_WORDCONNECT = "WordCollect";
     public const string GAME_IDIOM = "Idiom";
     public const string GAME_POEM = "Poem";
-
+    public const string GAME_CONNECT = "Connect";//接龙
+    public const string GAME_RIDDLE = "Riddle";
     //type
     public const string GAME_TYPE_WORDLIST = "WordList";
     public const string GAME_TYPE_IMAGE = "Image";
     public const string GAME_TYPE_TEXT = "Text";
     public const string GAME_TYPE_IMAGE_TEXT = "ImageText";
     public const string GAME_TYPE_POEM = "Poem";
-
     public const string GAME_TYPE_CONNECT = "Connect";//接龙
     //
+
+    //image  
+    public const string IMAGE_LetterBgNormal = "App/UI/Game/UILetter/LetterBgNormal";
+    public const string IMAGE_LetterBgLock = "App/UI/Game/UILetter/LetterBgLock";
+    public const string IMAGE_LetterBgRightAnswer = "App/UI/Game/UILetter/LetterBgRightAnswer";
+    public const string IMAGE_LetterBgAddWord = "App/UI/Game/UILetter/LetterBgAddWord";
+
 
     public const string PREFAB_LETTER_ITEM = "AppCommon/Prefab/Game/UILetterItem";
 

@@ -9,13 +9,12 @@ using UnityEngine.UI;
 https://apps.apple.com/cn/app/id1299956969
 https://www.taptap.com/app/72589
  */
-public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterConnectDelegate
+public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterConnectDelegate, IUIWordContentBaseDelegate
 {
     public GameObject objTopbar;
     public GameObject objLayoutBtn;
     public Image imageTopbar;
     public Text textTitle;
-    public UIWordAnswer uiWordAnswer;
     public UILetterConnect uiLetterConnect;
     //prefab 
     public GameWordCollect gamePrefab;
@@ -30,6 +29,14 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
     float barHeightCanvas = 160;
     float adBannerHeightCanvas = 0;
     int indexAnswer;
+
+    public UIWordContentBase uiWordContent;
+
+    UIWordFillBox uiWordFillBoxPrefab;
+    UIWordAnswer uiWordAnswerPrefab;
+    UIWordImageText uiWordImageTextPrefab;
+
+    UIWordAnswer uiWordAnswer;
 
     /// <summary>
     /// Awake is called when the script instance is being loaded.
@@ -64,9 +71,28 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
     }
     void LoadPrefab()
     {
+        {
+            GameObject obj = PrefabCache.main.Load("AppCommon/Prefab/Game/UIWordFillBox");
+            if (obj != null)
+            {
+                uiWordFillBoxPrefab = obj.GetComponent<UIWordFillBox>();
+            }
+        }
+        {
+            GameObject obj = PrefabCache.main.Load("AppCommon/Prefab/Game/UIWordImageText");
+            if (obj != null)
+            {
+                uiWordImageTextPrefab = obj.GetComponent<UIWordImageText>();
+            }
+        }
 
-
-
+        {
+            GameObject obj = PrefabCache.main.Load("AppCommon/Prefab/Game/UIWordAnswer");
+            if (obj != null)
+            {
+                uiWordAnswerPrefab = obj.GetComponent<UIWordAnswer>();
+            }
+        }
     }
 
 
@@ -116,11 +142,10 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
         }
 
         float oft_top = 160f;
-        //word answer
-        if (uiWordAnswer != null)
+        if (uiWordContent != null)
         {
             ratio = GameWordCollect.RATIO_RECT;
-            RectTransform rctan = uiWordAnswer.GetComponent<RectTransform>();
+            RectTransform rctan = uiWordContent.GetComponent<RectTransform>();
 
             if (Device.isLandscape)
             {
@@ -139,7 +164,7 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
 
             rctan.sizeDelta = new Vector2(w, h);
             rctan.anchoredPosition = new Vector2(x, y);
-            uiWordAnswer.LayOut();
+            uiWordContent.LayOut();
         }
 
         if (game != null)
@@ -163,12 +188,56 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
         game.letterConnect.uiLetterConnect = uiLetterConnect;
         game.letterConnect.iDelegate = this;
 
+
+        //  public const string GAME_TYPE_WORDLIST = "WordList";  
+        //  public const string GAME_TYPE_POEM = "Poem"; 
+
+
+        GameObject objPrefab = null;
+
+        switch (info.gameType)
+        {
+            case GameRes.GAME_TYPE_CONNECT:
+                {
+                    objPrefab = uiWordFillBoxPrefab.gameObject;
+                    uiWordContent = (UIWordContentBase)GameObject.Instantiate(uiWordFillBoxPrefab);
+                }
+                break;
+            case GameRes.GAME_TYPE_IMAGE:
+            case GameRes.GAME_TYPE_TEXT:
+            case GameRes.GAME_TYPE_IMAGE_TEXT:
+            case GameRes.GAME_TYPE_POEM:
+                {
+                    objPrefab = uiWordImageTextPrefab.gameObject;
+                    uiWordContent = (UIWordContentBase)GameObject.Instantiate(uiWordImageTextPrefab);
+                }
+                break;
+            case GameRes.GAME_TYPE_WORDLIST:
+                {
+                    objPrefab = uiWordAnswerPrefab.gameObject;
+                    uiWordContent = (UIWordContentBase)GameObject.Instantiate(uiWordAnswerPrefab);
+                    uiWordAnswer = uiWordContent as UIWordAnswer;
+                }
+                break;
+
+            default:
+                break;
+        }
+        if (uiWordContent != null)
+        {
+            uiWordContent.transform.SetParent(this.transform);
+            uiWordContent.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+            UIViewController.ClonePrefabRectTransform(objPrefab, uiWordContent.gameObject);
+            uiWordContent.iDelegate = this;
+            uiWordContent.infoItem = info;
+            uiWordContent.UpdateGuankaLevel(level);
+        }
+
         UpdateLevelTitle();
         //UpdateItem 先layout一次
         LayOut();
 
         uiLetterConnect.UpdateItem();
-        uiWordAnswer.UpdateItem();
         LayOut();
     }
 
@@ -176,6 +245,7 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
 
     public void UpdateLevelTitle()
     {
+        WordItemInfo info = (WordItemInfo)GameGuankaParse.main.GetItemInfo();
         string str = Language.main.GetString("GAME_LEVEL");
         int level = LevelManager.main.gameLevel + 1;
         if (str.Contains("xxx"))
@@ -185,6 +255,11 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
         else
         {
             str += level.ToString();
+        }
+
+        if (info.gameType == GameRes.GAME_TYPE_POEM)
+        {
+            str = info.id;
         }
         textTitle.text = str;
 
@@ -239,10 +314,14 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
     }
     void DoGameWin(bool istips)
     {
-        if (!uiWordAnswer.uiWordList.IsGameWin())
+        if (uiWordAnswer != null)
         {
-            return;
+            if (!uiWordAnswer.uiWordList.IsGameWin())
+            {
+                return;
+            }
         }
+
         if (!istips)
         {
             LevelManager.main.gameLevelFinish = LevelManager.main.gameLevel;
@@ -282,30 +361,43 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
     //
     public void OnLetterConnectDidRightAnswer(LetterConnect lc, int idx)
     {
-        UICellWord item = uiWordAnswer.uiWordList.GetItem(idx);
-        if (item.GetItem(0).GetStatus() == UILetterItem.Status.LOCK)
+        WordItemInfo info = GameGuankaParse.main.GetItemInfo();
+        if (uiWordAnswer != null)
         {
-            item.SetStatus(UILetterItem.Status.UNLOCK);
-
-            indexAnswer++;
-            Debug.Log("indexAnswer =" + indexAnswer);
-            if (Common.appKeyName != GameRes.GAME_IDIOM)
+            UICellWord item = uiWordAnswer.uiWordList.GetItem(idx);
+            if (item.GetItem(0).GetStatus() == UILetterItem.Status.LOCK)
             {
-                GameGuankaParse.main.UpdateLetterString(indexAnswer);
-                game.letterConnect.UpdateItem();
-                uiLetterConnect.UpdateItem();
+                item.SetStatus(UILetterItem.Status.UNLOCK);
+
+                indexAnswer++;
+                if (indexAnswer < info.listAnswer.Length)
+                {
+                    Debug.Log("indexAnswer =" + indexAnswer);
+                    uiLetterConnect.RunItemAnimate(lc, item, this, ui =>
+                        {
+                            if (info.gameType != GameRes.GAME_TYPE_IMAGE)
+                            {
+                                GameGuankaParse.main.UpdateLetterString(indexAnswer);
+                                game.letterConnect.UpdateItem();
+                                uiLetterConnect.UpdateItem();
+                            }
+                            uiWordAnswer.uiWordList.GotoListIndex(indexAnswer);
+
+                        }
+
+                     );
+
+
+                }
+
             }
-            uiLetterConnect.RunItemAnimate(lc, item, this);
-            uiWordAnswer.uiWordList.GotoListIndex(indexAnswer);
-
-
-
+            else if (item.GetItem(0).GetStatus() == UILetterItem.Status.UNLOCK)
+            {
+                item.SetStatus(UILetterItem.Status.DUPLICATE);
+                AudioPlay.main.PlayFile(GameRes.Audio_WordDuplicate);
+            }
         }
-        else if (item.GetItem(0).GetStatus() == UILetterItem.Status.UNLOCK)
-        {
-            item.SetStatus(UILetterItem.Status.DUPLICATE);
-            AudioPlay.main.PlayFile(GameRes.Audio_WordDuplicate);
-        }
+
         Invoke("OnGameWin", uiLetterConnect.durationAnimate);
     }
 
@@ -342,11 +434,13 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
         Debug.Log("Common.gold=" + Common.gold);
         //UpdateGold();
         OnNotEnoughGold(true);
-
-        UICellWord item = uiWordAnswer.uiWordList.GetFirstLockItem();
-        if (item != null)
+        if (uiWordAnswer != null)
         {
-            item.SetStatus(UILetterItem.Status.UNLOCK);
+            UICellWord item = uiWordAnswer.uiWordList.GetFirstLockItem();
+            if (item != null)
+            {
+                item.SetStatus(UILetterItem.Status.UNLOCK);
+            }
         }
         DoGameWin(true);
     }
@@ -355,6 +449,15 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
     public void OnClickGold()
     {
         ShowShop();
+    }
+
+    public void UIWordContentBaseDidBackWord(UIWordContentBase ui, string word)
+    {
+
+    }
+    public void UIWordContentBaseDidTipsWord(UIWordContentBase ui, string word)
+    {
+
     }
 
 }

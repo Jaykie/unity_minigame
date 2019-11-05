@@ -8,6 +8,7 @@ public class UIGuankaItemPoem : UIView
 {
     public Text textTitle;
     public Image imageBg;
+    public Image imageLock;
     public UILetterItem uiLetterItemPrefab;
     public int index;
     public List<object> listItem;
@@ -38,25 +39,55 @@ public class UIGuankaItemPoem : UIView
     }
     public void UpdateItem(WordItemInfo info)
     {
+        int idx_play = LevelManager.main.gameLevelFinish + 1;
         textTitle.text = (index + 1).ToString();
         string title = info.id;
         int len = title.Length;
         ClearLetterItem();
-
-        for (int i = 0; i < len; i++)
+        if (index <= idx_play)
         {
-            UILetterItem item = GameObject.Instantiate(uiLetterItemPrefab);
-            item.index = i;
-            item.transform.SetParent(this.transform);
-            item.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-            RectTransform rctran = item.GetComponent<RectTransform>();
-            item.SetStatus(UILetterItem.Status.UNLOCK);
-            item.UpdateItem(title.Substring(i, 1));
-            listItem.Add(item);
+            for (int i = 0; i < len; i++)
+            {
+                UILetterItem item = GameObject.Instantiate(uiLetterItemPrefab);
+                item.index = i;
+                item.transform.SetParent(this.transform);
+                item.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                RectTransform rctran = item.GetComponent<RectTransform>();
+                item.SetStatus(UILetterItem.Status.UNLOCK);
+                item.UpdateItem(title.Substring(i, 1));
+                listItem.Add(item);
+            }
         }
 
         LayOut();
         InitAnimate();
+        textTitle.color = Color.white;
+
+        if (index > idx_play)
+        {
+            textTitle.gameObject.SetActive(false);
+            imageLock.gameObject.SetActive(true);
+
+            // TextureUtil.UpdateRawImageTexture(imageBg, AppRes.IMAGE_GUANKA_CELL_ITEM_BG_LOCK, true);
+
+        }
+        else if (index == idx_play)
+        {
+
+            textTitle.color = GameRes.main.colorGameWinTitle;
+            textTitle.gameObject.SetActive(true);
+            imageLock.gameObject.SetActive(false);
+            // TextureUtil.UpdateRawImageTexture(imageBg, AppRes.IMAGE_GUANKA_CELL_ITEM_BG_PLAY, true);
+        }
+        else
+        {
+            textTitle.gameObject.SetActive(true);
+            imageLock.gameObject.SetActive(false);
+
+
+            // TextureUtil.UpdateRawImageTexture(imageBg, AppRes.IMAGE_GUANKA_CELL_ITEM_BG_UNLOCK, true);
+        }
+
     }
     public void InitAnimate()
     {
@@ -107,12 +138,13 @@ public class UIGuankaItemPoem : UIView
     public override void LayOut()
     {
         RectTransform rctran = this.GetComponent<RectTransform>();
-
+        float w_limit = rctran.rect.size.x / 5;
         for (int i = 0; i < listItem.Count; i++)
         {
             UILetterItem item = listItem[i] as UILetterItem;
             rctran = item.GetComponent<RectTransform>();
             float sz = 0f;
+
             if (Device.isLandscape)
             {
                 sz = 128;
@@ -120,7 +152,9 @@ public class UIGuankaItemPoem : UIView
             else
             {
                 sz = 100;
+                sz = w_limit;
             }
+            sz = Mathf.Min(sz, w_limit);
             rctran.sizeDelta = new Vector2(sz, sz);
             rctran.anchoredPosition = GetItemPos(i);
         }

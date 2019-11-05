@@ -5,7 +5,7 @@ using Moonma.Share;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-public class UIWordAnswer : UIView
+public class UIWordAnswer : UIWordContentBase
 {
     public Image imageBg;
     public Image imageBar;
@@ -41,6 +41,11 @@ public class UIWordAnswer : UIView
         uiWordList.LayOut();
     }
 
+    public override void UpdateGuankaLevel(int level)
+    {
+        UpdateItem();
+    }
+
     public void UpdateItem()
     {
         // UpdateLevel();
@@ -65,5 +70,15 @@ public class UIWordAnswer : UIView
     }
 
 
+    public override void OnTips()
+    {
+    }
+
+    public override void OnAddWord(string word)
+    {
+    }
+    public override void OnReset()
+    {
+    }
 
 }

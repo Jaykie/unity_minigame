@@ -35,11 +35,7 @@ public class UIWordList : UIView
     public override void LayOut()
     {
         float x, y, w, h;
-        LayOutGrid ly = objScrollContent.GetComponent<LayOutGrid>();
-        if (ly != null)
-        {
-            ly.LayOut();
-        }
+
         RectTransform rctran = this.GetComponent<RectTransform>();
         //SetContentHeight(rctran.rect.height);
 
@@ -50,6 +46,12 @@ public class UIWordList : UIView
             h = rctranCell.rect.height;
             rctranCell.sizeDelta = new Vector2(w, h);
             item.LayOut();
+        }
+
+        LayOutGrid ly = objScrollContent.GetComponent<LayOutGrid>();
+        if (ly != null)
+        {
+            ly.LayOut();
         }
     }
     public void SetContentHeight(float h)
@@ -208,5 +210,4 @@ public class UIWordList : UIView
         float h = rctran.rect.height;
         scrollRect.content.anchoredPosition = new Vector2(0, h * page);
     }
-
 }

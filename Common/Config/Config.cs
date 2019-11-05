@@ -142,7 +142,15 @@ public class Config
             return ret;
         }
     }
-
+    public bool Is3D
+    {
+        get
+        {
+            string key = "3D";
+            bool ret = GetBoolKeyCommon(key, false);
+            return ret;
+        }
+    }
 
     public bool isHaveShare
     {

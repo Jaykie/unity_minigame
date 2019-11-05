@@ -391,4 +391,9 @@ public class AppSceneBase : ScriptBase
         return rcTran;
     }
 
+    public void ShowMainCamera2D(bool isShow)
+    {
+        mainCamera.gameObject.SetActive(isShow);
+    }
+
 }

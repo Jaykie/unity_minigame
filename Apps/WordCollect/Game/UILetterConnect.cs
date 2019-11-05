@@ -6,6 +6,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using DG.Tweening;
+using UnityEngine.Events;
+using System;
+
 public interface IUILetterConnectDelegate
 {
     void OnUILetterConnectDidAgain(UILetterConnect ui);
@@ -18,6 +21,7 @@ public class UILetterConnect : UIView
     public UILetterItem uiLetterItemPrefab;
     public Text textTitle;
     public Image imageTitle;
+    public Button btnTips;
     public GameObject objLetterAnimate;
     public float durationAnimate;
     int[] rdmItemIndex;
@@ -35,6 +39,7 @@ public class UILetterConnect : UIView
     void Awake()
     {
         LoadPrefab();
+        btnTips.gameObject.SetActive(AppVersion.appCheckHasFinished);
         ShowText(false);
         listItem = new List<UILetterItem>();
         durationAnimate = 1f;
@@ -133,7 +138,7 @@ public class UILetterConnect : UIView
         imageTitle.gameObject.SetActive(isShow);
     }
 
-    public void RunItemAnimate(LetterConnect lc, UICellWord cellword, UIGameWordCollect uiGame)
+    public void RunItemAnimate(LetterConnect lc, UICellWord cellword, UIGameWordCollect uiGame, Action<UILetterConnect> onComplete = null)
     {
         WordItemInfo info = (WordItemInfo)GameGuankaParse.main.GetGuankaItemInfo(LevelManager.main.gameLevel);
         for (int i = 0; i < lc.listIndexClick.Count; i++)
@@ -145,13 +150,18 @@ public class UILetterConnect : UIView
             Vector2 posEnd = itemAnser.transform.position;
             if (info.gameType == GameRes.GAME_TYPE_IMAGE)
             {
-                posEnd = uiGame.uiWordAnswer.transform.position;
+                posEnd = uiGame.uiWordContent.transform.position;
             }
 
             item.transform.DOMove(posEnd, durationAnimate).OnComplete(() =>
               {
                   item.gameObject.SetActive(false);
                   item.transform.position = posOrigin;
+
+                  if (onComplete != null)
+                  {
+                      onComplete(this);
+                  }
               });
         }
     }

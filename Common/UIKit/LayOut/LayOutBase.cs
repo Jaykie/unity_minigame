@@ -4,20 +4,23 @@ using UnityEngine;
 
 public class LayOutBase : MonoBehaviour
 {
-    public enum Align
+    public enum DispLayVertical
     {
-        LEFT = 0,
-        RIGHT = 1,
-        CENTER = 2,
-        TOP = 3,
-        BOTTOM = 4
+        TOP_TO_BOTTOM = 0,
+        BOTTOM_TO_TOP,
     }
 
+    public enum DispLayHorizontal
+    {
+        LEFT_TO_RIGHT = 0,
+        RIGHT_TO_LEFT,
+    }
+
+    public DispLayVertical dispLayVertical;
+    public DispLayHorizontal dispLayHorizontal;
     public bool enableLayout = true;
     public bool enableHide = true;//是否过虑Hide
     public Vector2 space = Vector2.zero;
-    public Align alignX = Align.CENTER;
-    public Align alignY = Align.CENTER;
     public virtual void LayOut()
     {
 

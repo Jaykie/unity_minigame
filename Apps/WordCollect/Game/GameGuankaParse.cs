@@ -32,6 +32,17 @@ public class WordItemInfo : ItemInfo
     public string tips;
 
     public List<PoemContentInfo> listPoemContent;
+
+    //idiomconnet
+    public List<string> listWord;
+    public List<string> listIdiom;
+    public List<int> listPosX;
+    public List<int> listPosY;
+    public List<int> listWordAnswer;
+
+    public string date;
+    public string addtime;
+
 }
 public class GameGuankaParse : GuankaParseBase
 {
@@ -74,6 +85,38 @@ public class GameGuankaParse : GuankaParseBase
     }
 
 
+    public bool IsPunctuation(string str)
+    {
+        bool ret = false;
+
+        foreach (string item in arrayPunctuation)
+        {
+            if (str == item)
+            {
+                ret = true;
+                break;
+            }
+        }
+        return ret;
+    }
+
+    //非标点符号文字
+    public List<int> IndexListNotPunctuation(string str)
+    {
+        List<int> listRet = new List<int>();
+
+        int len = str.Length;
+        for (int i = 0; i < len; i++)
+        {
+            string word = str.Substring(i, 1);
+            if (!IsPunctuation(word))
+            {
+                listRet.Add(i);
+            }
+
+        }
+        return listRet;
+    }
     public void UpdateLanguage()
     {
         ItemInfo info = LevelManager.main.GetPlaceItemInfo(LevelManager.main.placeLevel);
@@ -83,23 +126,6 @@ public class GameGuankaParse : GuankaParseBase
         languageGame.SetLanguage(SystemLanguage.Chinese);
     }
 
-    public string GetGuankaAnswer(WordItemInfo info, int idx = 0)
-    {
-        //真正的答案
-        string str = languageGame.GetString(info.id);
-        //歇后语languageWord
-        if ((!Common.BlankString(info.head)) && (!Common.BlankString(info.end)))
-        {
-            return info.end;
-        }
-
-        if (Common.appKeyName == GameRes.GAME_POEM)
-        {
-            PoemContentInfo infoPoem = info.listPoemContent[idx];
-            str = infoPoem.content;
-        }
-        return str;
-    }
     public override int GetGuankaTotal()
     {
         ParseGuanka();
@@ -231,6 +257,10 @@ public class GameGuankaParse : GuankaParseBase
             {
                 info.gameType = GameRes.GAME_TYPE_POEM;
             }
+            else if (Common.appKeyName == GameRes.GAME_CONNECT)
+            {
+                info.gameType = GameRes.GAME_TYPE_CONNECT;
+            }
             else
             {
                 info.gameType = GameRes.GAME_TYPE_TEXT;
@@ -248,9 +278,10 @@ public class GameGuankaParse : GuankaParseBase
         for (int i = 0; i < listGuanka.Count; i++)
         {
             WordItemInfo info = listGuanka[i] as WordItemInfo;
-            string word0 = GetGuankaAnswer(info);
+            string word0 = GameAnswer.main.GetGuankaAnswer(info, false, 0);
             int idx1 = GetRandomOtherLevelIndex(i);
-            string word1 = GetGuankaAnswer(GetGuankaItemInfo(idx1) as WordItemInfo);
+            WordItemInfo info1 = listGuanka[idx1] as WordItemInfo;
+            string word1 = GameAnswer.main.GetGuankaAnswer(info1, false, 0);
             // word1 = word1.Substring(0, word1.Length / 2);
             string word = word0 + word1;
             if (Common.appKeyName == GameRes.GAME_POEM)
@@ -303,7 +334,12 @@ public class GameGuankaParse : GuankaParseBase
     public void UpdateLetterString(int idx)
     {
         WordItemInfo info = GetItemInfo();
-        string word = GetGuankaAnswer(info, idx);
+        if (Common.appKeyName == GameRes.GAME_WORDCONNECT)
+        {
+            return;
+        }
+
+        string word = GameAnswer.main.GetGuankaAnswer(info, false, idx);
         info.listLetter = new string[word.Length];
         for (int k = 0; k < word.Length; k++)
         {
@@ -378,7 +414,7 @@ public class GameGuankaParse : GuankaParseBase
 
     public void ParseIdiomItem(WordItemInfo info)
     {
-        string filepath = Common.GAME_RES_DIR + "/guanka/data/" + LanguageManager.main.languageGame.GetString(info.id) + ".json";
+        string filepath = Common.GAME_RES_DIR + "/guanka/data/" + (info.id) + ".json";
         if (!FileUtil.FileIsExistAsset(filepath))
         {
             return;
