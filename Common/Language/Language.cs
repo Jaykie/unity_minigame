@@ -78,7 +78,10 @@ public class Language
     {
         // Init();
         ltLocalization.SetLanguage(lan);
-        _common.ltLocalization.SetLanguage(lan);
+        if (_common != null)
+        {
+            _common.ltLocalization.SetLanguage(lan);
+        }
         if (_game != null)
         {
             _game.ltLocalization.SetLanguage(lan);
@@ -88,11 +91,11 @@ public class Language
     public bool IsChinese()
     {
         SystemLanguage lan = GetLanguage();
-        if ((lan == SystemLanguage.Chinese)|| (lan == SystemLanguage.ChineseSimplified)|| (lan == SystemLanguage.ChineseTraditional))
+        if ((lan == SystemLanguage.Chinese) || (lan == SystemLanguage.ChineseSimplified) || (lan == SystemLanguage.ChineseTraditional))
         {
             return true;
         }
-        return false; 
+        return false;
     }
 
     public SystemLanguage GetLanguage()

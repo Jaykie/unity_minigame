@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
-public class UIWordDetail : UIViewPop, ISegmentDelegate
+public class UIWordDetail : UIViewPop
 {
     public const string KEY_GAMEWIN_INFO_INTRO = "KEY_GAMEWIN_INFO_INTRO";
     public const string KEY_GAMEWIN_INFO_YUANWEN = "KEY_GAMEWIN_INFO_YUANWEN";
@@ -19,12 +19,10 @@ public class UIWordDetail : UIViewPop, ISegmentDelegate
     public const string KEY_GAMEWIN_INFO_ALBUM = "KEY_GAMEWIN_INFO_ALBUM";
 
 
-    public UISegment uiSegment;
     public UITextView textView;
     public Text textTitle;
-    public Text textPinyin;
     public Image imageBg;
-    public RawImage imageHead;
+    public Image imageHead;
     public Button btnClose;
 
     public Button btnAdd;
@@ -44,14 +42,8 @@ public class UIWordDetail : UIViewPop, ISegmentDelegate
         textView.SetTextColor(GameRes.main.colorGameWinTextView);
 
         textTitle.color = GameRes.main.colorGameWinTitle;
-        textPinyin.color = GameRes.main.colorGameWinTitle;
-
 
         indexSegment = 0;
-        uiSegment.InitValue(64, Color.red, Color.black);
-        uiSegment.iDelegate = this;
-        UpdateSegment();
-
     }
 
     /// <summary>
@@ -70,30 +62,6 @@ public class UIWordDetail : UIViewPop, ISegmentDelegate
     }
 
 
-    public void UpdateSegment()
-    {
-
-        //翻译
-        {
-            ItemInfo infoSeg = new ItemInfo();
-            infoSeg.id = KEY_GAMEWIN_INFO_TRANSLATION;
-            infoSeg.title = Language.main.GetString(infoSeg.id);
-            uiSegment.AddItem(infoSeg);
-        }
-
-        //出处
-        {
-            ItemInfo infoSeg = new ItemInfo();
-            infoSeg.id = KEY_GAMEWIN_INFO_ALBUM;
-            infoSeg.title = Language.main.GetString(infoSeg.id);
-            uiSegment.AddItem(infoSeg);
-        }
-        if (uiSegment != null)
-        {
-            uiSegment.UpdateList();
-        }
-        uiSegment.Select(indexSegment, true);
-    }
     public override void LayOut()
     {
         float x = 0, y = 0, w = 0, h = 0;
@@ -186,18 +154,18 @@ public class UIWordDetail : UIViewPop, ISegmentDelegate
 
     public void UpdateItem(WordItemInfo info)
     {
-        infoItem = info;
-        GameGuankaParse.main.ParseIdiomItem(info);
+        infoItem = WordDB.main.GetItem(info.id);
+        Debug.Log(" id=" + infoItem.id + " title=" + infoItem.title + " translation=" + infoItem.translation);
+
+        //GameGuankaParse.main.ParseIdiomItem(info);
         string str = info.title;
         if (Common.BlankString(str))
         {
             str = LanguageManager.main.languageGame.GetString(info.id);
         }
         textTitle.text = str;
-        textPinyin.text = info.pinyin;
-        uiSegment.Select(indexSegment, true);
         UpdateLoveStatus();
-
+        UpdateText(infoItem);
     }
 
     public void UpdateLoveStatus()
@@ -223,29 +191,16 @@ public class UIWordDetail : UIViewPop, ISegmentDelegate
         {
             return;
         }
-        if (info.id == KEY_GAMEWIN_INFO_TRANSLATION)
+        string change = infoItem.change;
+        if (Common.BlankString(change))
         {
-            str = infoItem.translation;
+            change = Language.main.GetString("STR_UNKNOWN_CHANGE");
         }
+        str = Language.main.GetString("STR_TRANSLATION") + ":" + infoItem.translation + "\n" + Language.main.GetString("STR_CHANGE") + ":" + change;
 
-        if (info.id == KEY_GAMEWIN_INFO_ALBUM)
-        {
-            str = infoItem.album;
-        }
-
-        if (Common.BlankString(str))
-        {
-            // str = Language.main.GetString("STR_UIVIEWALERT_MSG_GAME_FINISH");
-        }
         textView.text = str;
     }
 
-    public void SegmentDidClick(UISegment seg, SegmentItem item)
-    {
-        // UpdateSortList(item.index);
-        UpdateText(item.infoItem);
-
-    }
     public void OnClickBtnClose()
     {
         Close();

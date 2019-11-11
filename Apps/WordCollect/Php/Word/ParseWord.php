@@ -1,6 +1,6 @@
 <?php
 header("Content-type: text/html; charset=utf-8");
-include_once('CrazyImageDB.php');
+include_once('WordDB.php');
 include_once('WordItemInfo.php');
 include_once('../Common/Download.php');
 include_once('../Common/Common.php');
@@ -39,8 +39,10 @@ class ParseWord //extends Thread
     public $WEB_HOME = "http://www.iciba.com";
     public $IMAGE_DIR = "Word";
     public $PIC_DIR = "Pic";
+    public $dbWord;
     public function DoPaser()
     {
+        $this->InitDB();
         $save_dir = $this->ROOT_SAVE_DIR;
         if (!is_dir($save_dir)) {
             mkdir($save_dir);
@@ -50,13 +52,35 @@ class ParseWord //extends Thread
         if (!is_dir($save_dir)) {
             mkdir($save_dir);
         }
-        $word = "word";
-        $info =  $this->PaserWordInfo($this->WEB_HOME . "/" . $word);
-        $info->title = $word;
-        $this->SaveWordJson($save_dir, $info);
+
+        $this->ParseWordList("wordanswer.json", $save_dir);
     }
 
+    public function InitDB()
+    {
+        $this->dbWord = new WordDB();
+        $this->dbWord->CreateDb();
+    }
 
+    public function ParseWordList($filepath, $save_dir)
+    {
+        $fiel_exist = file_exists($filepath);
+        if ($fiel_exist) {
+            $json_string = file_get_contents($filepath);
+            $data = json_decode($json_string, true);
+            $data_list =  $data['items'];
+            foreach ($data_list as $item) {
+                $word = $item['id'];
+                $infoid = new WordItemInfo();
+                $infoid->id = $word;
+                if (!$this->dbWord->IsItemExist($infoid)) {
+                    $info =  $this->PaserWordInfo($this->WEB_HOME . "/" . $word, $word);
+                    $this->dbWord->AddItem($info);
+                    // $this->SaveWordJson($save_dir, $info);
+                }
+            }
+        }
+    }
 
     public function SaveWordJson($save_dir, $info)
     {
@@ -66,8 +90,6 @@ class ParseWord //extends Thread
         if ($ret) {
             // return;
         } {
-
-
 
             $element = array(
                 'title' => $info->title,
@@ -95,12 +117,27 @@ class ParseWord //extends Thread
         }
     }
 
+    function FormatString($str)
+    {
+        //网页空格
+        $strtmp = str_replace("	", "", $str);
+        //普通空格
+        $strtmp = str_replace(" ", "", $strtmp);
+
+        //'为DB 关键字  
+        //SQL 的单引号转义字符 https://www.cnblogs.com/qiuting/p/8038316.html
+        $strtmp = str_replace("'", "''", $strtmp);
+        return $strtmp;
+    }
+
 
     //http://www.iciba.com/word
-    function PaserWordInfo($url)
+    function PaserWordInfo($url, $word)
     {
         $info = new WordItemInfo();
-        $info->translation = array();
+        // $info->translation = array();
+        $info->id = $word;
+        $info->title = $word;
 
         $html = get_html($url);
         if (!$html) {
@@ -120,23 +157,24 @@ class ParseWord //extends Thread
                 if ($span->class == "prop") { }
                 $str = $str . " " . $span->plaintext;
             }
-
-            array_push($info->translation, $str);
+            $str =   $this->FormatString($str);
+            $info->translation .= "\n" . $str;
+            // array_push($info->translation, $str);
         } {
             //变形 change clearfix
             $change_li = $html->find('li[class=change clearfix]', 0);
-            $arry_span = $change_li->find('span');
-            $str = "";
-            foreach ($arry_span as $span) {
-                $strtmp =  $span->plaintext;
-                //网页空格
-                $strtmp = str_replace("	", "", $strtmp);
-                //普通空格
-                $strtmp = str_replace(" ", "", $strtmp);
-
-                $str = $str . " " . $strtmp;
+            if ($change_li == null) {
+                $info->change = "";
+            } else {
+                $arry_span = $change_li->find('span');
+                $str = "";
+                foreach ($arry_span as $span) {
+                    $strtmp =  $span->plaintext;
+                    $strtmp =   $this->FormatString($strtmp);
+                    $str = $str . " " . $strtmp;
+                }
+                $info->change = $str;
             }
-            $info->change = $str;
         }
 
         return $info;

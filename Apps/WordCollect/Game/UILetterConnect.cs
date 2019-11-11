@@ -138,7 +138,7 @@ public class UILetterConnect : UIView
         imageTitle.gameObject.SetActive(isShow);
     }
 
-    public void RunItemAnimate(LetterConnect lc, UICellWord cellword, UIGameWordCollect uiGame, Action<UILetterConnect> onComplete = null)
+    public void RunItemAnimate(LetterConnect lc, UICellWord cellword, UIGameBase game, Action<UILetterConnect> onComplete = null)
     {
         WordItemInfo info = (WordItemInfo)GameGuankaParse.main.GetGuankaItemInfo(LevelManager.main.gameLevel);
         for (int i = 0; i < lc.listIndexClick.Count; i++)
@@ -150,6 +150,7 @@ public class UILetterConnect : UIView
             Vector2 posEnd = itemAnser.transform.position;
             if (info.gameType == GameRes.GAME_TYPE_IMAGE)
             {
+                UIGameWordCollect uiGame = game as UIGameWordCollect;
                 posEnd = uiGame.uiWordContent.transform.position;
             }
 

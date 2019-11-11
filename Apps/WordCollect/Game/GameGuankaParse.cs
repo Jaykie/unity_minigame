@@ -14,9 +14,10 @@ public class PoemContentInfo
 }
 public class WordItemInfo : ItemInfo
 {
-    public List<object> listFormulation;//公式
     public string[] listLetter;
     public string[] listAnswer;//答案 LO|SOL 
+    public List<AnswerInfo> listAnswerInfo;
+    public List<List<object>> listBoard;//top t0 bottom 排列
     public string[] listError;
     public string gameType;
     public string author;
@@ -30,6 +31,7 @@ public class WordItemInfo : ItemInfo
     public string head;
     public string end;
     public string tips;
+    public string change;
 
     public List<PoemContentInfo> listPoemContent;
 
@@ -171,7 +173,11 @@ public class GameGuankaParse : GuankaParseBase
     {
         if (Common.appKeyName == GameRes.GAME_WORDCONNECT)
         {
-            return ParseGuankaWordConnect();
+            return ParseGuankaWordConnectList();
+        }
+        if (Common.appKeyName == GameRes.GAME_CONNECT)
+        {
+            return ParseGuankaConnect();
         }
         if ((Common.appKeyName == GameRes.GAME_IDIOM) || (Common.appKeyName == GameRes.GAME_POEM))
         {
@@ -347,7 +353,175 @@ public class GameGuankaParse : GuankaParseBase
         }
         Debug.Log("word = UpdateLetterString =" + word);
     }
-    public int ParseGuankaWordConnect()
+
+    public string GetWordFromBoard(WordItemInfo info, int idx, bool isByRow)
+    {
+        string ret = "";
+        List<object> ls = null;
+        bool isEnd = false;
+        bool isError = false;
+        int count = 0;
+        if (isByRow)
+        {
+            ls = info.listBoard[idx];
+            count = ls.Count;
+        }
+        else
+        {
+            count = info.listBoard.Count;
+        }
+        for (int i = 0; i < count; i++)
+        {
+            string str = "";
+            if (isByRow)
+            {
+                str = (string)ls[i];
+            }
+            else
+            {
+                ls = info.listBoard[i];
+                str = (string)ls[idx];
+            }
+
+
+            if (!Common.BlankString(str))
+            {
+                if (!isEnd)
+                {
+                    ret += str;
+                }
+                else
+                {
+                    //有效字符不连续为非答案
+                    isError = true;
+                }
+            }
+            else
+            {
+                if (!Common.BlankString(ret))
+                {
+                    //检测到空表示结束
+                    isEnd = true;
+                    break;
+                }
+            }
+        }
+
+        if (isError)
+        {
+            ret = "";
+        }
+        return ret;
+    }
+    public void ParseWordAnswer(WordItemInfo info)
+    {
+        int row = info.listBoard.Count;
+        int col = info.listBoard[0].Count;
+
+        info.listAnswerInfo = new List<AnswerInfo>();
+
+        for (int i = 0; i < row; i++)
+        {
+
+            string str = GetWordFromBoard(info, i, true);
+            if (!Common.BlankString(str) && (str.Length > 1))
+            {
+                AnswerInfo infoanswer = new AnswerInfo();
+                infoanswer.word = str;
+                infoanswer.row = i;
+                infoanswer.col = -1;
+                info.listAnswerInfo.Add(infoanswer);
+            }
+        }
+
+        for (int i = 0; i < col; i++)
+        {
+            string str = GetWordFromBoard(info, i, false);
+            if (!Common.BlankString(str) && (str.Length > 1))
+            {
+                AnswerInfo infoanswer = new AnswerInfo();
+                infoanswer.word = str;
+                infoanswer.row = -1;
+                infoanswer.col = i;
+                info.listAnswerInfo.Add(infoanswer);
+            }
+        }
+
+        info.listAnswer = new string[info.listAnswerInfo.Count];
+        for (int i = 0; i < info.listAnswerInfo.Count; i++)
+        {
+            AnswerInfo infoanswer = info.listAnswerInfo[i];
+            info.listAnswer[i] = infoanswer.word;
+        }
+
+    }
+    //接龙
+    public int ParseGuankaConnect()
+    {
+        int count = 0;
+
+        if ((listGuanka != null) && (listGuanka.Count != 0))
+        {
+            return listGuanka.Count;
+        }
+
+        listGuanka = new List<object>();
+        int idx = LevelManager.main.placeLevel;
+        ItemInfo infoPlace = LevelManager.main.GetPlaceItemInfo(idx);
+        string filepath = Common.GAME_RES_DIR + "/guanka/guanka_list_place" + idx + ".json";
+        if (!FileUtil.FileIsExistAsset(filepath))
+        {
+            filepath = Common.GAME_RES_DIR + "/guanka/item_" + infoPlace.id + ".json";
+        }
+
+        //FILE_PATH
+        string json = FileUtil.ReadStringAsset(filepath);//((TextAsset)Resources.Load(fileName, typeof(TextAsset))).text;
+                                                         // Debug.Log("json::"+json);
+        JsonData root = JsonMapper.ToObject(json);
+
+        char[] charSplit = { '|' };
+
+        for (int i = 0; i < root.Count; i++)
+        {
+            WordItemInfo info = new WordItemInfo();
+            JsonData item = root[i];
+            JsonData itemData = item["data"];
+            JsonData letters = itemData["letters"];
+
+            info.listLetter = new string[letters.Count];
+            for (int j = 0; j < letters.Count; j++)
+            {
+                info.listLetter[j] = (string)letters[j];
+            }
+
+
+            JsonData board = itemData["board"];
+            info.listBoard = new List<List<object>>();
+            for (int j = 0; j < board.Count; j++)
+            {
+                List<object> ls = new List<object>();
+                JsonData it = board[j];
+                for (int k = 0; k < it.Count; k++)
+                {
+                    ls.Add((string)it[k]);
+                }
+                info.listBoard.Add(ls);
+
+            }
+            ParseWordAnswer(info);
+            //  info.listAnswer = str.Split(charSplit);
+
+            info.gameType = GameRes.GAME_TYPE_CONNECT;
+            listGuanka.Add(info);
+        }
+
+        count = listGuanka.Count;
+
+        Debug.Log("ParseGame::count=" + count);
+        return count;
+    }
+
+    public int ParseGuankaWordConnectList()
     {
         int count = 0;
 
@@ -364,8 +538,6 @@ public class GameGuankaParse : GuankaParseBase
                                                          // Debug.Log("json::"+json);
         JsonData root = JsonMapper.ToObject(json);
         JsonData items = root["levels"];
-
-
         /*
              "n": "1",
             "o": 0,
@@ -385,11 +557,19 @@ public class GameGuankaParse : GuankaParseBase
 
             str = (string)item["r"];
             info.listAnswer = str.Split(charSplit);
+            info.listAnswerInfo = new List<AnswerInfo>();
+            for (int j = 0; j < info.listAnswer.Length; j++)
+            {
+                AnswerInfo infoanswer = new AnswerInfo();
+                infoanswer.word = info.listAnswer[j];
+                info.listAnswerInfo.Add(infoanswer);
+            }
 
             str = (string)item["e"];
             info.listError = str.Split(charSplit);
 
             info.gameType = GameRes.GAME_TYPE_WORDLIST;
+
             listGuanka.Add(info);
         }
 

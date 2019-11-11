@@ -40,6 +40,12 @@ public class UIWordContentBase : UIView
     {
     }
 
+    //匹配到正确答案
+    public virtual void OnRightAnswer(int idx)
+    {
+    }
+
+
 
     public virtual bool CheckAllFill()
     {

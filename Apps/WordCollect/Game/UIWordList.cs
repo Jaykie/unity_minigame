@@ -169,20 +169,6 @@ public class UIWordList : UIView
 
     }
 
-    public bool IsGameWin()
-    {
-        bool ret = true;
-        foreach (UICellWord item in listItem)
-        {
-            UILetterItem.Status st = item.GetItem(0).GetStatus();
-            if (st == UILetterItem.Status.LOCK)
-            {
-                ret = false;
-            }
-        }
-        return ret;
-    }
-
     public void GotoListIndex(int idx)
     {
         UICellWord item = GetItem(0);
@@ -209,5 +195,21 @@ public class UIWordList : UIView
         RectTransform rctran = this.GetComponent<RectTransform>();
         float h = rctran.rect.height;
         scrollRect.content.anchoredPosition = new Vector2(0, h * page);
+    }
+
+
+    public bool CheckAllAnswerFinish()
+    {
+
+        bool ret = true;
+        foreach (UICellWord item in listItem)
+        {
+            UILetterItem.Status st = item.GetItem(0).GetStatus();
+            if (st == UILetterItem.Status.LOCK)
+            {
+                ret = false;
+            }
+        }
+        return ret;
     }
 }

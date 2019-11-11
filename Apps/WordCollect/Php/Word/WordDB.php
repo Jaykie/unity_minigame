@@ -1,16 +1,24 @@
 ﻿<?php
 
 include_once('../Common/Sql/SqlDBUtil.php');
-class CrazyImageDB  extends SqlDBUtil
+include_once('WordItemInfo.php');
+
+class WordDB  extends SqlDBUtil
 {
-	const TABLE_NAME = 'TableImage';
+	const TABLE_NAME = 'TableWord';
 
 	const KEY_text = 'text';
+
 	const KEY_id = 'id';
-
 	const KEY_title = 'title';
+	const KEY_change = 'change';
+	const KEY_translation = 'translation';
+	const KEY_example = 'example';
 
-	public $arrayCol = array(self::KEY_id, self::KEY_title);
+
+	public $arrayCol = array(
+		self::KEY_id, self::KEY_title, self::KEY_translation, self::KEY_change,
+	);
 	public $arrayColType;
 
 
@@ -20,7 +28,7 @@ class CrazyImageDB  extends SqlDBUtil
 
 	public function CreateDb()
 	{
-		$this->OpenFile("items.db");
+		$this->OpenFile("Word.db");
 		$count = count($this->arrayCol);
 		$this->arrayColType = array($count);
 		for ($i = 0; $i < $count; $i++) {
@@ -55,33 +63,11 @@ class CrazyImageDB  extends SqlDBUtil
 	{
 		$count = count($this->arrayCol);
 		$values = array($count);
-		//id,filesave,date,addtime 
-
+		//id,filesave,date,addtime  
 		$values[0] = $info->id;
-		//values[0] = "性";//ng
-
 		$values[1] = $info->title;
-
-		/* 
-        values[1] = info.intro;
-        values[2] = info.album;
-        Debug.Log("translation=" + info.translation);
-        //values[3] = "成千上万匹马在奔跑腾跃。形容群众性的活动声势浩大或场面热烈。";
-        //values[3] = "成千上万匹马在奔跑腾跃。形容群众性";//ng
-        // values[3] = "性";//ng
-        // values[3] = "性";//ng
-
-        values[3] = "u6027";//\u6027
-
-        values[4] = info.author;
-        values[5] = info.year;
-        values[6] = info.style;
-       
-        values[8] = info.appreciation;
-        values[9] = info.head;
-        values[10] = info.end;
-        values[11] = info.tips;
-        */
+		$values[2] = $info->translation;
+		$values[3] = $info->change;
 		$this->Insert2Table(self::TABLE_NAME, $values);
 	}
 
@@ -113,11 +99,16 @@ class CrazyImageDB  extends SqlDBUtil
 	}
 
 
+
 	public function ReadInfo($item)
 	{
-		$info = new CrazyImageItemInfo();
+		$info = new IdiomItemInfo();
+
 		$info->id =   $item[self::KEY_id];
 		$info->title =   $item[self::KEY_title];
+		$info->translation =   $item[self::KEY_translation];
+		$info->change =   $item[self::KEY_change];
+
 		echo "id=" . $info->id . "\n";
 		echo "title=" . $info->title . "\n";
 		return $info;

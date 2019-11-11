@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-public class LoveDB
+public class WordDB
 {
-    public const string TABLE_NAME = "table_items";
+    public const string TABLE_NAME = "TableWord";
     DBToolSqliteKit dbTool;
     public string dbFileName;
 
@@ -35,25 +35,24 @@ public class LoveDB
     {
         get
         {
-
             string appDBPath = Application.temporaryCachePath + "/" + dbFileName;
             Debug.Log("appDBPath=" + appDBPath);
-
             return appDBPath;
         }
     }
-    static LoveDB _main = null;
+    static WordDB _main = null;
     static bool isInited = false;
-    public static LoveDB main
+    public static WordDB main
     {
         get
         {
             if (!isInited)
             {
                 isInited = true;
-                _main = new LoveDB();
-                Debug.Log("LoveDB main init");
-                _main.dbFileName = "LoveDB.sqlite";
+                _main = new WordDB();
+                Debug.Log("WordDB main init");
+                _main.dbFileName = "Word.db";
+                _main.CopyDbFileFromResource();
                 _main.CreateDb();
             }
             return _main;
@@ -73,6 +72,17 @@ public class LoveDB
         // }
     }
 
+    void CopyDbFileFromResource()
+    {
+        string src = Common.GAME_RES_DIR + "/guanka/Word.db";
+        string dst = dbFilePath;
+        if (!FileUtil.FileIsExist(dst))
+        {
+            byte[] data = FileUtil.ReadDataAsset(src);
+            System.IO.File.WriteAllBytes(dst, data);
+        }
+
+    }
     void CreateDb()
     {
         dbTool = new DBToolSqliteKit();
@@ -157,6 +167,7 @@ public class LoveDB
         return date;
     }
 
+    //{ "id", "intro", "album", "translation", "author", "year", "style", "pinyin", "appreciation", "head", "end", "tips", "date", "addtime" };
     public void AddItem(WordItemInfo info)
     {
         OpenDB();
@@ -184,6 +195,9 @@ public class LoveDB
         dbTool.InsertInto(TABLE_NAME, values);
 
         CloseDB();
+        //  GetItemsByWord();
+
+
     }
 
 
@@ -226,7 +240,15 @@ public class LoveDB
         info.translation = rd.GetString(KEY_translation);
         info.change = rd.GetString(KEY_change);
 
+        // info.pinyin = rd.GetString(KEY_pinyin);
+        // Debug.Log("ReadInfo info.pinyin=" + info.pinyin);
+        /* 
+     
+        */
+        //  info.addtime = rd.GetString(KEY_addtime);
+        // info.date = rd.GetString(KEY_date);
     }
+
 
     public List<WordItemInfo> GetAllItem()
     {
@@ -317,5 +339,27 @@ public class LoveDB
         return listRet;
     }
 
+
+
+    public WordItemInfo GetItem(string id)
+    {
+        string strsql = "select * from " + TABLE_NAME + " where id = '" + id + "'";
+        //List<WordItemInfo> listRet = new List<WordItemInfo>();
+        WordItemInfo info = new WordItemInfo();
+        OpenDB();
+        //"select * from %s where keyZi = \"%s\" order by addtime desc"
+        SQLiteQuery reader = dbTool.ExecuteQuery(strsql, false);
+        while (reader.Step())// 循环遍历数据 
+        {
+            ReadInfo(info, reader);
+            break;
+            //listRet.Add(info);
+        }
+
+        reader.Release();
+
+        CloseDB();
+        return info;
+    }
 }
 

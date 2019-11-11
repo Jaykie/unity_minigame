@@ -9,6 +9,8 @@ public class AnswerInfo
     public string word;//答案
     public bool isFillWord;//是否填了字
     public string wordFill;//实际填充的字
+    public int row;//top to bottom
+    public int col;
 }
 public class GameAnswer
 {

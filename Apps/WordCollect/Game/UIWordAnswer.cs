@@ -14,8 +14,11 @@ public class UIWordAnswer : UIWordContentBase
 
     public UIWordList uiWordList;
     public GameObject uiWordImage;
+    public UILetterConnect uiLetterConnect;
+    public LetterConnect letterConnect;
 
     public UILetterItem uiLetterItemPrefab;
+    int indexAnswer;
 
     /// <summary>
     /// Awake is called when the script instance is being loaded.
@@ -49,6 +52,7 @@ public class UIWordAnswer : UIWordContentBase
     public void UpdateItem()
     {
         // UpdateLevel();
+        indexAnswer = 0;
 
         WordItemInfo info = (WordItemInfo)GameGuankaParse.main.GetGuankaItemInfo(LevelManager.main.gameLevel);
 
@@ -68,7 +72,38 @@ public class UIWordAnswer : UIWordContentBase
 
         uiWordList.UpdateItem();
     }
+    public override void OnRightAnswer(int idx)
+    {
+        WordItemInfo info = infoItem as WordItemInfo;
+        UICellWord item = uiWordList.GetItem(idx);
+        if (item.GetItem(0).GetStatus() == UILetterItem.Status.LOCK)
+        {
+            item.SetStatus(UILetterItem.Status.UNLOCK);
+            indexAnswer++;
+            if (indexAnswer < info.listAnswer.Length)
+            {
+                Debug.Log("indexAnswer =" + indexAnswer);
+                uiLetterConnect.RunItemAnimate(letterConnect, item, GameViewController.main.gameBase, ui =>
+                    {
+                        if (info.gameType != GameRes.GAME_TYPE_IMAGE)
+                        {
+                            GameGuankaParse.main.UpdateLetterString(indexAnswer);
+                            letterConnect.UpdateItem();
+                            uiLetterConnect.UpdateItem();
+                        }
+                        uiWordList.GotoListIndex(indexAnswer);
+                    }
 
+                 );
+            }
+
+        }
+        else if (item.GetItem(0).GetStatus() == UILetterItem.Status.UNLOCK)
+        {
+            item.SetStatus(UILetterItem.Status.DUPLICATE);
+            AudioPlay.main.PlayFile(GameRes.Audio_WordDuplicate);
+        }
+    }
 
     public override void OnTips()
     {
@@ -79,6 +114,11 @@ public class UIWordAnswer : UIWordContentBase
     }
     public override void OnReset()
     {
+    }
+    public override bool CheckAllAnswerFinish()
+    {
+        bool ret = uiWordList.CheckAllAnswerFinish();
+        return ret;
     }
 
 }

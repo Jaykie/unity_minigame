@@ -84,6 +84,8 @@ public class UIHomeWordCollect : UIHomeBase
         RunActionImageName();
         //   actionBtnLearn.RunAction();
         LayOut();
+        // WordItemInfo infoItem = WordDB.main.GetItem("TEN");
+        // Debug.Log(" id=" + infoItem.id + " title=" + infoItem.title + " translation=" + infoItem.translation);
 
     }
 

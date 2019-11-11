@@ -27,11 +27,11 @@ public class UIGameWinWord : UIViewPop
 
     public Button btnFriend;
     public Button btnNext;
-    public Button btnAddLove;
     public GameObject objLayoutBtn;
 
     public UIButtonWord uiButtonWordPrefab;
-    public List<UIButtonWord> listIdiom;
+    public List<UIButtonWord> listWord;
+ 
     /// <summary>
     /// Unity's Awake method.
     /// </summary>
@@ -42,13 +42,10 @@ public class UIGameWinWord : UIViewPop
 
         //Common.SetButtonText(btnFriend, Language.main.GetString("STR_GameWin_BtnFriend"));
         Common.SetButtonText(btnNext, Language.main.GetString("STR_GameWin_BtnNext"), 0, false);
-        //Common.SetButtonText(btnAddLove, Language.main.GetString("STR_GameWin_BtnAddLove"));
 
         textTitle.text = Language.main.GetString("STR_TITLE_GameWin");
         textTitle.color = GameRes.main.colorGameWinTitle;
-
-        UpdateIdiom();
-
+        UpdateItem();
     }
 
     /// <summary>
@@ -66,24 +63,24 @@ public class UIGameWinWord : UIViewPop
 
     }
 
-    void UpdateIdiom()
+    void UpdateItem()
     {
-        if (listIdiom == null)
+        if (listWord == null)
         {
-            listIdiom = new List<UIButtonWord>();
+            listWord = new List<UIButtonWord>();
         }
         WordItemInfo info = GameGuankaParse.main.GetItemInfo();
-        for (int i = 0; i < info.listIdiom.Count; i++)
+        for (int i = 0; i < info.listAnswer.Length; i++)
         {
-            WordItemInfo infoIdiom = new WordItemInfo();
-            infoIdiom.title = info.listIdiom[i];
-            infoIdiom.id = infoIdiom.title;
+            WordItemInfo infoWord = new WordItemInfo();
+            infoWord.title = info.listAnswer[i];
+            infoWord.id = infoWord.title;
             UIButtonWord ui = (UIButtonWord)GameObject.Instantiate(uiButtonWordPrefab);
             ui.transform.SetParent(objWord.transform);
             ui.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
             UIViewController.ClonePrefabRectTransform(uiButtonWordPrefab.gameObject, ui.gameObject);
-            ui.UpdateItem(infoIdiom);
-            listIdiom.Add(ui);
+            ui.UpdateItem(infoWord);
+            listWord.Add(ui);
         }
     }
     public override void LayOut()
@@ -184,7 +181,5 @@ public class UIGameWinWord : UIViewPop
         Close();
         LevelManager.main.GotoNextLevel();
     }
-    public void OnClickBtnAddLove()
-    {
-    }
+
 }

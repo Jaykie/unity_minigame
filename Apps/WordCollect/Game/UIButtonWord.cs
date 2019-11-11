@@ -7,7 +7,7 @@ public class UIButtonWord : UIView
     public Image imageBg;
     public Text textTitle;
     public int index;
-    WordItemInfo infoItem; 
+    WordItemInfo infoItem;
 
     // Use this for initialization
     void Start()
@@ -23,9 +23,9 @@ public class UIButtonWord : UIView
     }
     public void UpdateItem(WordItemInfo info)
     {
-        infoItem = info;
+        infoItem = info; 
         textTitle.text = info.title;
-    } 
+    }
     public void OnClickItem()
     {
 
