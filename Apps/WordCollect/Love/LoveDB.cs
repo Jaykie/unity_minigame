@@ -20,9 +20,7 @@ public class LoveDB
 
     public const string KEY_text = "text";
 
-    string[] item_col = new string[] { KEY_id, KEY_title, KEY_translation, KEY_change, };
-    //string[] item_col = new string[] { KEY_id, KEY_intro, KEY_album, KEY_translation, KEY_author, KEY_year, KEY_style, KEY_pinyin, KEY_appreciation, KEY_head, KEY_end, KEY_tips, KEY_date, KEY_addtime };
-    //string[] item_coltype = new string[] { KEY_text, KEY_text, KEY_text, KEY_text, KEY_text, KEY_text, KEY_text, KEY_text, KEY_text, KEY_text, KEY_text, KEY_text, KEY_text, KEY_text };
+    string[] item_col = new string[] { KEY_id, KEY_title, KEY_translation, KEY_change};
     static public string strSaveWordShotDir//字截图保存目录
     {
         get
@@ -53,7 +51,7 @@ public class LoveDB
                 isInited = true;
                 _main = new LoveDB();
                 Debug.Log("LoveDB main init");
-                _main.dbFileName = "LoveDB.sqlite";
+                _main.dbFileName = "LoveDB_" + Common.appKeyName + ".sqlite";
                 _main.CreateDb();
             }
             return _main;
@@ -106,7 +104,7 @@ public class LoveDB
     public bool DBEmpty()
     {
         bool ret = true;
-        string strsql = "select id from " + TABLE_NAME + " order by addtime desc";
+        string strsql = "select id from " + TABLE_NAME;// + " order by addtime desc";
         OpenDB();
         //SqliteDataReader reader = dbTool.ReadFullTable(TABLE_NAME);//
         SQLiteQuery reader = dbTool.ExecuteQuery(strsql, false);
@@ -225,14 +223,13 @@ public class LoveDB
         info.title = rd.GetString(KEY_title);
         info.translation = rd.GetString(KEY_translation);
         info.change = rd.GetString(KEY_change);
-
     }
 
     public List<WordItemInfo> GetAllItem()
     {
         // Distinct 去掉重复
         //desc 降序 asc 升序 
-        string strsql = "select DISTINCT id from " + TABLE_NAME + " order by addtime desc";
+        string strsql = "select DISTINCT id from " + TABLE_NAME;// + " order by addtime desc";
 
         List<WordItemInfo> listRet = new List<WordItemInfo>();
         OpenDB();

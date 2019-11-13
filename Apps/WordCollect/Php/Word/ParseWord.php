@@ -53,6 +53,8 @@ class ParseWord //extends Thread
             mkdir($save_dir);
         }
 
+
+        //$info = $this->dbWord->GetItem('LO');
         $this->ParseWordList("wordanswer.json", $save_dir);
     }
 

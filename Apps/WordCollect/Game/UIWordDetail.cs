@@ -173,11 +173,11 @@ public class UIWordDetail : UIViewPop
         string strBtn = "";
         if (LoveDB.main.IsItemExist(infoItem))
         {
-            strBtn = Language.main.GetString("STR_IdiomDetail_DELETE_LOVE");
+            strBtn = Language.main.GetString("STR_Detail_DELETE_LOVE");
         }
         else
         {
-            strBtn = Language.main.GetString("STR_IdiomDetail_ADD_LOVE");
+            strBtn = Language.main.GetString("STR_Detail_ADD_LOVE");
         }
 
         Common.SetButtonText(btnAdd, strBtn, 0, false);
@@ -191,12 +191,19 @@ public class UIWordDetail : UIViewPop
         {
             return;
         }
+
+        string translation = infoItem.translation;
+        if (Common.BlankString(translation))
+        {
+            translation = Language.main.GetString("STR_UNKNOWN");
+        }
+
         string change = infoItem.change;
         if (Common.BlankString(change))
         {
-            change = Language.main.GetString("STR_UNKNOWN_CHANGE");
+            change = Language.main.GetString("STR_UNKNOWN");
         }
-        str = Language.main.GetString("STR_TRANSLATION") + ":" + infoItem.translation + "\n" + Language.main.GetString("STR_CHANGE") + ":" + change;
+        str = Language.main.GetString("STR_TRANSLATION") + ":" + translation + "\n" + Language.main.GetString("STR_CHANGE") + ":" + change;
 
         textView.text = str;
     }

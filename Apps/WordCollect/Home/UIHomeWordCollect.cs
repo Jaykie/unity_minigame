@@ -16,6 +16,7 @@ public class UIHomeWordCollect : UIHomeBase
     public Button btnShare;
     public Button btnNoAd;
     public Button btnLearn;
+    public Button btnAddLove;
     public GameObject objLogo;
     //public ActionHomeBtn actionBtnLearn;
     public void Awake()
@@ -328,6 +329,14 @@ public class UIHomeWordCollect : UIHomeBase
             NaviViewController navi = this.controller.naviController;
             //  navi.Push(LearnViewController.main);
 
+        }
+    }
+    public void OnClickBtnAddLove()
+    {
+        if (this.controller != null)
+        {
+            NaviViewController navi = this.controller.naviController;
+            navi.Push(LoveViewController.main);
         }
     }
 }

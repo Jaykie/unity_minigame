@@ -51,7 +51,7 @@ public class WordDB
                 isInited = true;
                 _main = new WordDB();
                 Debug.Log("WordDB main init");
-                _main.dbFileName = "Word.db";
+                _main.dbFileName = "Word_" + Common.appKeyName + ".db";
                 _main.CopyDbFileFromResource();
                 _main.CreateDb();
             }
@@ -74,7 +74,7 @@ public class WordDB
 
     void CopyDbFileFromResource()
     {
-        string src = Common.GAME_RES_DIR + "/guanka/Word.db";
+        string src = Common.GAME_RES_DIR + "/Word.db";
         string dst = dbFilePath;
         if (!FileUtil.FileIsExist(dst))
         {
@@ -349,13 +349,18 @@ public class WordDB
         OpenDB();
         //"select * from %s where keyZi = \"%s\" order by addtime desc"
         SQLiteQuery reader = dbTool.ExecuteQuery(strsql, false);
+        int count = 0;
         while (reader.Step())// 循环遍历数据 
         {
             ReadInfo(info, reader);
+            count++;
             break;
             //listRet.Add(info);
         }
-
+        if (count == 0)
+        {
+            Debug.Log(" not find id=" + info.id);
+        }
         reader.Release();
 
         CloseDB();

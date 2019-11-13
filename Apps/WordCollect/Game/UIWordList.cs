@@ -28,6 +28,11 @@ public class UIWordList : UIView
         LayOut();
     }
 
+    void Start()
+    {
+        Invoke("LayOut", 0.5f);
+    }
+
     void LoadPrefab()
     {
 

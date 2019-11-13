@@ -102,7 +102,7 @@ class WordDB  extends SqlDBUtil
 
 	public function ReadInfo($item)
 	{
-		$info = new IdiomItemInfo();
+		$info = new WordItemInfo();
 
 		$info->id =   $item[self::KEY_id];
 		$info->title =   $item[self::KEY_title];
@@ -111,6 +111,27 @@ class WordDB  extends SqlDBUtil
 
 		echo "id=" . $info->id . "\n";
 		echo "title=" . $info->title . "\n";
+		echo "translation=" . $info->translation . "\n";
+		echo "change=" . $info->change . "\n";
 		return $info;
+	}
+
+
+	public function GetItem($id)
+	{
+		$sql = "select * from " . self::TABLE_NAME . " where id = '" . $id . "'";
+		//List<WordItemInfo> listRet = new List<WordItemInfo>();
+		$info = new WordItemInfo();
+		$result = $this->query($sql);
+		$listRet = array();
+		$i = 0;
+		while ($item = $result->fetchArray(SQLITE3_ASSOC)) {
+			echo "read  result i=" . $i . "\n";
+			// $row[$i]['user_id'] = $res['NAME']; 
+			$info = $this->ReadInfo($item);
+			array_push($listRet, $info);
+			$i++;
+		}
+		return info;
 	}
 }

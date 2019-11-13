@@ -23,7 +23,8 @@ public class UIButtonWord : UIView
     }
     public void UpdateItem(WordItemInfo info)
     {
-        infoItem = info; 
+        infoItem = info;
+        Debug.Log("UpdateItem id=" + info.id);
         textTitle.text = info.title;
     }
     public void OnClickItem()
@@ -31,7 +32,7 @@ public class UIButtonWord : UIView
 
         PopUpManager.main.Show<UIWordDetail>("App/Prefab/Game/UIWordDetail", popup =>
         {
-            Debug.Log("UIWordDetail Open ");
+            Debug.Log("UIWordDetail Open id=" + infoItem.id);
             popup.UpdateItem(infoItem);
 
         }, popup =>

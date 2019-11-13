@@ -46,7 +46,6 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
         LoadPrefab();
         InitBg();
         uiLetterConnect.iDelegate = this;
-
         if (!AppVersion.appCheckHasFinished)
         {
             objGoldBar.SetActive(false);
@@ -199,7 +198,10 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
 
         //  public const string GAME_TYPE_WORDLIST = "WordList";  
         //  public const string GAME_TYPE_POEM = "Poem"; 
-
+        if (uiWordContent != null)
+        {
+            DestroyImmediate(uiWordContent.gameObject);
+        }
 
         GameObject objPrefab = null;
 
@@ -225,6 +227,8 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
                     objPrefab = uiWordAnswerPrefab.gameObject;
                     uiWordContent = (UIWordContentBase)GameObject.Instantiate(uiWordAnswerPrefab);
                     uiWordAnswer = uiWordContent as UIWordAnswer;
+                    uiWordAnswer.letterConnect = game.letterConnect;
+                    uiWordAnswer.uiLetterConnect = uiLetterConnect;
                 }
                 break;
 
@@ -241,6 +245,8 @@ public class UIGameWordCollect : UIGameBase, ILetterConnectDelegate, IUILetterCo
             uiWordContent.UpdateGuankaLevel(level);
         }
 
+
+        uiLetterConnect.transform.SetAsLastSibling();
         UpdateLevelTitle();
         //UpdateItem 先layout一次
         LayOut();
