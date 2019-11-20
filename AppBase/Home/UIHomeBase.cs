@@ -78,6 +78,11 @@ public class UIHomeBase : UIView, IPopViewControllerDelegate
         UpdateBtnSound();
     }
 
+    public void Start()
+    {
+        Common.UnityStartUpFinish();
+    }
+
     // Update is called once per frame
     public void UpdateBase()
     {

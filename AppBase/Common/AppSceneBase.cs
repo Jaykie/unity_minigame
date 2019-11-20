@@ -11,6 +11,7 @@ public class AppSceneBase : ScriptBase
     public Image imageBg;
     public UIViewController rootViewController;
     public Canvas canvasMain;
+    public Light lightMain;
     public Canvas canvasCamera;
     public GameObject objMainWorld;
     public GameObject objSpriteBg;
@@ -37,7 +38,10 @@ public class AppSceneBase : ScriptBase
         isReLayout = false;
         IPInfo.main.StartParserInfo();
         InitScalerMatch();
-        SetCanvasScalerMatch(canvasCamera.gameObject);
+        if (canvasCamera != null)
+        {
+            SetCanvasScalerMatch(canvasCamera.gameObject);
+        }
         Common.CleanCache();
         InitValue();
 
@@ -110,7 +114,10 @@ public class AppSceneBase : ScriptBase
         if (Device.isScreenDidChange)
         {
             InitScalerMatch();
-            SetCanvasScalerMatch(canvasCamera.gameObject);
+            if (canvasCamera != null)
+            {
+                SetCanvasScalerMatch(canvasCamera.gameObject);
+            }
             isReLayout = true;
 
         }
@@ -174,8 +181,23 @@ public class AppSceneBase : ScriptBase
             Language.main.SetLanguage(lan);
 
         }
-    }
 
+        SetMode3D(Config.main.Is3D);
+
+    }
+    void SetMode3D(bool is3D)
+    {
+        if (lightMain != null)
+        {
+            lightMain.gameObject.SetActive(is3D);
+        }
+        if (is3D)
+        {
+            mainCamera.orthographic = false;
+            //-10f
+            mainCamera.transform.position = new Vector3(0, 0, -10f);
+        }
+    }
     void RunCheckApp()
     {
         appVersion = AppVersion.main;
@@ -195,7 +217,7 @@ public class AppSceneBase : ScriptBase
     {
         Debug.Log("base RunApp");
 
-        Common.UnityStartUpFinish();
+        //  Common.UnityStartUpFinish();
     }
 
     public void SetRootViewController(UIViewController controller)
