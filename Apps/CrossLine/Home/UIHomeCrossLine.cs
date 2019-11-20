@@ -10,12 +10,6 @@ public class UIHomeCrossLine : UIHomeBase
     bool isActionFinish;
     public LayOutGrid layoutBtnSide;
     public LayOutGrid layoutBtn;
-    public AnimateButton btnPlay;
-    public Button btnSetting;
-    public Button btnMore;
-    public Button btnShare;
-    public Button btnNoAd;
-    public Button btnLearn;
     public GameObject objLogo;
     //public ActionHomeBtn actionBtnLearn;
     public void Awake()
@@ -37,31 +31,9 @@ public class UIHomeCrossLine : UIHomeBase
         UpdateBtnSound();
 
 
-        if (btnShare != null)
-        {
-            btnShare.gameObject.SetActive(Config.main.isHaveShare);
-        }
-        if (btnNoAd != null)
-        {
-            btnNoAd.gameObject.SetActive(Config.main.isHaveRemoveAd);
-        }
-        if (!AppVersion.appCheckHasFinished)
-        {
-            btnMore.gameObject.SetActive(false);
-        }
-        if (Common.isAndroid)
-        {
-            if ((Config.main.channel == Source.HUAWEI) || (Config.main.channel == Source.GP))
-            {
-                //华为市场不显示
-                btnMore.gameObject.SetActive(false);
-            }
-        }
 
-        if (!Config.main.APP_FOR_KIDS)
-        {
-            btnLearn.gameObject.SetActive(false);
-        }
+
+
         if (Config.main.APP_FOR_KIDS)
         {
             objLogo.gameObject.SetActive(false);
@@ -121,7 +93,7 @@ public class UIHomeCrossLine : UIHomeBase
     {
         Vector2 sizeCanvas = this.frame.size;
         float x = 0, y = 0, w = 0, h = 0;
-        RectTransform rctranPlay = btnPlay.transform as RectTransform;
+        // RectTransform rctranPlay = btnPlay.transform as RectTransform;
         //image name
         {
             RectTransform rctran = imageBgName.GetComponent<RectTransform>();
@@ -147,7 +119,7 @@ public class UIHomeCrossLine : UIHomeBase
 
             x = 0;
 
-            y = (sizeCanvas.y / 2 + (rctranPlay.anchoredPosition.y + rctranPlay.rect.height / 2)) / 2;
+            //  y = (sizeCanvas.y / 2 + (rctranPlay.anchoredPosition.y + rctranPlay.rect.height / 2)) / 2;
 
         }
         return new Vector4(x, y, w, h);
@@ -232,23 +204,23 @@ public class UIHomeCrossLine : UIHomeBase
         RectTransform rctranAppIcon = uiHomeAppCenter.transform as RectTransform;
         RectTransform rctranImageName = imageBgName.GetComponent<RectTransform>();
 
-        RectTransform rctranPlay = btnPlay.transform as RectTransform;
-        //play
-        {
+        // RectTransform rctranPlay = btnPlay.transform as RectTransform;
+        // //play
+        // {
 
 
-            x = 0;
+        //     x = 0;
 
-            if (Device.isLandscape)
-            {
-                y = 0;
-            }
-            else
-            {
-                y = -rctranPlay.rect.size.y / 2;
-            }
-            rctranPlay.anchoredPosition = new Vector2(x, y);
-        }
+        //     if (Device.isLandscape)
+        //     {
+        //         y = 0;
+        //     }
+        //     else
+        //     {
+        //         y = -rctranPlay.rect.size.y / 2;
+        //     }
+        //     rctranPlay.anchoredPosition = new Vector2(x, y);
+        // }
 
         Vector4 ptImageName = GetPosOfImageName();
         //image name
@@ -280,16 +252,17 @@ public class UIHomeCrossLine : UIHomeBase
             w = (w_item + oft) * layoutBtn.col;
             rctran.sizeDelta = new Vector2(w, h);
 
-
+            y = 0;
+            x = 0;
             if (Device.isLandscape)
             {
-                x = rctranPlay.anchoredPosition.x + rctranPlay.rect.size.x / 2 + w / 2 + 16;
+                // x = rctranPlay.anchoredPosition.x + rctranPlay.rect.size.x / 2 + w / 2 + 16;
                 y = 0;
             }
             else
             {
                 x = 0;
-                y = rctranPlay.anchoredPosition.y - rctranPlay.rect.size.y / 2 - h / 2;
+                // y = rctranPlay.anchoredPosition.y - rctranPlay.rect.size.y / 2 - h / 2;
             }
             rctran.anchoredPosition = new Vector2(x, y);
 
@@ -300,33 +273,4 @@ public class UIHomeCrossLine : UIHomeBase
     }
 
 
-    public void OnClickBtnPlay()
-    {
-
-        Debug.Log("OnClickBtnPlay");
-        if (this.controller != null)
-        {
-            NaviViewController navi = this.controller.naviController;
-            int total = LevelManager.main.placeTotal;
-            if (total > 1)
-            {
-                navi.Push(PlaceViewController.main);
-            }
-            else
-            {
-                navi.Push(GuankaViewController.main);
-            }
-        }
-    }
-
-    public void OnClickBtnLearn()
-    {
-
-        if (this.controller != null)
-        {
-            NaviViewController navi = this.controller.naviController;
-            //  navi.Push(LearnViewController.main);
-
-        }
-    }
 }

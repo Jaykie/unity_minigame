@@ -20,6 +20,28 @@ public class UIHomeSideBar : UIView
     public Button btnNoAd;
     public void Awake()
     {
+        if (!AppVersion.appCheckHasFinished)
+        {
+            btnMore.gameObject.SetActive(false);
+        }
+        if (Common.isAndroid)
+        {
+            if ((Config.main.channel == Source.HUAWEI) || (Config.main.channel == Source.GP))
+            {
+                //华为市场不显示
+                btnMore.gameObject.SetActive(false);
+            }
+        }
+
+        if (btnShare != null)
+        {
+            btnShare.gameObject.SetActive(Config.main.isHaveShare);
+        }
+        if (btnNoAd != null)
+        {
+            btnNoAd.gameObject.SetActive(Config.main.isHaveRemoveAd);
+        }
+
     }
 
     // Use this for initialization

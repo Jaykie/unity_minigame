@@ -7,8 +7,9 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UITypeButtonEditor : Editor
+public class UIKitEditor : Editor
 {
+    public const string KEY_MENU_GameObject_UI = "GameObject/Moonma";
     void Awake()
     {
 
@@ -19,7 +20,7 @@ public class UITypeButtonEditor : Editor
 
     }
 
-    [MenuItem("GameObject/UI/Moonma/UITypeButton", false, 4)]
+    [MenuItem(KEY_MENU_GameObject_UI + "/UITypeButton", false, 4)]
     static void CreateTypeButton()
     {
         // GameObject obj = new GameObject("UITypeButton");
@@ -35,6 +36,9 @@ public class UITypeButtonEditor : Editor
                 UITypeButton ui = (UITypeButton)GameObject.Instantiate(uiPrefab);
                 ui.transform.SetParent(selectedObj.transform);
                 Selection.activeGameObject = ui.gameObject;
+                ui.transform.localScale = new Vector3(1f,1f,1f);
+                RectTransform rctran = ui.GetComponent<RectTransform>();
+                rctran.anchoredPosition = Vector2.zero;
             }
         }
 
