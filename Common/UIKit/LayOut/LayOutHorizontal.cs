@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 //水平布局
-public class LayOutHorizontal : LayOutGrid
+public class LayOutHorizontal : HorizontalOrVerticalLayoutBase
 {
+
     void Awake()
     {
         row = 1;

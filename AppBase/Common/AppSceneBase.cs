@@ -359,7 +359,7 @@ public class AppSceneBase : ScriptBase
         {
             TextureCache.main.AddCache(filepath, tex);
             SpriteRenderer render = objSpriteBg.GetComponent<SpriteRenderer>();
-            render.sprite = LoadTexture.CreateSprieFromTex(tex);
+            render.sprite = TextureUtil.CreateSpriteFromTex(tex);
             LayoutChild();
         }
 

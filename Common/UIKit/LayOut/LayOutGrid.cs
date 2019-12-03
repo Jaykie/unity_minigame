@@ -6,8 +6,57 @@ using UnityEngine.UI;
 //方格布局
 public class LayOutGrid : LayOutBase
 {
+
+    /// <summary>
+    /// Which corner is the starting corner for the grid.
+    /// </summary>
+    public enum Corner
+    {
+        /// <summary>
+        /// Upper Left corner.
+        /// </summary>
+        UpperLeft = 0,
+        /// <summary>
+        /// Upper Right corner.
+        /// </summary>
+        UpperRight = 1,
+        /// <summary>
+        /// Lower Left corner.
+        /// </summary>
+        LowerLeft = 2,
+        /// <summary>
+        /// Lower Right corner.
+        /// </summary>
+        LowerRight = 3
+    }
+
+    /// <summary>
+    /// The grid axis we are looking at.
+    /// </summary>
+    /// <remarks>
+    /// As the storage is a [][] we make access easier by passing a axis.
+    /// </remarks>
+    public enum Axis
+    {
+        /// <summary>
+        /// Horizontal axis
+        /// </summary>
+        Horizontal = 0,
+        /// <summary>
+        /// Vertical axis.
+        /// </summary>
+        Vertical = 1
+    }
+
+
     public int row = 1;//行
     public int col = 1;//列  
+
+    [SerializeField] protected Vector2 cellSize = new Vector2(100, 100);
+    public Corner startCorner;
+
+    [SerializeField] protected Axis startAxis = Axis.Horizontal;
+
 
     private void Awake()
     {

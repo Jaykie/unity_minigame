@@ -77,7 +77,6 @@ public class LoadTexture : MonoBehaviour
     static public Texture2D LoadFromRGBData(byte[] data, int w, int h)
     {
         Texture2D tex = null;
-
         //android Bitmap 读出来的Rgb数据是RGBA32
         tex = new Texture2D(w, h, TextureFormat.RGBA32, false);//RGBA32  ARGB32
         byte[] pixselImage = tex.GetRawTextureData();
@@ -139,39 +138,5 @@ public class LoadTexture : MonoBehaviour
         Texture2D tex = (Texture2D)Resources.Load(file);
         return tex;
     }
-
  
-
-    static public Sprite CreateSprieFromResource(string file)
-    {
-        Texture2D tex = LoadFromResource(file);
-        Sprite sp = CreateSprieFromTex(tex);
-        return sp;
-    }
-
-    static public Sprite CreateSprieFromResource(string file, Vector4 border)
-    {
-        Texture2D tex = LoadFromResource(file);
-        Sprite sp = CreateSprieFromTex(tex, border);
-        return sp;
-    }
-    static public Sprite CreateSprieFromTex(Texture2D tex)
-    {
-        Sprite sp = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
-        return sp;
-    }
-
-    static public Sprite CreateSprieFromTex(Texture2D tex, Vector4 border)
-    {
-        Sprite sp = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.Tight, border);
-        return sp;
-    }
-
-    static public Sprite CreateSprieFromAsset(string file)
-    {
-        Texture2D tex = LoadFromAsset(file);
-        Sprite sp = CreateSprieFromTex(tex);
-        return sp;
-    }
-
 }
