@@ -45,6 +45,7 @@ public class UIViewController
     {
         Debug.Log("UIViewController:ViewDidLoad");
         isActive = true;
+        UpdateLanguage();
     }
     public virtual void ViewDidUnLoad()
     {
@@ -149,7 +150,7 @@ public class UIViewController
         LayOutView();
     }
 
-       static public void ClonePrefabRectTransform(GameObject objPrefab,GameObject obj)
+    static public void ClonePrefabRectTransform(GameObject objPrefab, GameObject obj)
     {
 
         RectTransform rctranPrefab = objPrefab.GetComponent<RectTransform>();
@@ -164,6 +165,25 @@ public class UIViewController
         //Debug.Log("rctran.offsetMin=" + rctran.offsetMin + " rctran.offsetMax=" + rctran.offsetMax);
 
     }
-
+    public void UpdateLanguage()
+    {
+        if (view == null)
+        {
+            return;
+        }
+        foreach (UIView child in view.gameObject.GetComponentsInChildren<UIView>(true))
+        {
+            if (child == null)
+            {
+                continue;
+            }
+            GameObject objtmp = child.gameObject;
+            if (view.gameObject == objtmp)
+            {
+                continue;
+            }
+            child.UpdateLanguage();
+        }
+    }
 
 }

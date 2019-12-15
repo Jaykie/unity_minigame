@@ -40,6 +40,12 @@ public class UIView : MonoBehaviour
         }
     }
 
+
+    public string keyText;
+    public string keyColor;
+
+    public string keyImage;
+
     static public Rect GetFrame(RectTransform rctran)
     {
         Rect rc = Rect.zero;
@@ -54,6 +60,10 @@ public class UIView : MonoBehaviour
 
     }
 
+    public virtual void UpdateLanguage()
+    {
+
+    }
     public void SetController(UIViewController con)
     {
         controller = con;
@@ -67,6 +77,31 @@ public class UIView : MonoBehaviour
         this.transform.parent = obj.transform;
         this.transform.localScale = new Vector3(1f, 1f, 1f);
         this.transform.localPosition = new Vector3(0f, 0f, 0f);
+    }
+    // 
+    public Color GetKeyColor()
+    {
+        return GetKeyColor(Color.white);
+    }
+    public Color GetKeyColor(Color def)
+    {
+        Color ret = def;
+        if (!Common.isBlankString(keyColor))
+        {
+            ret = ColorConfig.main.GetColor(keyColor);
+        }
+        return ret;
+    }
+
+
+    public string GetKeyText()
+    {
+        string ret = "";
+        if (!Common.isBlankString(keyText))
+        {
+            ret = Language.main.GetString(keyText);
+        }
+        return ret;
     }
     public void OnUIDidFinish()
     {

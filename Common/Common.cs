@@ -381,7 +381,7 @@ public class Common
         v = Common.String2Int(rgb[2]);
         b = v / 255f;
 
-        
+
         a = 1f;
         if (rgb.Length > 3)
         {
@@ -800,6 +800,10 @@ public class Common
     }
 
     static public bool BlankString(string str)
+    {
+        return isBlankString(str);
+    }
+    static public bool isBlankString(string str)
     {
         bool ret = false;
         if (str == null)

@@ -69,7 +69,7 @@ public class UIGuankaController : UIGuankaBase, ITableViewDataSource
             OnGetLanguageFileDidFinish(FileUtil.FileIsExistAsset(strlan), data, true);
         }
 
-
+        textTitle.color = ColorConfig.main.GetColor(GameRes.KEY_COLOR_LevelTitle, Color.white);
 
         LevelManager.main.ParseGuanka();
         listItem = GameLevelParse.main.listGuanka;

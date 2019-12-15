@@ -122,7 +122,7 @@ public class ImageConvert
                 IconInfo info = new IconInfo();
                 info.w = listsize[i];
                 info.h = info.w;
-                info.srcPath =  GetIconFile(ishd);
+                info.srcPath = GetIconFile(ishd);
                 info.dstPath = GetRootDir(ishd) + "/" + dir + "/icon_" + info.w + ".png";
                 listItem.Add(info);
             }
@@ -248,6 +248,8 @@ public class ImageConvert
 
     }
 
+
+
     public void OnConvertIcon()
     {
         ConvertMainIcon(false);
@@ -285,29 +287,39 @@ public class ImageConvert
         for (int i = 0; i < listImage.Count; i++)
         {
             pic = listImage[i];
+            Debug.Log("OnConvertBg pic=" + pic);
             Texture2D texImage = LoadTexture.LoadFromFile(pic);
 
-            int w = ScreenDeviceInfo.SCREEN_WIDTH_IPHONE_6_5;
-            int h = ScreenDeviceInfo.SCREEN_HEIGHT_IPHONE_6_5;
-
+            int w_screen = ScreenDeviceInfo.SCREEN_WIDTH_IPHONE_6_5;
+            int h_screen = ScreenDeviceInfo.SCREEN_HEIGHT_IPHONE_6_5;
+            int w, h;
             if (texImage.width < texImage.height)
             {
                 //竖图
-                w = Mathf.Min(w, h);
-                h = Mathf.Max(w, h);
+                w = Mathf.Min(w_screen, h_screen);
+                h = Mathf.Max(w_screen, h_screen);
             }
             else
             {
-                w = Mathf.Max(w, h);
-                h = Mathf.Min(w, h);
+                w = Mathf.Max(w_screen, h_screen);
+                h = Mathf.Min(w_screen, h_screen);
             }
 
             float scale = Common.GetBestFitScale(texImage.width, texImage.height, w, h);
-
-            Texture2D texSave = TextureUtil.ConvertSize(texImage, (int)(w * scale), (int)(h * scale), texImage.format);
+            Debug.Log("OnConvertBg scale =" + scale + " w=" + " h=" + h);
+            Texture2D texSave = TextureUtil.ConvertSize(texImage, (int)(texImage.width * scale), (int)(texImage.height * scale), texImage.format);
             // 最后将这些纹理数据，成一个png图片文件  
             TextureUtil.SaveTextureToFile(texSave, pic);
 
         }
     }
+
+    public void OnConvertScreenShot()
+    {
+        //  GameObject obj = new GameObject("UI");
+        // UIScreenShotController ui = obj.AddComponent<UIScreenShotController>();
+        //  ui.OnPngConVert();
+    }
+
+
 }

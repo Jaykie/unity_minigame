@@ -32,7 +32,11 @@ public class ScreenShotEditor : Editor
     {
         ImageConvert.main.OnConvertBg();
     }
-
+    [MenuItem(KEY_MENU_GameObject_UI + "/ConvertScreenShot", false, 4)]
+    static void OnConvertScreenShot()
+    {
+        ImageConvert.main.OnConvertScreenShot();
+    }
 
     [MenuItem(KEY_MENU_GameObject_UI + "/CopyRight", false, 4)]
     static void OnCopyRight()

@@ -60,7 +60,7 @@ public class UIShop : UIView, ITableViewDataSource
         LoadPrefab();
         heightCell = 256;
         IAP.main.SetObjectInfo(this.gameObject.name, "IAPCallBack");
-
+        textTitle.color = ColorConfig.main.GetColor(GameRes.KEY_COLOR_LevelTitle, Color.white);
 
         InitAd();
         //bg 
@@ -369,7 +369,7 @@ public class UIShop : UIView, ITableViewDataSource
     }
 
     public void OnClickBtnBack()
-    { 
+    {
         PopViewController pop = (PopViewController)this.controller;
         if (pop != null)
         {

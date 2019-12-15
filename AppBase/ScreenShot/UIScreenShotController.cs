@@ -57,6 +57,7 @@ public class UIScreenShotController : UIView
     /// </summary>
     void Awake()
     {
+        Debug.Log("UIScreenShotController Awake");
         GameManager.main.isLoadGameScreenShot = true;
         screenShotConfig = new ScreenShotConfig();
         //mainCam = Common.GetMainCamera();
@@ -66,7 +67,11 @@ public class UIScreenShotController : UIView
         // InitDevice();
         indexScreenShot = 0;
         indexDevice = 0;
+        deviceInfoNow = listDevice[indexDevice];
         SetScreen(deviceInfoNow.width, deviceInfoNow.height);
+
+
+
     }
     // Use this for initialization
     void Start()
@@ -626,8 +631,13 @@ public class UIScreenShotController : UIView
 
     public void OnClickBtnPngConVert()
     {
-        Debug.Log("OnClickBtnPngConVert start");
+        Debug.Log("UIScreenShotController OnClickBtnPngConVert start");
         OnScreenShotImageConvert();
+    }
+
+    public void OnPngConVert()
+    {
+        Invoke("OnScreenShotImageConvert", 2f);
     }
 
 

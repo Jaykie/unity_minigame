@@ -30,6 +30,7 @@ public class UIPlaceController : UIPlaceBase, ITableViewDataSource
     /// </summary>
     void Awake()
     {
+        textTitle.color = ColorConfig.main.GetColor(GameRes.KEY_COLOR_LevelTitle, Color.white);
         LoadPrefab();
         switch (Common.appType)
         {
@@ -94,7 +95,7 @@ public class UIPlaceController : UIPlaceBase, ITableViewDataSource
             oneCellNum++;
         }
 
-        heightCell = (int)(sizeCanvas.x / oneCellNum); 
+        heightCell = (int)(sizeCanvas.x / oneCellNum);
 
         int total = listItem.Count;
         totalItem = total;
