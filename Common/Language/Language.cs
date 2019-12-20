@@ -104,7 +104,7 @@ public class Language
         //更新ui
         if (isUpdateUI)
         {
-            AppSceneBase.main.rootViewController.UpdateLanguage();
+            AppSceneBase.main.UpdateLanguage();
         }
     }
 

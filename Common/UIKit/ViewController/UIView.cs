@@ -55,15 +55,53 @@ public class UIView : MonoBehaviour
         }
         return rc;
     }
-    public virtual void LayOut()
+
+
+    public void Awake()
     {
 
+    }
+    // Use this for initialization
+    public void Start()
+    {
+    }
+
+    public virtual void LayOut()
+    {
+        LayOutInternal();
     }
 
     public virtual void UpdateLanguage()
     {
 
     }
+
+
+    void LayOutObj(GameObject obj)
+    {
+        Component[] list = obj.GetComponents<LayOutBase>();
+        foreach (LayOutBase ly in list)
+        {
+            if (ly)
+            {
+                ly.LayOut();
+            }
+        }
+    }
+    public void LayOutInternal()
+    {
+        //self 
+        this.LayOutObj(this.gameObject); 
+
+        foreach (LayOutBase ly in this.gameObject.GetComponentsInChildren<LayOutBase>(true))
+        {
+            if (ly)
+            {
+                ly.LayOut();
+            }
+        }
+    }
+
     public void SetController(UIViewController con)
     {
         controller = con;
@@ -100,6 +138,16 @@ public class UIView : MonoBehaviour
         if (!Common.isBlankString(keyText))
         {
             ret = Language.main.GetString(keyText);
+        }
+        return ret;
+    }
+
+    public string GetKeyImage()
+    {
+        string ret = "";
+        if (!Common.isBlankString(keyImage))
+        {
+            ret = ImageRes.main.GetImage(keyImage);
         }
         return ret;
     }

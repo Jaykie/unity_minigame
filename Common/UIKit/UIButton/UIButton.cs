@@ -17,9 +17,9 @@ public class UIButton : UIView
 
     }
 
-    public Image imageBg;
-    public Image imageIcon;
-    public Text textTitle;
+    public UIImage imageBg;
+    public UIImage imageIcon;
+    public UIText textTitle;
 
     public Type _type;
 
@@ -60,14 +60,17 @@ public class UIButton : UIView
 
     }
 
-    void Awake()
+    public void Awake()
     {
+        base.Awake();
         type = _type;
+        LayOut();
 
     }
     // Use this for initialization
-    void Start()
+    public void Start()
     {
+        base.Start();
         LayOut();
 
     }
@@ -75,6 +78,8 @@ public class UIButton : UIView
     public override void LayOut()
     {
         base.LayOut();
+
+      
     }
 
 

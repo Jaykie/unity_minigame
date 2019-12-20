@@ -22,41 +22,79 @@ public class UIText : UIView
 
     }
 
+    public int fontSize
+    {
+        get
+        {
+            return textTitle.fontSize;
+        }
+
+        set
+        {
+            textTitle.fontSize = value;
+            LayOut();
+        }
+
+    }
+    public Color color
+    {
+        get
+        {
+            return textTitle.color;
+        }
+
+        set
+        {
+            textTitle.color = value;
+        }
+
+    }
+
     //
 
 
 
     /// Awake is called when the script instance is being loaded.
     /// </summary>
-    void Awake()
+    public void Awake()
     {
+        base.Awake();
         UpdateLanguage();
+        Debug.Log("keyColor=" + keyColor);
+        if (!Common.isBlankString(keyColor))
+        {
+            this.color = GetKeyColor();
+        }
+        if (!Common.isBlankString(keyText))
+        {
+            this.text = GetKeyText();
+        }
+        LayOut();
     }
     // Use this for initialization
-    void Start()
+    public void Start()
     {
-
+        base.Start();
     }
 
     public void SetFontSize(int sz)
     {
         textTitle.fontSize = sz;
+        LayOut();
     }
 
-    public void SetTextColor(Color cr)
-    {
-        textTitle.color = cr;
-    }
     public override void LayOut()
     {
         base.LayOut();
     }
     public override void UpdateLanguage()
     {
+        base.UpdateLanguage();
         string str = GetKeyText();
         if (!Common.isBlankString(str))
         {
             this.text = GetKeyText();
         }
+        LayOut();
     }
 }

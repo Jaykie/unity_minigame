@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class UIGuankaController : UIGuankaBase, ITableViewDataSource
 {
     public Button btnBack;
-    public Text textTitle;
+    public UIText textTitle;
     UICellItemBase cellItemPrefab;
     UICellBase cellPrefab;//GuankaItemCell GameObject 
     public TableView tableView;
@@ -69,7 +69,7 @@ public class UIGuankaController : UIGuankaBase, ITableViewDataSource
             OnGetLanguageFileDidFinish(FileUtil.FileIsExistAsset(strlan), data, true);
         }
 
-        textTitle.color = ColorConfig.main.GetColor(GameRes.KEY_COLOR_LevelTitle, Color.white);
+        // textTitle.color = ColorConfig.main.GetColor(GameRes.KEY_COLOR_LevelTitle, Color.white);
 
         LevelManager.main.ParseGuanka();
         listItem = GameLevelParse.main.listGuanka;

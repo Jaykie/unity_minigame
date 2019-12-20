@@ -10,6 +10,8 @@ public class AppSceneBase : ScriptBase
     AppVersion appVersion;
     public Image imageBg;
     public UIViewController rootViewController;
+    public List<UIViewPop> listPopup;
+
     public Canvas canvasMain;
     public Light lightMain;
     public Canvas canvasCamera;
@@ -152,6 +154,8 @@ public class AppSceneBase : ScriptBase
     {
         bool isFirstRun = !Common.GetBool(AppString.STR_KEY_NOT_FIRST_RUN);
         mainCamera = Common.GetMainCamera();
+
+        listPopup = new List<UIViewPop>();
 
 
         Tongji.Init(Config.main.GetString("APPTONGJI_ID", "0"));
@@ -417,5 +421,19 @@ public class AppSceneBase : ScriptBase
     {
         mainCamera.gameObject.SetActive(isShow);
     }
+    public void UpdateLanguage()
+    {
+        if (rootViewController != null)
+        {
+            rootViewController.UpdateLanguage();
+        }
+        int len = AppSceneBase.main.listPopup.Count;
+        for (int i = 0; i < len; i++)
+        {
+            UIViewPop ui = AppSceneBase.main.listPopup[i];
+            ui.UpdateLanguage();
+        }
+    }
+
 
 }

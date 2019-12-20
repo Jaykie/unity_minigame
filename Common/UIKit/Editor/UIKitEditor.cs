@@ -20,6 +20,26 @@ public class UIKitEditor : Editor
 
     }
 
+    [MenuItem(KEY_MENU_GameObject_UI + "/UIView", false, 4)]
+    static void CreateUIView()
+    {
+        var selectedObj = Selection.activeObject as GameObject;
+        if (selectedObj != null)
+        {
+            GameObject obj = new GameObject("UIView");
+            if (obj != null)
+            {
+                UIView ui = obj.AddComponent<UIView>();
+                ui.transform.SetParent(selectedObj.transform);
+                Selection.activeGameObject = ui.gameObject;
+                ui.transform.localScale = new Vector3(1f, 1f, 1f);
+                RectTransform rctran = obj.AddComponent<RectTransform>();
+                rctran.anchoredPosition = Vector2.zero;
+            }
+        }
+
+    }
+
     [MenuItem(KEY_MENU_GameObject_UI + "/UIButton", false, 4)]
     static void CreateUIButton()
     {

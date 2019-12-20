@@ -9,7 +9,7 @@ using Moonma.AdKit.AdConfig;
 public class UIPlaceController : UIPlaceBase, ITableViewDataSource
 {
     public Button btnBack;
-    public Text textTitle;
+    public UIText textTitle;
     UICellItemBase cellItemPrefab;
     UICellBase cellPrefab;//GuankaItemCell GameObject 
     public TableView tableView;
@@ -30,7 +30,7 @@ public class UIPlaceController : UIPlaceBase, ITableViewDataSource
     /// </summary>
     void Awake()
     {
-        textTitle.color = ColorConfig.main.GetColor(GameRes.KEY_COLOR_LevelTitle, Color.white);
+        //textTitle.color = ColorConfig.main.GetColor(GameRes.KEY_COLOR_LevelTitle, Color.white);
         LoadPrefab();
         switch (Common.appType)
         {

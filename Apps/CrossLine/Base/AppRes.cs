@@ -44,21 +44,7 @@ public class AppRes
     public const string IMAGE_UIVIEWALERT_BG_BOARD = "App/UI/Setting/SettingCellBgBlue";
     static public Vector4 borderUIViewAlertBgBoard = new Vector4(18f, 18f, 18f, 18f);
     public const string IMAGE_UIVIEWALERT_BG_BTN = "App/UI/Setting/SettingCellBgOringe";
-    static public Vector4 borderUIViewAlertBgBtn = new Vector4(18f, 18f, 18f, 18);
- 
-    public const string IMAGE_BtnMusicBgOn = "App/UI/Common/Button/BtnBg";
-    public const string IMAGE_BtnMusicBgOff = "App/UI/Common/Button/BtnBgGrey";
-
-    public const string IMAGE_BtnMusicIconOn = "App/UI/Common/Button/BtnIconMusic";
-    public const string IMAGE_BtnMusicIconOff = "App/UI/Common/Button/BtnIconMusic";
-
-
-    public const string IMAGE_BtnSoundBgOn = IMAGE_BtnMusicBgOn;
-    public const string IMAGE_BtnSoundBgOff = IMAGE_BtnMusicBgOff;
-
-    public const string IMAGE_BtnSoundIconOn = "App/UI/Common/Button/BtnIconSound";
-    public const string IMAGE_BtnSoundIconOff = "App/UI/Common/Button/BtnIconSound";
-
+    static public Vector4 borderUIViewAlertBgBtn = new Vector4(18f, 18f, 18f, 18); 
     public const string IMAGE_LOGO = "App/UI/Home/Logo";
 
     public const string IMAGE_GUANKA_ITEM_DOT0 = "App/UI/Guanka/dot0";
