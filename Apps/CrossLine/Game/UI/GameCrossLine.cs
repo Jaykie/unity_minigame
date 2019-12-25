@@ -20,6 +20,8 @@ public class LineInfo
 {
     public List<Vector3> listPoint;
     public VectorLine line;
+
+    //dot
     public int idxStart;
     public int idxEnd;
 
@@ -27,17 +29,20 @@ public class LineInfo
 
 public class GameCrossLine : GameBase
 {
+    public UIGameDot uiGameDotPrefab;
+    public GameObject objBg;
+    public GameObject objFt;
     public const float RATIO_RECT = 0.9f;
 
-    public List<object> listDot;
     public List<object> listLine;
-
+    public List<UIGameDot> listDot;
     float lineWidth = 20f;//屏幕像素
     Material matLine;
     int indexLine;
-    int rowTotal;
-    int colTotal;
-    float posZ;
+
+
+
+    int offsetDotRowY = 3;
 
 
     /// Awake is called when the script instance is being loaded.
@@ -45,10 +50,8 @@ public class GameCrossLine : GameBase
     void Awake()
     {
         //11x17
-        rowTotal = 8;
-        colTotal = 5;
-        posZ = -1f;
-        listDot = new List<object>();
+
+        listDot = new List<UIGameDot>();
         listLine = new List<object>();
         DrawBgGrid();
         LayOut();
@@ -62,24 +65,9 @@ public class GameCrossLine : GameBase
         //  LayOut();
     }
 
-    public Vector3 GetDotPostion(int r, int c)
+    void OnDestroy()
     {
-        float x, y, w, h;
-        Vector2 size = Common.GetWorldSize(mainCam);
-        //  RectTransform rctran = this.gameObject.GetComponent<RectTransform>();
-        // w = rctran.rect.width;
-        //  h = rctran.rect.height;
-        w = size.x;
-        h = size.y;
-
-        Vector2 space = Vector2.zero;
-        float item_w = (w - (space.x * (colTotal - 1))) / colTotal;
-        float item_h = (h - (space.y * (rowTotal - 1))) / rowTotal;
-
-        x = -w / 2 + item_w * c + item_w / 2 + space.x * c;
-        y = -h / 2 + item_h * r + item_h / 2 + space.y * r;
-
-        return new Vector3(x, y, posZ);
+        ClearLine();
 
     }
 
@@ -98,11 +86,8 @@ public class GameCrossLine : GameBase
     public void UpdateGuankaLevel(int level)
     {
         CrossItemInfo info = (CrossItemInfo)GameLevelParse.main.GetGuankaItemInfo(level);
-        // letterConnect = (LetterConnect)GameObject.Instantiate(letterConnectPrefab);
-        // //AppSceneBase.main.AddObjToMainWorld(letterConnect.gameObject); 
-        // letterConnect.transform.SetParent(this.transform);
-        // UIViewController.ClonePrefabRectTransform(letterConnectPrefab.gameObject, letterConnect.gameObject);
-        // letterConnect.transform.localPosition = new Vector3(0f, 0f, -1f);
+        InitLines();
+
         DrawDots();
         DrawLines();
         LayOut();
@@ -111,48 +96,101 @@ public class GameCrossLine : GameBase
     }
 
 
+    public void ClearLine()
+    {
+        foreach (LineInfo info in listLine)
+        {
+            DestroyImmediate(info.line.GetObj());
+        }
+        listLine.Clear();
+    }
+
+    public void OnUIGameDotMove(UIGameDot ui)
+    {
+        DrawLines();
+    }
+
     //背景格子点
     void DrawBgGrid()
     {
         //11x17
-        Texture2D texDot = TextureCache.main.Load(GameRes.Image_GameDot);
-        for (int i = 0; i < rowTotal; i++)
+        Texture2D texDot = TextureCache.main.Load(GameRes.Image_GameDotBg);
+        for (int i = 0; i < GameUtil.main.rowTotal; i++)
         {
-            for (int j = 0; j < colTotal; j++)
+            for (int j = 0; j < GameUtil.main.colTotal; j++)
             {
-                GameObject obj = new GameObject("dot_" + i + "x" + j);
-                SpriteRenderer rd = obj.AddComponent<SpriteRenderer>();
-                rd.sprite = TextureUtil.CreateSpriteFromTex(texDot);
-                obj.transform.SetParent(this.transform);
-                obj.transform.localPosition = GetDotPostion(i, j);
+                UIGameDot ui = (UIGameDot)GameObject.Instantiate(uiGameDotPrefab);
+                ui.isBg = true;
+                ui.transform.SetParent(this.objBg.transform);
+                ui.transform.localPosition = GameUtil.main.GetDotPostion(i, j);
+                // UIViewController.ClonePrefabRectTransform(UIGameDotPrefab.gameObject, ui.gameObject);
             }
         }
     }
     void DrawDots()
     {
-
+        CrossItemInfo infoGuanka = GameLevelParse.main.GetItemInfo();
+        for (int i = 0; i < infoGuanka.listDot.Count; i++)
+        {
+            Vector2 pttmp = infoGuanka.listDot[i];
+            Vector3 pt = GameUtil.main.GetDotPostion((int)pttmp.y + offsetDotRowY, (int)pttmp.x);
+            UIGameDot ui = (UIGameDot)GameObject.Instantiate(uiGameDotPrefab);
+            ui.rowOrigin = (int)pttmp.y + offsetDotRowY;
+            ui.row = ui.rowOrigin;
+            ui.colOrigin = (int)pttmp.x;
+            ui.col = ui.colOrigin;
+            ui.isBg = false;
+            ui.transform.SetParent(this.objFt.transform);
+            ui.transform.localPosition = pt;
+            ui.callBackMove = OnUIGameDotMove;
+            ui.index = i;
+            listDot.Add(ui);
+        }
     }
 
-    void DrawLines()
+    void InitLines()
     {
-        // {
-        //     LineInfo info = CreateLine();
-        //     Vector3 pt = GetDotPostion(0, 0);
-        //     info.listPoint.Add(pt);
-        //     pt = GetDotPostion(2, 3);
-        //     info.listPoint.Add(pt);
-        //     info.line.Draw();
-        // }
 
         CrossItemInfo infoGuanka = GameLevelParse.main.GetItemInfo();
         for (int i = 0; i < infoGuanka.listLine.Count; i++)
         {
             Vector2 pttmp = infoGuanka.listLine[i];
             LineInfo info = CreateLine();
-            Vector3 pt = GetDotPostion((int)pttmp.x, (int)pttmp.y);
-            info.listPoint.Add(pt);
-            pt = GetDotPostion(2, 3);
-            info.listPoint.Add(pt);
+            int dotIndexStart = (int)pttmp.x;
+            int dotIndexEnd = (int)pttmp.y;
+            info.idxStart = dotIndexStart;
+            info.idxEnd = dotIndexEnd;
+        }
+
+    }
+
+
+    void DrawLines()
+    {
+        for (int i = 0; i < listLine.Count; i++)
+        {
+            LineInfo info = listLine[i] as LineInfo;
+
+            //擦除上次的线
+            info.listPoint.Clear();
+            info.line.Draw();
+
+            int dotIndexStart = info.idxStart;
+            int dotIndexEnd = info.idxEnd;
+            UIGameDot uiStart = listDot[dotIndexStart];
+            int rowStart = uiStart.row;
+            int colStart = uiStart.col;
+
+            UIGameDot uiEnd = listDot[dotIndexEnd];
+            int rowEnd = uiEnd.row;
+            int colEnd = uiEnd.col;
+
+            Vector3 ptstart = GameUtil.main.GetDotPostion(rowStart, colStart);
+            info.listPoint.Add(ptstart);
+
+            Vector3 ptend = GameUtil.main.GetDotPostion(rowEnd, colEnd);
+            info.listPoint.Add(ptend);
+
             info.line.Draw();
         }
 

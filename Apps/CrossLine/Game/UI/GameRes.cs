@@ -29,8 +29,8 @@ public class GameRes
 
 
     //image
-    public const string Image_GameDot = "App/UI/Game/Draw/Dot";
-
+    public const string Image_GameDotBg = "App/UI/Game/Draw/DotBg.png";
+    public const string Image_GameDot = "App/UI/Game/Draw/Dot.png";
     //color
     //f88816 248,136,22
     public const string KEY_COLOR_TITLE = "title";

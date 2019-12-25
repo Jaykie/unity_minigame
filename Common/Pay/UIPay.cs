@@ -195,8 +195,8 @@ public class UIPay : UIView, ITableViewDataSource
 
 
     public void OnClickBtnBack()
-    {
-        Destroy(this.gameObject);
+    { 
+        DestroyImmediate(this.gameObject);
     }
 
 

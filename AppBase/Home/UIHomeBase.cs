@@ -259,7 +259,7 @@ public class UIHomeBase : UIView, IPopViewControllerDelegate
             imageBg.UpdateImage(ret ? ImageRes.main.GetImage("IMAGE_BtnBg") : ImageRes.main.GetImage("IMAGE_BtnBgGrey"));
 
             UIImage imageIcon = btn.gameObject.GetComponent<UIButton>().imageIcon;
-            imageIcon.UpdateImage(ret ? ImageRes.main.GetImage("IMAGE_BtnMusicIconOn") : ImageRes.main.GetImage("IMAGE_BtnMusicIconOff"));
+            imageIcon.UpdateImage(ret ? ImageRes.main.GetImage("IMAGE_BtnMusicIcon") : ImageRes.main.GetImage("IMAGE_BtnMusicIcon"));
 
         }
     }
@@ -272,7 +272,7 @@ public class UIHomeBase : UIView, IPopViewControllerDelegate
             UIImage imageBg = btn.gameObject.GetComponent<UIButton>().imageBg;
             imageBg.UpdateImage(ret ? ImageRes.main.GetImage("IMAGE_BtnBg") : ImageRes.main.GetImage("IMAGE_BtnBgGrey"));
 
-            string pic = ret ? ImageRes.main.GetImage("IMAGE_BtnSoundIconOn") : ImageRes.main.GetImage("IMAGE_BtnSoundIconOff");
+            string pic = ret ? ImageRes.main.GetImage("IMAGE_BtnSoundIcon") : ImageRes.main.GetImage("IMAGE_BtnSoundIcon");
             Debug.Log(" UIHomeBase UpdateBtnSound  imageIcon.UpdateImage pic=" + pic);
             UIImage imageIcon = btn.gameObject.GetComponent<UIButton>().imageIcon;
             imageIcon.UpdateImage(pic);

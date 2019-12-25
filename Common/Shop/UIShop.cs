@@ -404,6 +404,10 @@ public class UIShop : UIView, ITableViewDataSource
             {
                 AdKitCommon.main.callbackAdVideoFinish = OnAdKitAdVideoFinish;
                 AdKitCommon.main.ShowAdVideo();
+                if (Application.isEditor)
+                {
+                    OnBuyFinish();
+                }
             }
             if (info.id == ID_GOLD_SHARE)
             {

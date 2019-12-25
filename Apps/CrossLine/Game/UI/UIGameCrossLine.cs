@@ -14,7 +14,7 @@ public class UIGameCrossLine : UIGameBase
     public GameObject objTopbar;
     public GameObject objLayoutBtn;
     public Image imageTopbar;
-    public Text textTitle;
+    public UIText textTitle;
 
     //prefab 
     public GameCrossLine gamePrefab;
