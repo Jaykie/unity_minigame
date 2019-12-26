@@ -5,7 +5,7 @@ using Moonma.Share;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-public delegate void OnUIGameDotDelegate(UIGameDot ui);
+public delegate void OnUIGameDotDelegate(UIGameDot ui, int status);
 public class UIGameDot : UIView
 {
     public GameObject objSprite;
@@ -19,7 +19,8 @@ public class UIGameDot : UIView
     public int colOrigin;
     public UITouchEventWithMove uiTouchEvent;
     public BoxCollider boxCollider;
-    public OnUIGameDotDelegate callBackMove { get; set; }
+    public bool enableMove;
+    public OnUIGameDotDelegate callBackTouch { get; set; }
     /// <summary>
     /// Awake is called when the script instance is being loaded.
     /// </summary>
@@ -27,6 +28,7 @@ public class UIGameDot : UIView
     {
         base.Awake();
         isSel = false;
+        enableMove = true;
         uiTouchEvent.callBackTouch = OnUITouchEvent;
     }
     public void Start()
@@ -42,7 +44,7 @@ public class UIGameDot : UIView
         }
         else
         {
-            scale = 1f;
+            scale = 1.5f;
             texDot = TextureCache.main.Load(GameRes.Image_GameDot);
         }
         SpriteRenderer rd = objSprite.GetComponent<SpriteRenderer>();
@@ -60,6 +62,10 @@ public class UIGameDot : UIView
     public void OnUITouchEvent(UITouchEvent ev, PointerEventData eventData, int status)
     {
         if (isBg)
+        {
+            return;
+        }
+        if (!enableMove)
         {
             return;
         }
@@ -83,15 +89,20 @@ public class UIGameDot : UIView
                     pt = GameUtil.main.GetDotPostion(r, c);
                     pt.z = z;
                     this.transform.position = pt;
-                    if (callBackMove != null)
+                    if (callBackTouch != null)
                     {
                         isSel = true;
-                        callBackMove(this);
+                        callBackTouch(this, status);
                     }
                 }
                 break;
             case UITouchEvent.STATUS_TOUCH_UP:
                 {
+                    if (callBackTouch != null)
+                    {
+                        isSel = true;
+                        callBackTouch(this, status);
+                    }
 
                 }
                 break;

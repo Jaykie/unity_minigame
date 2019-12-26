@@ -9,7 +9,7 @@ using UnityEngine.UI;
 https://apps.apple.com/cn/app/id1299956969
 https://www.taptap.com/app/72589
  */
-public class UIGameCrossLine : UIGameBase
+public class UIGameCrossLine : UIGameBase, IGameDelegate
 {
     public GameObject objTopbar;
     public GameObject objLayoutBtn;
@@ -88,6 +88,7 @@ public class UIGameCrossLine : UIGameBase
         UIViewController.ClonePrefabRectTransform(gamePrefab.gameObject, game.gameObject);
         game.transform.localPosition = new Vector3(0f, 0f, -1f);
         game.UpdateGuankaLevel(level);
+        game.iDelegate = this;
 
         UpdateLevelTitle();
         //UpdateItem 先layout一次
@@ -158,6 +159,20 @@ public class UIGameCrossLine : UIGameBase
         PopUpManager.main.Show<UIGameWin>("App/Prefab/Game/UIGameWin");
     }
 
+
+    public void OnGameDidWin(GameBase g)
+    {
+        OnGameWin();
+    }
+    public void OnGameDidFail(GameBase g)
+    {
+
+    }
+    public void OnGameUpdateTitle(GameBase g, ItemInfo info, bool isshow)
+    {
+
+    }
+
     void OnUIViewAlertFinished(UIViewAlert alert, bool isYes)
     {
 
@@ -172,7 +187,7 @@ public class UIGameCrossLine : UIGameBase
 
 
 
-    } 
+    }
 
 
     public void OnClickBtnRetry()

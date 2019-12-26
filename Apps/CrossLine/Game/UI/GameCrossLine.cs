@@ -24,6 +24,9 @@ public class LineInfo
     //dot
     public int idxStart;
     public int idxEnd;
+    public bool isCross;
+    public Vector3 ptStart;
+    public Vector3 ptEnd;
 
 }
 
@@ -34,17 +37,15 @@ public class GameCrossLine : GameBase
     public GameObject objFt;
     public const float RATIO_RECT = 0.9f;
 
-    public List<object> listLine;
+    public List<LineInfo> listLine;
     public List<UIGameDot> listDot;
     float lineWidth = 20f;//屏幕像素
     Material matLine;
     int indexLine;
-
-
-
     int offsetDotRowY = 3;
 
-
+    Color colorCross = Color.red;
+    Color colorUnCross = Color.yellow;
     /// Awake is called when the script instance is being loaded.
     /// </summary>
     void Awake()
@@ -52,7 +53,7 @@ public class GameCrossLine : GameBase
         //11x17
 
         listDot = new List<UIGameDot>();
-        listLine = new List<object>();
+        listLine = new List<LineInfo>();
         DrawBgGrid();
         LayOut();
     }
@@ -86,6 +87,7 @@ public class GameCrossLine : GameBase
     public void UpdateGuankaLevel(int level)
     {
         CrossItemInfo info = (CrossItemInfo)GameLevelParse.main.GetGuankaItemInfo(level);
+
         InitLines();
 
         DrawDots();
@@ -105,9 +107,48 @@ public class GameCrossLine : GameBase
         listLine.Clear();
     }
 
-    public void OnUIGameDotMove(UIGameDot ui)
+    public void OnUIGameDotTouch(UIGameDot ui, int status)
     {
-        DrawLines();
+
+
+        switch (status)
+        {
+            case UITouchEvent.STATUS_TOUCH_DOWN:
+                {
+
+                }
+                break;
+            case UITouchEvent.STATUS_TOUCH_MOVE:
+                {
+                    DrawLines();
+                    int num = CheckCross();
+                    Debug.Log(" CheckCross num =" + num);
+
+                }
+                break;
+            case UITouchEvent.STATUS_TOUCH_UP:
+                {
+                    int num = CheckCross();
+                    Debug.Log(" CheckCross num =" + num);
+                    if (num == 0)
+                    {
+                        ui.enableMove = false;
+                        DoGameWin();
+                    }
+
+                }
+                break;
+
+        }
+    }
+
+    void DoGameWin()
+    {
+
+
+        ClearLine();
+        //win
+        OnGameWin();
     }
 
     //背景格子点
@@ -142,8 +183,9 @@ public class GameCrossLine : GameBase
             ui.isBg = false;
             ui.transform.SetParent(this.objFt.transform);
             ui.transform.localPosition = pt;
-            ui.callBackMove = OnUIGameDotMove;
+            ui.callBackTouch = OnUIGameDotTouch;
             ui.index = i;
+            ui.enableMove = true;
             listDot.Add(ui);
         }
     }
@@ -187,9 +229,11 @@ public class GameCrossLine : GameBase
 
             Vector3 ptstart = GameUtil.main.GetDotPostion(rowStart, colStart);
             info.listPoint.Add(ptstart);
+            info.ptStart = ptstart;
 
             Vector3 ptend = GameUtil.main.GetDotPostion(rowEnd, colEnd);
             info.listPoint.Add(ptend);
+            info.ptEnd = ptend;
 
             info.line.Draw();
         }
@@ -225,7 +269,7 @@ public class GameCrossLine : GameBase
         objLine.transform.localScale = new Vector3(1f, 1f, 1f);
         objLine.transform.localPosition = new Vector3(0f, 0f, 0f);
         lineConnect.material = matLine;
-        lineConnect.color = Color.red;
+        lineConnect.color = colorCross;
         indexLine++;
         linfo.line = lineConnect;
 
@@ -243,6 +287,42 @@ public class GameCrossLine : GameBase
             }
         }
         return null;
+    }
+
+
+    public int CheckCross()
+    {
+        for (int i = 0; i < this.listLine.Count; i++)
+        {
+            LineInfo info = this.listLine[i] as LineInfo;
+            LineCross.main.ClearCross(info);
+        }
+        for (int j = 0; j < this.listLine.Count; j++)
+        {
+            for (int m = j + 1; m < this.listLine.Count; m++)
+            {
+                LineInfo infoJ = this.listLine[j];
+                LineInfo infoM = this.listLine[m];
+                if (!infoJ.isCross || !infoM.isCross)
+                {
+                    bool flag = LineCross.main.CheckCross(infoJ, infoM);
+                    infoJ.isCross = !flag ? infoJ.isCross : true;
+                    infoM.isCross = !flag ? infoM.isCross : true;
+                    infoJ.line.color = infoJ.isCross ? colorCross : colorUnCross;
+                    infoM.line.color = infoM.isCross ? colorCross : colorUnCross;
+                }
+            }
+        }
+        int num4 = 0;
+        for (int k = 0; k < this.listLine.Count; k++)
+        {
+            if (this.listLine[k].isCross)
+            {
+                num4++;
+            }
+            //  this.listLine[k].UpdateIsCross();
+        }
+        return num4;
     }
 }
 

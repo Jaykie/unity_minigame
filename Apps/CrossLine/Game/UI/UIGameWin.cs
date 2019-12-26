@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
-public class UIGameWin : UIViewPop, ISegmentDelegate
+public class UIGameWin : UIViewPop 
 {
     public const string KEY_GAMEWIN_INFO_INTRO = "KEY_GAMEWIN_INFO_INTRO";
     public const string KEY_GAMEWIN_INFO_YUANWEN = "KEY_GAMEWIN_INFO_YUANWEN";
@@ -18,8 +18,7 @@ public class UIGameWin : UIViewPop, ISegmentDelegate
 
     public const string KEY_GAMEWIN_INFO_ALBUM = "KEY_GAMEWIN_INFO_ALBUM";
 
-
-    public UISegment uiSegment;
+ 
     public UITextView textView;
     public Text textTitle;
     public Image imageBg;
@@ -43,7 +42,7 @@ public class UIGameWin : UIViewPop, ISegmentDelegate
         CrossItemInfo info = GameLevelParse.main.GetItemInfo();
 
         //Common.SetButtonText(btnFriend, Language.main.GetString("STR_GameWin_BtnFriend"));
-        Common.SetButtonText(btnNext, Language.main.GetString("STR_GameWin_BtnNext"), 0, false);
+        //Common.SetButtonText(btnNext, Language.main.GetString("STR_GameWin_BtnNext"), 0, false);
         //Common.SetButtonText(btnAddLove, Language.main.GetString("STR_GameWin_BtnAddLove"));
 
         string str = info.title;
@@ -56,14 +55,7 @@ public class UIGameWin : UIViewPop, ISegmentDelegate
 
         textTitle.color = colorTitle;
 
-        indexSegment = 0;
-        uiSegment.InitValue(64, Color.red, Color.black);
-        uiSegment.iDelegate = this;
-
-        uiSegment.gameObject.SetActive(true);
-
-
-        uiSegment.gameObject.SetActive(false);
+        indexSegment = 0; 
 
         UpdateText(null);
 
@@ -184,13 +176,7 @@ public class UIGameWin : UIViewPop, ISegmentDelegate
         }
         textView.text = str;
     }
-
-    public void SegmentDidClick(UISegment seg, SegmentItem item)
-    {
-        // UpdateSortList(item.index);
-        UpdateText(item.infoItem);
-
-    }
+ 
     public void OnClickBtnClose()
     {
         Close();
