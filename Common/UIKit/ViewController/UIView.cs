@@ -3,7 +3,49 @@ using System.Collections.Generic;
 using UnityEngine;
 public class UIView : MonoBehaviour
 {
-    public UIViewController controller;
+    UIViewController _controller;
+
+    public UIViewController controller
+    {
+        get
+        {
+            UIViewController c = _controller;
+            if (c == null)
+            {
+                //查找父对象
+                foreach (Transform parent in this.GetComponentsInParent<Transform>(true))
+                {
+                    if (parent == null)
+                    {
+                        break;
+                    }
+                    if (parent.gameObject == this.gameObject)
+                    {
+                        continue;
+                    }
+
+                    UIView ui = parent.gameObject.GetComponent<UIView>();
+                    if (ui != null)
+                    {
+                        UIViewController ctmp = ui.GetControllerInternal();
+                        if (ctmp != null)
+                        {
+                            c = ctmp;
+                            break;
+                        }
+                    }
+
+                }
+
+            }
+            return c;
+        }
+        set
+        {
+            _controller = value;
+        }
+    }
+
     public Camera mainCam
     {
         get
@@ -75,7 +117,10 @@ public class UIView : MonoBehaviour
     {
 
     }
-
+    public UIViewController GetControllerInternal()
+    {
+        return _controller;
+    }
 
     void LayOutObj(GameObject obj)
     {
@@ -91,7 +136,7 @@ public class UIView : MonoBehaviour
     public void LayOutInternal()
     {
         //self 
-        this.LayOutObj(this.gameObject); 
+        this.LayOutObj(this.gameObject);
 
         foreach (LayOutBase ly in this.gameObject.GetComponentsInChildren<LayOutBase>(true))
         {

@@ -30,16 +30,7 @@ public class UIHomeCrossLine : UIHomeBase
 
         // actionBtnLearn.ptNormal = layoutBtn.GetItemPostion(0, 0);
         LoadPrefab();  
-        if (Config.main.APP_FOR_KIDS)
-        {
-            objLogo.gameObject.SetActive(false);
-        }
-        else
-        {
-            objLogo.gameObject.SetActive(false);
-            //imageBgName.gameObject.SetActive(false);
-        }
-
+   
 
 
         UpdateLayoutBtn();
@@ -59,24 +50,7 @@ public class UIHomeCrossLine : UIHomeBase
     void LoadPrefab()
     {
         float x, y, z;
-        {
-            GameObject obj = PrefabCache.main.Load("AppCommon/Prefab/Home/GlitterParticles");
-            obj = GameObject.Instantiate(obj);
-            x = obj.transform.localPosition.x;
-            y = obj.transform.localPosition.y;
-            z = -1f;
-            AppSceneBase.main.AddObjToMainWorld(obj);
-            obj.transform.localPosition = new Vector3(x, y, z);
-        }
-        {
-            GameObject obj = PrefabCache.main.Load("AppCommon/Prefab/Home/StarsParticles");
-            obj = GameObject.Instantiate(obj);
-            x = obj.transform.localPosition.x;
-            y = obj.transform.localPosition.y;
-            z = -1f;
-            AppSceneBase.main.AddObjToMainWorld(obj);
-            obj.transform.localPosition = new Vector3(x, y, z);
-        }
+      
 
     }
     // Update is called once per frame

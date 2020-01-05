@@ -40,12 +40,13 @@ public class GameCrossLine : GameBase
     public List<LineInfo> listLine;
     public List<UIGameDot> listDot;
     float lineWidth = 20f;//屏幕像素
-    Material matLine;
+                          // Material matLine;
     int indexLine;
-    int offsetDotRowY = 3;
 
     Color colorCross = Color.red;
     Color colorUnCross = Color.yellow;
+
+    public static int runCount = 0;
     /// Awake is called when the script instance is being loaded.
     /// </summary>
     void Awake()
@@ -54,7 +55,10 @@ public class GameCrossLine : GameBase
 
         listDot = new List<UIGameDot>();
         listLine = new List<LineInfo>();
-        DrawBgGrid();
+
+        VectorLine.SetCamera3D(mainCam);
+
+
         LayOut();
     }
     /// <summary>
@@ -87,17 +91,35 @@ public class GameCrossLine : GameBase
     public void UpdateGuankaLevel(int level)
     {
         CrossItemInfo info = (CrossItemInfo)GameLevelParse.main.GetGuankaItemInfo(level);
+        ResizeInternal();
+    }
+    public void Resize()
+    {
+        Debug.Log("GameManager.main.heightAdWorld= " + GameManager.main.heightAdWorld);
 
+        if (GameManager.main.heightAdWorld > 0.01f)
+        {
+
+            if (runCount > 0)
+            {
+                Debug.Log("GameManager.main.heightAdWorld return ");
+                return;
+            }
+            runCount++;
+        }
+        ResizeInternal();
+    }
+    public void ResizeInternal()
+    {
+        ClearDot();
+        ClearLine();
         InitLines();
-
+        DrawBgGrid();
         DrawDots();
         DrawLines();
+        int num = CheckCross();
         LayOut();
-        // LayOut();
-        // Invoke("LayOut", 0.6f);
     }
-
-
     public void ClearLine()
     {
         foreach (LineInfo info in listLine)
@@ -105,6 +127,7 @@ public class GameCrossLine : GameBase
             DestroyImmediate(info.line.GetObj());
         }
         listLine.Clear();
+        indexLine = 0;
     }
 
     public void OnUIGameDotTouch(UIGameDot ui, int status)
@@ -145,12 +168,26 @@ public class GameCrossLine : GameBase
     void DoGameWin()
     {
 
-
         ClearLine();
         //win
         OnGameWin();
     }
+    void ClearDot()
+    {
+        foreach (UIGameDot child in this.GetComponentsInChildren<UIGameDot>(true))
+        {
+            if (child == null)
+            {
+                // 过滤已经销毁的嵌套子对象 
+                continue;
+            }
+            GameObject objtmp = child.gameObject;
+            GameObject.DestroyImmediate(objtmp);//Destroy
+            objtmp = null;
+        }
 
+        listDot.Clear();
+    }
     //背景格子点
     void DrawBgGrid()
     {
@@ -174,9 +211,9 @@ public class GameCrossLine : GameBase
         for (int i = 0; i < infoGuanka.listDot.Count; i++)
         {
             Vector2 pttmp = infoGuanka.listDot[i];
-            Vector3 pt = GameUtil.main.GetDotPostion((int)pttmp.y + offsetDotRowY, (int)pttmp.x);
+            Vector3 pt = GameUtil.main.GetDotPostion((int)pttmp.y, (int)pttmp.x);
             UIGameDot ui = (UIGameDot)GameObject.Instantiate(uiGameDotPrefab);
-            ui.rowOrigin = (int)pttmp.y + offsetDotRowY;
+            ui.rowOrigin = (int)pttmp.y;
             ui.row = ui.rowOrigin;
             ui.colOrigin = (int)pttmp.x;
             ui.col = ui.colOrigin;
@@ -192,6 +229,10 @@ public class GameCrossLine : GameBase
 
     void InitLines()
     {
+        if (listLine.Count != 0)
+        {
+            return;
+        }
 
         CrossItemInfo infoGuanka = GameLevelParse.main.GetItemInfo();
         for (int i = 0; i < infoGuanka.listLine.Count; i++)
@@ -209,13 +250,15 @@ public class GameCrossLine : GameBase
 
     void DrawLines()
     {
+        Debug.Log("DrawLines listLine.Count=" + listLine.Count);
+
         for (int i = 0; i < listLine.Count; i++)
         {
             LineInfo info = listLine[i] as LineInfo;
 
             //擦除上次的线
             info.listPoint.Clear();
-            info.line.Draw();
+            info.line.Draw3D();
 
             int dotIndexStart = info.idxStart;
             int dotIndexEnd = info.idxEnd;
@@ -235,7 +278,7 @@ public class GameCrossLine : GameBase
             info.listPoint.Add(ptend);
             info.ptEnd = ptend;
 
-            info.line.Draw();
+            info.line.Draw3D();
         }
 
     }
@@ -268,8 +311,9 @@ public class GameCrossLine : GameBase
         objLine.transform.parent = this.transform;
         objLine.transform.localScale = new Vector3(1f, 1f, 1f);
         objLine.transform.localPosition = new Vector3(0f, 0f, 0f);
-        lineConnect.material = matLine;
-        lineConnect.color = colorCross;
+        lineConnect.material = new Material(Shader.Find("Custom/Line"));
+        // lineConnect.color = colorCross;
+        lineConnect.material.color = colorCross;
         indexLine++;
         linfo.line = lineConnect;
 
@@ -308,8 +352,10 @@ public class GameCrossLine : GameBase
                     bool flag = LineCross.main.CheckCross(infoJ, infoM);
                     infoJ.isCross = !flag ? infoJ.isCross : true;
                     infoM.isCross = !flag ? infoM.isCross : true;
-                    infoJ.line.color = infoJ.isCross ? colorCross : colorUnCross;
-                    infoM.line.color = infoM.isCross ? colorCross : colorUnCross;
+                    // infoJ.line.color = infoJ.isCross ? colorCross : colorUnCross;
+                    //infoM.line.color = infoM.isCross ? colorCross : colorUnCross;
+                    infoJ.line.material.color = infoJ.isCross ? colorCross : colorUnCross;
+                    infoM.line.material.color = infoM.isCross ? colorCross : colorUnCross;
                 }
             }
         }

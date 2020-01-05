@@ -7,8 +7,34 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 public class GameUtil
 {
-    public int rowTotal = 17;
-    public int colTotal = 11;
+    public const int ROW_TOTAL = 17;
+    public const int COL_TOTAL = 11;
+    public int rowTotal
+    {
+        get
+        {
+            int ret = Mathf.Max(ROW_TOTAL, COL_TOTAL);
+            if (Device.isLandscape)
+            {
+                ret = Mathf.Min(ROW_TOTAL, COL_TOTAL);
+            }
+            return ret;
+        }
+    }
+
+    public int colTotal
+    {
+        get
+        {
+            int ret = Mathf.Min(ROW_TOTAL, COL_TOTAL);
+            if (Device.isLandscape)
+            {
+                ret = Mathf.Max(ROW_TOTAL, COL_TOTAL);
+            }
+            return ret;
+        }
+    }
+
     float posZ = -1f;
     static private GameUtil _main = null;
     public static GameUtil main
@@ -25,7 +51,14 @@ public class GameUtil
     public Vector3 GetDotPostion(int r, int c)
     {
         float x, y, w, h;
-        Vector2 size = Common.GetWorldSize(AppSceneBase.main.mainCamera);
+        Vector2 sizeWorld = Common.GetWorldSize(AppSceneBase.main.mainCamera);
+        Vector2 size = new Vector2(sizeWorld.x, sizeWorld.y);
+        float oftTop = GameManager.main.heightAdWorld + Common.ScreenToWorldHeight(AppSceneBase.main.mainCamera, Device.offsetTop);
+        float oftBottom = GameManager.main.heightAdWorld + Common.ScreenToWorldHeight(AppSceneBase.main.mainCamera, Device.offsetBottom);
+        float oftLeft = Common.ScreenToWorldHeight(AppSceneBase.main.mainCamera, Device.offsetLeft);
+        float oftRight = Common.ScreenToWorldHeight(AppSceneBase.main.mainCamera, Device.offsetRight);
+        size.y = size.y - oftTop - oftBottom;
+        size.x = size.x - oftLeft - oftRight;
         //  RectTransform rctran = this.gameObject.GetComponent<RectTransform>();
         // w = rctran.rect.width;
         //  h = rctran.rect.height;
@@ -36,8 +69,8 @@ public class GameUtil
         float item_w = (w - (space.x * (colTotal - 1))) / colTotal;
         float item_h = (h - (space.y * (rowTotal - 1))) / rowTotal;
 
-        x = -w / 2 + item_w * c + item_w / 2 + space.x * c;
-        y = -h / 2 + item_h * r + item_h / 2 + space.y * r;
+        x = (-sizeWorld.x / 2 + oftLeft) + item_w * c + item_w / 2 + space.x * c;
+        y = (-sizeWorld.y / 2 + oftBottom) + item_h * r + item_h / 2 + space.y * r;
 
         return new Vector3(x, y, posZ);
 
@@ -84,5 +117,5 @@ public class GameUtil
     }
 
 
- 
+
 }

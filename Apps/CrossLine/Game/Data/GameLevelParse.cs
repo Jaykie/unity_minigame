@@ -129,6 +129,8 @@ public class GameLevelParse : LevelParseBase
 
     public void ParseCrossItem(CrossItemInfo info)
     {
+
+        int offsetDotRowY = 3;
         int idx = LevelManager.main.gameLevel;
         string filepath = Common.GAME_RES_DIR + "/guanka/" + info.id + ".txt";
         if (!FileUtil.FileIsExistAsset(filepath))
@@ -152,7 +154,14 @@ public class GameLevelParse : LevelParseBase
             Vector2 pt = Vector2.zero;
             //listjson 支持double 不支持float
             pt.x = (float)((double)item["x"]);
-            pt.y = (float)((double)item["y"]);
+            pt.y = (float)((double)item["y"]) + offsetDotRowY;
+
+            if (Device.isLandscape)
+            {
+                pt.x = (float)((double)item["y"]) + offsetDotRowY;
+                pt.y = (float)((double)item["x"]);
+            }
+
             info.listDot.Add(pt);
         }
 

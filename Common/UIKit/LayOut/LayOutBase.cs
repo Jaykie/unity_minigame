@@ -35,7 +35,7 @@ public class LayOutBase : MonoBehaviour
     public Vector2 space = Vector2.zero;
 
     protected TextAnchor childAlignment;
-    public Align align;
+    public Align align=Align.CENTER;
 
 
     public virtual void LayOut()

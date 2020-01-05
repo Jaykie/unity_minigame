@@ -32,6 +32,7 @@ public class UIGameCrossLine : UIGameBase, IGameDelegate
     void Awake()
     {
         LoadPrefab();
+        uiGoldBar.gameObject.SetActive(false);
         InitBg();
         UpdateGold();
         LayOut();
@@ -73,8 +74,8 @@ public class UIGameCrossLine : UIGameBase, IGameDelegate
 
 
         if (game != null)
-        {
-            game.LayOut();
+        { 
+            game.Resize();
         }
     }
 
