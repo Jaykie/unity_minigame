@@ -12,7 +12,13 @@ import socket
  
 
 def upload():
-    # os.system("git stash")
+
+    
+    os.system("git config --global credential.helper store")
+    os.system("git config --global user.email \"chyfemail163@163.com\"")
+    os.system("git config --global user.name \"chyfemail163@163.com\"")
+    os.system("git config --global user.password \"Qianlizhiwai1\"")
+     
     os.system("git add .")
     os.system("git commit -m \"ui\"")
     # os.system("git commit")  
@@ -25,4 +31,4 @@ if __name__ == "__main__":
 
     upload() 
 
-    print "git_upload end"
+    print("git_upload end")

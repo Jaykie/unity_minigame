@@ -4,11 +4,11 @@ using UnityEngine;
 //水平布局
 public class LayOutHorizontal : HorizontalOrVerticalLayoutBase
 {
-
     void Awake()
     {
         row = 1;
-        col = GetChildCount();
+        col = GetChildCount(enableHide);
+        //  LayOut();
     }
     void Start()
     {
@@ -18,7 +18,11 @@ public class LayOutHorizontal : HorizontalOrVerticalLayoutBase
 
     public override void LayOut()
     {
-        col = GetChildCount();
+        if (!Enable())
+        {
+            return;
+        }
+        col = GetChildCount(enableHide);
         base.LayOut();
     }
 }

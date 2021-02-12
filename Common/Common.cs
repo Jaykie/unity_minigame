@@ -49,14 +49,15 @@ public class Common
         get
         {
             bool ret = false;
-#if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+// #if UNITY_STANDALONE_WIN && !UNITY_EDITOR
+//         ret = true;
+// #endif
+
+// UNITY_STANDALONE_OSX UNITY_STANDALONE_WIN UNITY_STANDALONE
+#if UNITY_STANDALONE  && !UNITY_EDITOR
         ret = true;
 #endif
-
-#if UNITY_STANDALONE_OSX && !UNITY_EDITOR
-        ret = true;
-#endif
-
+// ret = true;
             return ret;
         }
     }
@@ -152,6 +153,10 @@ public class Common
     {
         get
         {
+            if(Config.main.isNoIDFASDK&&isiOS)
+            {
+                return true;
+            }
             string key = "APP_NO_AD";
             int ret = PlayerPrefs.GetInt(key, 0);
             if (ret > 0)
@@ -381,7 +386,7 @@ public class Common
         v = Common.String2Int(rgb[2]);
         b = v / 255f;
 
-
+        
         a = 1f;
         if (rgb.Length > 3)
         {
@@ -706,7 +711,7 @@ public class Common
         string appname = Common.GetAppName();
         if (Application.isEditor || Common.isPC)
         {
-            appname = Config.main.GetAppNameJson(Device.isLandscape);
+            // appname = Config.main.GetAppNameJson(Device.isLandscape);
         }
         appname = Language.main.GetString(Device.isLandscape ? AppString.APP_NAME_HD : AppString.APP_NAME);
 

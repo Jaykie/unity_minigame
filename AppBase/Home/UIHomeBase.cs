@@ -17,7 +17,7 @@ public class UIHomeBase : UIView, IPopViewControllerDelegate
     public UIHomeAppCenter uiHomeAppCenter;
     public RawImage imageBg;
     public Image imageBgName;
-    public Text TextName;
+    public UIText TextName;
     //public GameObject objLayoutTopBar;
     //public Button btnPlay;
     public UIImageText uiPlay;
@@ -28,8 +28,7 @@ public class UIHomeBase : UIView, IPopViewControllerDelegate
     public Button btnMusic;
     public Button btnSound;
     public Button btnAdVideo;
-    public float topBarHeight = 160;
-    static private bool isAppCheakVersion = false;
+    public float topBarHeight = 160; 
     public void Init()
     {
         Debug.Log("UIMainBase Init");
@@ -68,7 +67,7 @@ public class UIHomeBase : UIView, IPopViewControllerDelegate
             }
         }
 
-        CheckAppVersion();
+        // CheckAppVersion();
 
     }
 
@@ -99,34 +98,14 @@ public class UIHomeBase : UIView, IPopViewControllerDelegate
         }
 
     }
+  
 
-    public void CheckAppVersion()
+    public override void LayOut()
     {
-        if (Application.isEditor)
-        {
-            return;
-        }
-
-        if (isAppCheakVersion)
-        {
-            return;
-        }
-        isAppCheakVersion = true;
-        AppVersion appVersion = AppVersion.main;
-        appVersion.callbackFinished = OnAppVersionFinished;
-        appVersion.StartParseVersion();
-
-    }
-    // public override void LayOut()
-    // {
-    //     LayoutChildBase();
-    // }
-
-
-    public void LayoutChildBase()
-    {
+        base.LayOut();
         float x = 0, y = 0, w = 0, h = 0;
         Vector2 sizeCanvas = AppSceneBase.main.sizeCanvas;
+        if(imageBg!=null)
         {
             RectTransform rctran = imageBg.GetComponent<RectTransform>();
             if (imageBg.texture != null)
@@ -256,10 +235,10 @@ public class UIHomeBase : UIView, IPopViewControllerDelegate
         if (btn != null)
         {
             UIImage imageBg = btn.gameObject.GetComponent<UIButton>().imageBg;
-            imageBg.UpdateImage(ret ? ImageRes.main.GetImage("IMAGE_BtnBg") : ImageRes.main.GetImage("IMAGE_BtnBgGrey"));
+            imageBg.UpdateImage(ret ? ImageRes.main.GetImage("IMAGE_BtnBg") : ImageRes.main.GetImage("IMAGE_BtnBgGrey"),imageBg.keyImage);
 
             UIImage imageIcon = btn.gameObject.GetComponent<UIButton>().imageIcon;
-            imageIcon.UpdateImage(ret ? ImageRes.main.GetImage("IMAGE_BtnMusicIcon") : ImageRes.main.GetImage("IMAGE_BtnMusicIcon"));
+            imageIcon.UpdateImage(ret ? ImageRes.main.GetImage("IMAGE_BtnMusicIcon") : ImageRes.main.GetImage("IMAGE_BtnMusicIcon"),imageBg.keyImage);
 
         }
     }
@@ -270,19 +249,18 @@ public class UIHomeBase : UIView, IPopViewControllerDelegate
         if (btn != null)
         {
             UIImage imageBg = btn.gameObject.GetComponent<UIButton>().imageBg;
-            imageBg.UpdateImage(ret ? ImageRes.main.GetImage("IMAGE_BtnBg") : ImageRes.main.GetImage("IMAGE_BtnBgGrey"));
+            imageBg.UpdateImage(ret ? ImageRes.main.GetImage("IMAGE_BtnBg") : ImageRes.main.GetImage("IMAGE_BtnBgGrey"),imageBg.keyImage);
 
             string pic = ret ? ImageRes.main.GetImage("IMAGE_BtnSoundIcon") : ImageRes.main.GetImage("IMAGE_BtnSoundIcon");
             Debug.Log(" UIHomeBase UpdateBtnSound  imageIcon.UpdateImage pic=" + pic);
             UIImage imageIcon = btn.gameObject.GetComponent<UIButton>().imageIcon;
-            imageIcon.UpdateImage(pic);
+            imageIcon.UpdateImage(pic,imageBg.keyImage);
         }
         else
         {
             Debug.Log(" UIHomeBase btn is null ");
         }
     }
- 
 
     public void OnClickBtnMusic()
     {

@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Moonma.AdKit.AdConfig;
+using Moonma.IAP;
 using Tacticsoft;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,13 +9,14 @@ using UnityEngine.UI;
 
 public class UIGuankaController : UIGuankaBase, ITableViewDataSource
 {
+    public const string STR_KEYNAME_VIEWALERT_UNLOCK_LEVLE = "STR_KEYNAME_VIEWALERT_UNLOCK_LEVLE";
     public Button btnBack;
     public UIText textTitle;
     UICellItemBase cellItemPrefab;
     UICellBase cellPrefab;//GuankaItemCell GameObject 
     public TableView tableView;
-    public Image imageBar;
-    public RawImage imageBg;
+    public UIImage imageBar;
+    // public RawImage imageBg;
     public int numRows;
     private int numInstancesCreated = 0;
 
@@ -25,6 +28,22 @@ public class UIGuankaController : UIGuankaBase, ITableViewDataSource
 
     Language languagePlace;
     HttpRequest httpReqLanguage;
+    int indexClick;
+
+    static public bool isHaveUnlockLevel
+    {
+        get
+        {
+            string key = "key_HaveUnlockLevel";
+            return Common.Int2Bool(PlayerPrefs.GetInt(key, 0));
+        }
+        set
+        {
+            string key = "key_HaveUnlockLevel";
+            PlayerPrefs.SetInt(key, Common.Bool2Int(value));
+
+        }
+    }
 
     /// <summary>
     /// Awake is called when the script instance is being loaded.
@@ -39,6 +58,11 @@ public class UIGuankaController : UIGuankaBase, ITableViewDataSource
             {
                 case AppType.PINTU:
                     heightCell = 400;
+                    // if (Common.appKeyName == GameRes.GAME_Word)
+                    // {
+                    //     heightCell = 512;
+                    // }
+
                     break;
                 case AppType.FILLCOLOR:
                     heightCell = 400;
@@ -47,7 +71,7 @@ public class UIGuankaController : UIGuankaBase, ITableViewDataSource
                     heightCell = 400;
                     break;
                 case AppType.XIEHANZI:
-                    heightCell = 320;
+                    heightCell = 400;
                     break;
                 default:
                     //
@@ -56,8 +80,8 @@ public class UIGuankaController : UIGuankaBase, ITableViewDataSource
             }
         }
         //bg
-        TextureUtil.UpdateRawImageTexture(imageBg, AppRes.IMAGE_GUANKA_BG, true);
-        string strlan = Common.GAME_RES_DIR + "/place/language/language.csv";
+        // TextureUtil.UpdateRawImageTexture(imageBg, AppRes.IMAGE_GUANKA_BG, true);
+        string strlan = CloudRes.main.rootPathGameRes + "/place/language/language.csv";
         if (Common.isWeb)
         {
             httpReqLanguage = new HttpRequest(OnHttpRequestFinished);
@@ -69,7 +93,7 @@ public class UIGuankaController : UIGuankaBase, ITableViewDataSource
             OnGetLanguageFileDidFinish(FileUtil.FileIsExistAsset(strlan), data, true);
         }
 
-        // textTitle.color = ColorConfig.main.GetColor(GameRes.KEY_COLOR_LevelTitle, Color.white);
+
 
         LevelManager.main.ParseGuanka();
         listItem = GameLevelParse.main.listGuanka;
@@ -94,7 +118,7 @@ public class UIGuankaController : UIGuankaBase, ITableViewDataSource
     }
     public override void PreLoadDataForWeb()
     {
-        string strlan = Common.GAME_RES_DIR + "/place/language/language.csv";
+        string strlan = CloudRes.main.rootPathGameRes + "/place/language/language.csv";
         httpReqLanguage = new HttpRequest(OnHttpRequestFinished);
         httpReqLanguage.Get(HttpRequest.GetWebUrlOfAsset(strlan));
     }
@@ -126,14 +150,14 @@ public class UIGuankaController : UIGuankaBase, ITableViewDataSource
                 string str = languagePlace.GetString(info.title);
                 textTitle.text = str;
 
-                int fontsize = textTitle.fontSize;
-                float str_w = Common.GetStringLength(str, AppString.STR_FONT_NAME, fontsize);
-                RectTransform rctran = imageBar.transform as RectTransform;
-                Vector2 sizeDelta = rctran.sizeDelta;
-                float oft = 0;
-                sizeDelta.x = str_w + fontsize + oft * 2;
-                Debug.Log("guanka title=" + str + " str_w=" + str_w + " fontsize=" + fontsize);
-                rctran.sizeDelta = sizeDelta;
+                // int fontsize = textTitle.fontSize;
+                // float str_w = Common.GetStringLength(str, AppString.STR_FONT_NAME, fontsize);
+                // RectTransform rctran = imageBar.transform as RectTransform;
+                // Vector2 sizeDelta = rctran.sizeDelta;
+                // float oft = 0;
+                // sizeDelta.x = str_w + fontsize + oft * 2;
+                // Debug.Log("guanka title=" + str + " str_w=" + str_w + " fontsize=" + fontsize);
+                // rctran.sizeDelta = sizeDelta;
             }
 
 
@@ -149,9 +173,13 @@ public class UIGuankaController : UIGuankaBase, ITableViewDataSource
             GameObject obj = PrefabCache.main.Load(AppCommon.PREFAB_GUANKA_CELL_ITEM_APP);
             if (obj == null)
             {
-                obj = PrefabCache.main.Load(AppCommon.PREFAB_GUANKA_CELL_ITEM_COMMON);
+                obj = PrefabCache.main.Load(AppCommon.PREFAB_GUANKA_CELL_ITEM_APPCommon);
             }
 
+            if (obj == null)
+            {
+                obj = PrefabCache.main.Load(AppCommon.PREFAB_GUANKA_CELL_ITEM_COMMON);
+            }
 
             cellItemPrefab = obj.GetComponent<UICellItemBase>();
         }
@@ -160,18 +188,19 @@ public class UIGuankaController : UIGuankaBase, ITableViewDataSource
 
     public override void LayOut()
     {
+        base.LayOut();
         Vector2 sizeCanvas = AppSceneBase.main.sizeCanvas;
-        {
-            RectTransform rectTransform = imageBg.GetComponent<RectTransform>();
-            float w_image = rectTransform.rect.width;
-            float h_image = rectTransform.rect.height;
-            float scalex = sizeCanvas.x / w_image;
-            float scaley = sizeCanvas.y / h_image;
-            float scale = Mathf.Max(scalex, scaley);
-            imageBg.transform.localScale = new Vector3(scale, scale, 1.0f);
-            //屏幕坐标 现在在屏幕中央
-            imageBg.transform.position = new Vector2(Screen.width / 2, Screen.height / 2);
-        }
+        // {
+        //     RectTransform rectTransform = imageBg.GetComponent<RectTransform>();
+        //     float w_image = rectTransform.rect.width;
+        //     float h_image = rectTransform.rect.height;
+        //     float scalex = sizeCanvas.x / w_image;
+        //     float scaley = sizeCanvas.y / h_image;
+        //     float scale = Mathf.Max(scalex, scaley);
+        //     imageBg.transform.localScale = new Vector3(scale, scale, 1.0f);
+        //     //屏幕坐标 现在在屏幕中央
+        //     imageBg.transform.position = new Vector2(Screen.width / 2, Screen.height / 2);
+        // }
 
         UpdateTable(true);
     }
@@ -216,7 +245,22 @@ public class UIGuankaController : UIGuankaBase, ITableViewDataSource
     void GotoGame(int idx)
     {
         LevelManager.main.gameLevel = idx;
-        GameManager.main.GotoGame(this.controller);
+        if (GuankaViewController.main.toController == null)
+        {
+            GameManager.main.GotoGame(this.controller);
+        }
+        else
+        {
+            if (this.controller != null)
+            {
+                NaviViewController navi = this.controller.naviController;
+                if (navi != null)
+                {
+                    navi.Push(GuankaViewController.main.toController);
+                }
+
+            }
+        }
     }
     public void OnCellItemDidClick(UICellItemBase item)
     {
@@ -225,13 +269,140 @@ public class UIGuankaController : UIGuankaBase, ITableViewDataSource
             return;
         }
         tick = Common.GetCurrentTimeMs();
-        GotoGame(item.index);
+        bool enable = true;
+        if (item.index < listItem.Count)
+        {
+            indexClick = item.index;
+            ItemInfo info = listItem[item.index] as ItemInfo;
+            if (info.isAd)
+            {
+                bool isAdVideo = true;
+                int type = AdConfigParser.SOURCE_TYPE_VIDEO;
+                string keyAdVideo = AdConfig.main.GetAdKey(Source.GDT, type);
+                if (Common.isAndroid)
+                {
+                    if ((Common.BlankString(keyAdVideo)) || (keyAdVideo == "0"))
+                    {
+                        //android 显示插屏广告
+                        isAdVideo = false;
+                    }
+                }
+                if (isAdVideo)
+                {
+                    AdKitCommon.main.ShowAdVideo();
+                }
+                else
+                {
+                    AdKitCommon.main.InitAdInsert();
+                    AdKitCommon.main.ShowAdInsert(100);
+                }
 
+
+                if ((Config.main.isNoIDFASDK&&Common.isiOS) && (!isHaveUnlockLevel))
+                {
+                    enable = false;
+                    // 内购解锁
+                    OnUnLockLevelIAP();
+                }
+            }
+
+        }
+
+        if (enable)
+        {
+            GotoGame(item.index);
+        }
     }
 
     #endregion
 
+    public void OnUnLockLevelIAP()
+    {
+        if (Config.main.APP_FOR_KIDS)
+        {
+            ParentGateViewController.main.Show(null, null);
+            ParentGateViewController.main.ui.callbackClose = OnUIParentGateDidCloseNoAd;
+        }
+        else
+        {
+            DoUnLockLevelAlert();
+        }
+    }
 
+    public void OnUIParentGateDidCloseNoAd(UIParentGate ui, bool isLongPress)
+    {
+        if (isLongPress)
+        {
+            DoUnLockLevelAlert();
+        }
+    }
+    public void DoUnLockLevelAlert()
+    {
+        string key = "unlocklevel";
+        string title = IAPConfig.main.GetProductTitle(key);// Language.main.GetString("STR_UIVIEWALERT_TITLE_UnlockLevel");
+        string msg =IAPConfig.main.GetProductDetail(key);// Language.main.GetString("STR_UIVIEWALERT_MSG_UnlockLevel");
+        string yes = Language.main.GetString("STR_UIVIEWALERT_YES_UnlockLevel");
+        string no = Language.main.GetString("STR_UIVIEWALERT_NO_UnlockLevel");
+
+        ViewAlertManager.main.ShowFull(title, msg, yes, no, true, STR_KEYNAME_VIEWALERT_UNLOCK_LEVLE, OnUIViewAlertFinished);
+    }
+
+    public void DoUnLockLevelIAP(bool isRestore)
+    {
+        IAP.main.SetObjectInfo(this.gameObject.name, "IAPCallBack");
+
+        // viewAlert.ShowBtnNo(false);
+        // viewAlert.keyName = STR_KEYNAME_VIEWALERT_LOADING;
+        // viewAlert.callback = OnUIViewAlertFinished;
+        // string title = Language.main.GetString(AppString.STR_UIVIEWALERT_TITLE_SHOP_START_BUY);
+        // string msg = Language.main.GetString(AppString.STR_UIVIEWALERT_MSG_SHOP_START_BUY);
+        // string yes = Language.main.GetString(AppString.STR_UIVIEWALERT_YES_SHOP_START_BUY);
+        // string no = Language.main.GetString(AppString.STR_UIVIEWALERT_YES_SHOP_START_BUY);
+        // viewAlert.SetText(title, msg, yes, no);
+        // viewAlert.Show();
+        string  product = Common.GetAppPackage() + "." + IAPConfig.main.GetIdByKey("unlocklevel");
+        if (isRestore)
+        {
+            IAP.main.RestoreBuy(product);
+        }
+        else
+        {
+            IAP.main.StartBuy(product, false);
+        }
+
+
+    }
+    public void IAPCallBack(string str)
+    {
+        Debug.Log("IAPCallBack::" + str);
+        IAP.main.IAPCallBackBase(str);
+
+        if ((str == IAP.UNITY_CALLBACK_BUY_DID_FINISH) || (str == IAP.UNITY_CALLBACK_BUY_DID_RESTORE))
+        {
+            isHaveUnlockLevel = true;
+
+            Loom.QueueOnMainThread(() =>
+            {
+                GotoGame(indexClick);
+
+            });
+        }
+
+    }
+    #region UIViewAlert
+    void OnUIViewAlertFinished(UIViewAlert alert, bool isYes)
+    {
+        if (STR_KEYNAME_VIEWALERT_UNLOCK_LEVLE == alert.keyName)
+        {
+            DoUnLockLevelIAP(!isYes);
+        }
+
+
+    }
+
+
+
+    #endregion
     void UpdateTable(bool isLoad)
     {
         // oneCellNum = 3;

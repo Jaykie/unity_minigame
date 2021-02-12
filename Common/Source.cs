@@ -23,6 +23,8 @@ public class Source
     public const string HUAWEI = "huawei";
     public const string GP = "gp";//google play
     public const string FACEBOOK = "fb";
+    public const string OPPO = "oppo";
+    public const string VIVO = "vivo";
 
     public const string QIHU_360 = "360";
 
@@ -37,4 +39,11 @@ public class Source
     public const string MOBVISTA = "mobvista";
     public const string VUNGLE = "vungle";
     public const string MOONMA = "moonma";
+    public const string BAIDU = "baidu";
+    public const string CHSJ = "chsj";//穿山甲
+
+
+    // language
+    public const string Language_cn = "cn";
+    public const string Language_en = "en";
 }

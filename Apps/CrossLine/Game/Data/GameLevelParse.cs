@@ -55,10 +55,11 @@ public class GameLevelParse : LevelParseBase
     public void UpdateLanguage()
     {
         ItemInfo info = LevelManager.main.GetPlaceItemInfo(LevelManager.main.placeLevel);
-        string strlan = Common.GAME_RES_DIR + "/language/" + info.language + ".csv";
+        string strlan = CloudRes.main.rootPathGameRes + "/language/" + info.language + ".csv";
         languageGame = new Language();
         languageGame.Init(strlan);
-        languageGame.SetLanguage(SystemLanguage.Chinese);
+        languageGame.SetLanguage(Language.main.GetLanguage());
+        // languageGame.SetLanguage(SystemLanguage.Chinese);
     }
     public override int GetGuankaTotal()
     {
@@ -132,7 +133,7 @@ public class GameLevelParse : LevelParseBase
 
         int offsetDotRowY = 3;
         int idx = LevelManager.main.gameLevel;
-        string filepath = Common.GAME_RES_DIR + "/guanka/" + info.id + ".txt";
+        string filepath = CloudRes.main.rootPathGameRes + "/guanka/" + info.id + ".txt";
         if (!FileUtil.FileIsExistAsset(filepath))
         {
             return;

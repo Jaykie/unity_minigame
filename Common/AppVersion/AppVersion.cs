@@ -60,11 +60,29 @@ public class AppVersion
             {
                 return false;
             }
+            bool ret = Common.Int2Bool(PlayerPrefs.GetInt(STRING_KEY_APP_CHECK_FINISHED));
+
             if (Common.isAndroid)
             {
                 if (Config.main.channel == Source.TAPTAP)
                 {
                     return true;
+                }
+                if (Config.main.channel == Source.HUAWEI)
+                {
+                    // if ((Common.GetAppVersion() == "1.0.0") || (Common.GetAppVersion() == "1.0.1") || (Common.GetAppVersion() == "1.0.2"))
+                    // {
+                    //     return false;
+                    // }
+                    // if (!ret)
+                    // {
+                    //     if (Common.GetDayIndexOfUse() <= 1)
+                    //     {
+                    //         return false;
+                    //     }
+                    // }
+
+                    // return true;
                 }
                 // if (!IPInfo.isInChina)
                 // {
@@ -72,7 +90,6 @@ public class AppVersion
                 //   //  return true;
                 // }
             }
-            bool ret = Common.Int2Bool(PlayerPrefs.GetInt(STRING_KEY_APP_CHECK_FINISHED));
 
             if (ret)
             {
@@ -361,6 +378,13 @@ public class AppVersion
         {
             switch (Config.main.channel)
             {
+
+                    case Source.OPPO:
+                   case Source.VIVO:
+                    {
+                        appVersionBase = new AppVersionWebHome();
+                        break;
+                    }
                 case Source.XIAOMI:
                     {
                         appVersionBase = new AppVersionXiaomi();
@@ -373,7 +397,7 @@ public class AppVersion
                     }
                 case Source.HUAWEI:
                     {
-                        appVersionBase = new AppVersionHuawei();
+                        appVersionBase = AppVersionHuawei.main;
                         break;
                     }
                 case Source.GP:
@@ -383,7 +407,7 @@ public class AppVersion
                     }
                 default:
                     {
-                        appVersionBase = new AppVersionBase();
+                        appVersionBase = new AppVersionWebHome();
                     }
                     break;
 

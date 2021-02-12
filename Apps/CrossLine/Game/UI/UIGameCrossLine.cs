@@ -46,8 +46,9 @@ public class UIGameCrossLine : UIGameBase, IGameDelegate
     {
         //LayoutChild 必须在前面执行
         UpdateGuankaLevel(LevelManager.main.gameLevel);
-        float delaytime = 0.1f * 10;
-        Invoke("OnUIDidFinish", delaytime);
+        float delaytime = 0.1f * 10; 
+
+        OnUIDidFinish(delaytime);
     }
     void LoadPrefab()
     {
@@ -60,6 +61,7 @@ public class UIGameCrossLine : UIGameBase, IGameDelegate
     public override void LayOut()
     {
         float x, y, z = 0, w = 0, h = 0;
+        base.LayOut();
         Vector2 sizeWorld = Common.GetWorldSize(mainCam);
         Vector2 sizeCanvas = this.frame.size;
         float ratio = 1f;
@@ -67,7 +69,9 @@ public class UIGameCrossLine : UIGameBase, IGameDelegate
         {
             return;
         }
-        LayoutChildBase();
+        // LayoutChildBase 会导致LayOut 死循环  
+        // LayoutChildBase();
+        
         adBannerHeightCanvas = GameManager.main.heightAdCanvas;
         Debug.Log("adBannerHeightCanvas=" + adBannerHeightCanvas);
 

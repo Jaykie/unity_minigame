@@ -28,7 +28,7 @@ public class LanguageManager
     public void UpdateLanguage(int indexPlace)
     {
         ItemInfo infoPlace = LevelManager.main.GetPlaceItemInfo(indexPlace);
-        string filepath = Common.GAME_RES_DIR + "/language/" + infoPlace.language + ".csv";
+        string filepath = CloudRes.main.rootPathGameRes +"/language/" + infoPlace.language + ".csv";
         Debug.Log("UpdateLanguage filepath=" + filepath);
         byte[] data = FileUtil.ReadDataAuto(filepath);
         if (languageGame == null)
@@ -45,7 +45,7 @@ public class LanguageManager
             languagePlace.SetLanguage(Language.main.GetLanguage());
             return;
         }
-        string strlan = Common.GAME_RES_DIR + "/place/language/language.csv";
+        string strlan = CloudRes.main.rootPathGameRes +"/place/language/language.csv";
         if (FileUtil.FileIsExistAsset(strlan))
         {
             languagePlace = new Language();

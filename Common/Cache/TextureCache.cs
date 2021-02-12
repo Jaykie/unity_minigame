@@ -67,8 +67,18 @@ public class TextureCache
         }
         return tex;
     }
+
+    public Texture2D LoadImageKey(string key)
+    {
+        return Load(ImageRes.main.GetImage(key));
+    }
+
     public Texture2D Load(string filepath)
     {
+        if (Common.isBlankString(filepath))
+        {
+            return null;
+        }
         Texture2D tex = null;
         string key = filepath;
         if (dicItem.ContainsKey(key))

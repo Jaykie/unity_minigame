@@ -46,7 +46,7 @@ public class UIPay : UIView, ITableViewDataSource
         heightCell = 256 + 128;
 
         //bg
-        TextureUtil.UpdateImageTexture(imageBg, AppRes.IMAGE_SETTING_BG, true);
+       //TextureUtil.UpdateImageTexture(imageBg, AppRes.IMAGE_SETTING_BG,true);
 
         topBarOffsetYNormal = objTopBar.GetComponent<RectTransform>().offsetMax.y;
 
@@ -93,7 +93,7 @@ public class UIPay : UIView, ITableViewDataSource
             float str_w = Common.GetStringLength(str, AppString.STR_FONT_NAME, fontsize);
             RectTransform rctran = imageBar.transform as RectTransform;
             Vector2 sizeDelta = rctran.sizeDelta;
-            // float oft = AppResImage.REN_XUXIANKUANG_CIRCLE_R * AppCommon.scaleBase;
+           // float oft = AppResImage.REN_XUXIANKUANG_CIRCLE_R * AppCommon.scaleBase;
             sizeDelta.x = str_w + fontsize;
             rctran.sizeDelta = sizeDelta;
         }
@@ -198,7 +198,7 @@ public class UIPay : UIView, ITableViewDataSource
     { 
         DestroyImmediate(this.gameObject);
     }
-
+ 
 
     #region ITableViewDataSource
 
@@ -247,10 +247,10 @@ public class UIPay : UIView, ITableViewDataSource
 
                 Rect rcItem = rctran.rect;
                 Vector3 pos = new Vector3(rcItem.width * i, 0, 0);
-
+ 
                 rctran.anchoredPosition = pos;
                 cell.AddItem(i, item);
-
+ 
 
             }
 
@@ -278,7 +278,7 @@ public class UIPay : UIView, ITableViewDataSource
         //Debug.Log(string.Format("Row {0} visibility changed to {1}", row, isVisible));
         if (isVisible)
         {
-
+           
         }
     }
 

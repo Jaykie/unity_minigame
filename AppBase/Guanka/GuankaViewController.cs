@@ -8,7 +8,7 @@ public class GuankaViewController : UIViewController
     UIGuankaBase uiGuankaPrefab;
     UIGuankaBase uiGuanka;
 
-
+    public UIViewController toController;
     static private GuankaViewController _main = null;
     public static GuankaViewController main
     {

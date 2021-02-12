@@ -6,15 +6,15 @@ using System.Text;
 public class AppCommon
 {
     //string
-    public const string STR_LANGUAGE_REPLACE = "xxx"; 
+    public const string STR_LANGUAGE_REPLACE = "xxx";
 
     //prefab
     public const string PREFAB_UICELLBASE = "Common/Prefab/TableView/UICellBase";
     public const string PREFAB_UISettingCellItem = "Common/Prefab/Setting/UISettingCellItem";
     public const string PREFAB_UILanguageCellItem = "Common/Prefab/Setting/UILanguageCellItem";
     public const string PREFAB_GUANKA_CELL_ITEM_COMMON = "Common/Prefab/Guanka/UIGuankaCellItem";
-    public const string PREFAB_GUANKA_CELL_ITEM_APP = "AppCommon/Prefab/Guanka/UIGuankaCellItem";
-
+    public const string PREFAB_GUANKA_CELL_ITEM_APP = "App/Prefab/Guanka/UIGuankaCellItem";
+    public const string PREFAB_GUANKA_CELL_ITEM_APPCommon = "AppCommon/Prefab/Guanka/UIGuankaCellItem";
     public const string PREFAB_MOREAPP_CELL_ITEM = "Common/Prefab/MoreApp/UIMoreAppCellItem";
 
     public const string PREFAB_PLACE_CELL_ITEM_COMMON = "Common/Prefab/Place/UIPlaceCellItem";

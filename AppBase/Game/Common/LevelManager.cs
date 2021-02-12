@@ -90,6 +90,7 @@ public class LevelManager
     }
     public ItemInfo GetPlaceItemInfo(int idx)
     {
+        ParsePlaceList();
         return GameLevelParse.main.GetPlaceItemInfo(idx);
     }
 
@@ -105,13 +106,13 @@ public class LevelManager
     {
         listGuankaItemId = new List<object>();
         ItemInfo infoPlace = GetPlaceItemInfo(idxPlace);
-        string fileName = Common.GAME_RES_DIR + "/guanka/item_" + infoPlace.id + ".json";
+        string fileName = CloudRes.main.rootPathGameRes +"/guanka/item_" + infoPlace.id + ".json";
         //FILE_PATH
         string json = FileUtil.ReadStringAsset(fileName); //((TextAsset)Resources.Load(fileName, typeof(TextAsset))).text;
         // Debug.Log("json::"+json);
         JsonData root = JsonMapper.ToObject(json);
         string type = (string)root["type"];
-        string picRoot = Common.GAME_RES_DIR + "/image/" + type + "/";
+        string picRoot = CloudRes.main.rootPathGameRes +"/image/" + type + "/";
 
         //search_items
         JsonData items = root["items"];

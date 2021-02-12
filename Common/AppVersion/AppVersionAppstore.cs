@@ -26,8 +26,8 @@ public class AppVersionAppstore : AppVersionBase
         //http://itunes.apple.com/lookup?id=914391781
         //Debug.Log("AppVersion  HttpRequest Get");
         Debug.Log(strappid);
-
-        http.Get("https://itunes.apple.com/lookup?id=" + strappid);
+        //http://itunes.apple.com/cn/lookup?id=914391781
+        http.Get("https://itunes.apple.com/cn/lookup?id=" + strappid);
     }
 
     public override void ParseData(byte[] data)
@@ -71,7 +71,7 @@ public class AppVersionAppstore : AppVersionBase
         //Debug.Log("Appversion ParseAppstore 4");
         string version = (string)jsonItem["version"];
         strVersionStore = version;
-        
+
         ParseFinished(this);
     }
 

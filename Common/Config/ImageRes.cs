@@ -9,6 +9,19 @@ public class ImageRes
     //color
     //f88816 248,136,22
     JsonData rootJson;
+    public bool isOldVersion;
+
+    ImageResInternal imageResApp;
+    ImageResInternal imageResAppCommon;
+
+    //old
+    ImageResInternal imageResOld;
+    ImageResInternal imageResCommon;
+
+
+    ImageResInternal imageResDefault;
+    //old
+
     static private ImageRes _main = null;
     public static ImageRes main
     {
@@ -17,46 +30,299 @@ public class ImageRes
             if (_main == null)
             {
                 _main = new ImageRes();
-                string filePath = Common.RES_CONFIG_DATA + "/Image/ImageRes.json";
-                _main.Init(filePath);
+                _main.Init();
             }
             return _main;
         }
     }
 
-    void Init(string filePath)
+    public void Init()
     {
-        string json = FileUtil.ReadStringAuto(filePath);
-        rootJson = JsonMapper.ToObject(json);
+
+        string filepath = Common.RES_CONFIG_DATA + "/Image/ImageRes.json";
+        if (FileUtil.FileIsExist(filepath))
+        {
+            imageResOld = new ImageResInternal();
+            imageResOld.isOldVersion = true;
+            imageResOld.Init(filepath);
+        }
+
+        imageResApp = new ImageResInternal();
+        filepath = Common.RES_CONFIG_DATA + "/Image/ImageResApp.json";
+        isOldVersion = true;
+        if (FileUtil.FileIsExist(filepath))
+        {
+            isOldVersion = false;
+        }
+        else
+        {
+            filepath = Common.RES_CONFIG_DATA + "/Image/ImageRes.json";
+
+        }
+        imageResApp.isOldVersion = isOldVersion;
+        imageResApp.Init(filepath);
+
+
+
+
+        filepath = Common.RES_CONFIG_DATA_COMMON + "/Image/ImageRes.json";
+        if (FileUtil.FileIsExist(filepath))
+        {
+            imageResCommon = new ImageResInternal();
+            imageResCommon.isOldVersion = true;
+            imageResCommon.Init(filepath);
+        }
+
+        filepath = Common.RES_CONFIG_DATA + "/Image/ImageResAppCommon.json";
+        if (FileUtil.FileIsExist(filepath))
+        {
+            imageResAppCommon = new ImageResInternal();
+            imageResAppCommon.isOldVersion = false;
+            imageResAppCommon.Init(filepath);
+        }
+
+        // F:\sourcecode\unity\product\kidsgame\kidsgameUnity\Assets\Script\Common\Resources\Common\UI\UIKit\UIProgress
+
+        filepath = "Common/UI/ImageResDefault.json";
+        if (FileUtil.FileIsExist(filepath))
+        {
+            imageResDefault = new ImageResInternal();
+            imageResDefault.isOldVersion = false;
+            imageResDefault.Init(filepath);
+        }
+
     }
 
-    // 255,100,200,255 to color return Vector4 47,47,47,255
-    //Vector4 (left,right,top,bottom)
-    Vector4 String2Vec4(string str)
+    public string GetImageBoardString(string path)
     {
-        float x, y, z, w;
-        string[] rgb = str.Split(',');
-        x = Common.String2Int(rgb[0]);
-        y = Common.String2Int(rgb[1]);
-        z = Common.String2Int(rgb[2]);
-        w = Common.String2Int(rgb[3]);
-        return new Vector4(x, y, z, w);
-    }
-    string GetBoardKey(string key)
-    {
-        return key + "_BOARD";
+        string ret = "";
+        if (imageResOld != null)
+        {
+            string key = imageResOld.FindKeyByPath(path);
+            if (!Common.BlankString(key))
+            {
+                ret = imageResOld.GetImageBoardString(key);
+            }
+        }
+
+        if (Common.BlankString(ret))
+        {
+            if (imageResCommon != null)
+            {
+                string key = imageResCommon.FindKeyByPath(path);
+                if (!Common.BlankString(key))
+                {
+                    ret = imageResCommon.GetImageBoardString(key);
+                }
+            }
+        }
+
+
+        if (Common.BlankString(ret))
+        {
+            if (imageResApp != null)
+            {
+                string key = imageResApp.FindKeyByPath(path);
+                if (!Common.BlankString(key))
+                {
+                    ret = imageResApp.GetImageBoardString(key);
+                }
+            }
+        }
+
+        if (Common.BlankString(ret))
+        {
+            if (imageResAppCommon != null)
+            {
+                string key = imageResAppCommon.FindKeyByPath(path);
+                if (!Common.BlankString(key))
+                {
+                    ret = imageResAppCommon.GetImageBoardString(key);
+                }
+            }
+        }
+
+        return ret;
     }
 
-    //9宫格图片边框参数 (left,right,top,bottom)
-    //cc.Vec4 (left,right,top,bottom)
-    Vector4 GetImageBoard(string key)
+    public bool IsHasBoard(string key)
     {
-        var str = JsonUtil.JsonGetString(rootJson, GetBoardKey(key), "");
-        return String2Vec4(str);
-    }
+        bool ret = false;
+        if (imageResApp.IsHasKey(key))
+        {
+            ret = imageResApp.IsHasBoard(key);
+        }
+        else
+        {
+            if (imageResAppCommon != null)
+            {
+                ret = imageResAppCommon.IsHasBoard(key);
+            }
+            else
+            {
+                if (imageResCommon != null)
+                {
+                    ret = imageResCommon.IsHasBoard(key);
+                }
+            }
+        }
 
+        //old
+        if (ret == false)
+        {
+            if (imageResOld != null)
+            {
+                ret = imageResOld.IsHasBoard(key);
+                Debug.Log("imageResOld IsHasBoard key=" + key + " ret=" + ret);
+            }
+
+
+            if (!ret)
+            {
+                if (imageResCommon != null)
+                {
+                    ret = imageResCommon.IsHasBoard(key);
+                }
+            }
+
+        }
+        if (ret == false)
+        {
+            if (imageResDefault != null)
+            {
+                ret = imageResDefault.IsHasBoard(key);
+            }
+        }
+
+
+
+        return ret;
+    }
     public string GetImage(string key)
     {
-        return JsonUtil.JsonGetString(rootJson, key, "");
+        string ret = "";
+        if (imageResApp.IsHasKey(key))
+        {
+            ret = imageResApp.GetImage(key);
+        }
+        else
+        {
+            if (imageResAppCommon != null)
+            {
+                ret = imageResAppCommon.GetImage(key);
+            }
+            else
+            {
+                if (imageResCommon != null)
+                {
+                    ret = imageResCommon.GetImage(key);
+                }
+            }
+
+            // if (ret == "_NO_KEY_")
+            if (Common.BlankString(ret))
+            {
+                if (imageResOld != null)
+                {
+                    ret = imageResOld.GetImage(key);
+                    Debug.Log("imageResOld GetImage _NO_KEY_ =" + key + " ret=" + ret);
+                }
+                // if (ret == "_NO_KEY_")
+                if (Common.BlankString(ret))
+                {
+                    if (imageResCommon != null)
+                    {
+                        ret = imageResCommon.GetImage(key);
+                    }
+                }
+
+            }
+        }
+
+
+        if (Common.BlankString(ret))
+        {
+            if (imageResDefault != null)
+            {
+                if (imageResDefault != null)
+                {
+                    ret = imageResDefault.GetImage(key);
+                }
+            }
+        }
+
+        return ret;
+    }
+
+
+
+    public Vector4 GetImageBoard(string key)
+    {
+        Vector4 ret = Vector4.zero;
+        if (imageResApp.IsHasKey(key))
+        {
+            ret = imageResApp.GetImageBoard(key);
+        }
+        else
+        {
+
+            if (imageResAppCommon != null)
+            {
+                if (imageResAppCommon.IsHasKey(key))
+                {
+                    ret = imageResAppCommon.GetImageBoard(key);
+                }
+
+            }
+            // else
+            // {
+            //     if (imageResCommon != null)
+            //     {
+            //         if (imageResCommon.IsHasKey(key))
+            //         {
+            //             ret = imageResCommon.GetImageBoard(key);
+            //         }
+            //     }
+            // }
+        }
+
+
+
+        //old
+        if (ret == Vector4.zero)
+        {
+            if (imageResOld != null)
+            {
+                if (imageResOld.IsHasKey(key))
+                {
+                    ret = imageResOld.GetImageBoard(key);
+                }
+            }
+        }
+
+        if (ret == Vector4.zero)
+        {
+            if (imageResCommon != null)
+            {
+                if (imageResCommon.IsHasKey(key))
+                {
+                    ret = imageResCommon.GetImageBoard(key);
+                }
+            }
+        }
+
+
+        if (ret == Vector4.zero)
+        {
+            if (imageResDefault != null)
+            {
+                if (imageResDefault.IsHasKey(key))
+                {
+                    ret = imageResDefault.GetImageBoard(key);
+                }
+            }
+        }
+
+        return ret;
     }
 }

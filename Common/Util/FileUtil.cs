@@ -3,8 +3,9 @@ using System.Collections;
 using System.IO;
 using System.Text;
 using System;
+using System.Collections.Generic;
 
-public class FileUtil : MonoBehaviour
+public class FileUtil
 {
     public const string JAVA_CLASS_FILEUTIL = "com.moonma.common.FileUtil";
 
@@ -101,6 +102,24 @@ public class FileUtil : MonoBehaviour
         string str = Encoding.UTF8.GetString(data);
         return str;
     }
+    static public void WriteStringToFile(string filePath, string strcontent)
+    {
+        byte[] bytes = System.Text.Encoding.Default.GetBytes(strcontent);
+        System.IO.File.WriteAllBytes(filePath, bytes);
+    }
+
+    static public bool isCloudRes()
+    {
+        if (Application.isEditor || GameManager.main.isLoadGameScreenShot)
+        {
+            return true;
+        }
+        if (CloudRes.main.enable)
+        {
+            return true;
+        }
+        return false;
+    }
 
     //http://blog.csdn.net/ynnmnm/article/details/52253674
     /*
@@ -124,7 +143,7 @@ public class FileUtil : MonoBehaviour
 
     Application.dataPath            /data/app/package name-1/base.apk 
     Application.streamingAssetsPath jar:file:///data/app/package name-1/base.apk!/assets 
-    Application.temporaryCachePath /storage/emulated/0/android/data/package name/cache 
+    Application.temporaryCachePath /storage/emulated/0/android/data/com.moonma.learnword/cache 
     Application.persistentDataPath   /storage/emulated/0/Android/data/package name/files
 
      */
@@ -132,8 +151,33 @@ public class FileUtil : MonoBehaviour
     // file 为相对路径
     static public byte[] ReadDataAsset(string file)
     {
+
         //string fileDir = Application.dataPath + "/StreamingAssets";
         string fileDir = Application.streamingAssetsPath;
+        string filePath = fileDir + "/" + file;
+
+        // if (Application.isEditor || GameManager.main.isLoadGameScreenShot)
+        if (isCloudRes())
+        {
+            if (file.Contains("GameRes/") || file.Contains("GameResCommon/"))
+            {
+                Debug.Log("ReadDataAsset GameRes file =" + file);
+                // filePath = FileUtil.GetFileDir(CloudRes.main.rootPathGameRes)+ "/" + file;
+                filePath = file;
+                Debug.Log("ReadDataAsset GameRes filePath =" + filePath);
+                // filePath = Resource.dirResourceDataApp + "/" + file;
+                // Debug.Log("filePath=" + filePath + " file=" + file);
+                // if (!File.Exists(filePath))
+                // {
+                //     filePath = Resource.dirGameResCommon + "/" + file;
+                //     filePath = filePath.Replace("GameRes/", Common.appKeyName + "/");
+                //     Debug.Log("filePath common=" + filePath + " file=" + file);
+                // }
+                //直接读取resourcedata
+                return ReadDataFromFile(filePath);
+            }
+        }
+
         if (Common.isAndroid)
         {
             byte[] data = null;
@@ -149,12 +193,14 @@ public class FileUtil : MonoBehaviour
             //fileDir = Application.streamingAssetsPath;
 
         }
-        string filePath = fileDir + "/" + file;
+
         if (Common.isiOS)
         {
             //StreamAsseting目录 ios真机只读 不可写
             return ReadDataAssetIos(filePath);
         }
+
+
         return ReadDataFromFile(filePath);
     }
 
@@ -213,11 +259,23 @@ public class FileUtil : MonoBehaviour
         return data;
     }
 
+    static public string ReadStringFromRawFile(string file)
+    {
+        byte[] data = ReadDataFromFile(file);
+        if (data == null)
+        {
+            return null;
+        }
+        string str = Encoding.UTF8.GetString(data);
+        return str;
+    }
+
     static public string ReadStringAsset(string file)
     {
         byte[] data = ReadDataAsset(file);
         if (data == null)
         {
+            Debug.Log("ReadStringAsset data is null file=" + file);
             return null;
         }
         string str = Encoding.UTF8.GetString(data);
@@ -280,6 +338,33 @@ public class FileUtil : MonoBehaviour
     //file 为相对路径
     static public bool FileIsExistAsset(string file)
     {
+        if(Common.BlankString(file))
+        {
+            return false;
+        }
+        string fileDir = Application.streamingAssetsPath;
+
+        string filePath = fileDir + "/" + file;
+        // if (Application.isEditor || GameManager.main.isLoadGameScreenShot)
+        if (isCloudRes())
+        {
+            if (file.Contains("GameRes/") || file.Contains("GameResCommon/"))
+            {
+                filePath = file;
+                // filePath = Resource.dirResourceDataApp + "/" + file;
+                // if (!File.Exists(filePath))
+                // {
+                //     filePath = Resource.dirGameResCommon + "/" + file;
+                //     filePath = filePath.Replace("GameRes/", Common.appKeyName + "/");
+                //     Debug.Log("Exists filePath common=" + filePath + " file=" + file);
+                // }
+                // 直接判断 CloudRes
+                return File.Exists(filePath);
+
+            }
+        }
+
+
         if (Common.isAndroid)
         {
 
@@ -295,9 +380,6 @@ public class FileUtil : MonoBehaviour
             return ret;
         }
 
-        string fileDir = Application.streamingAssetsPath;
-
-        string filePath = fileDir + "/" + file;
         return File.Exists(filePath);
     }
     //文件名
@@ -326,7 +408,7 @@ public class FileUtil : MonoBehaviour
         return ret;
     }
 
-    //文件后缀
+    //文件后缀 如 png jpg ext 没有.
     static public string GetFileExt(string filepath)
     {
         string ret = "";
@@ -335,6 +417,20 @@ public class FileUtil : MonoBehaviour
         {
             ret = filepath.Substring(idx + 1);
         }
+        return ret;
+    }
+
+
+    //上一级目录
+    static public string GetLastDir(string filepath)
+    {
+        string ret = filepath;
+        int idx = filepath.LastIndexOf("/");
+        if (idx >= 0)
+        {
+            ret = filepath.Substring(0, idx);
+        }
+
         return ret;
     }
 
@@ -372,7 +468,18 @@ public class FileUtil : MonoBehaviour
         }
         return ret;
     }
+    static public void CreateFile(string filepath)
+    {
+        if (!FileUtil.FileIsExist(filepath))
+        {
+            string dirSave = FileUtil.GetFileDir(filepath);
+            FileUtil.CreateDir(dirSave);
+            Debug.Log("create file jsonfile=" + filepath);
+            System.IO.File.Create(filepath).Close();
+        }
 
+
+    }
     static public void CreateDir(string dir)
     {
         if (!Directory.Exists(dir))
@@ -380,10 +487,25 @@ public class FileUtil : MonoBehaviour
             Directory.CreateDirectory(dir);
         }
     }
+    static public bool DirIsExist(string dir)
+    {
+        return Directory.Exists(dir);
 
+    }
+    static public void Rename(string filepath, string filepathnew)
+    {
+        File.Move(filepath, filepathnew);
+
+    }
 
     static public void DeleteDir(string dir)
     {
+
+        //判断文件夹是否还存在
+        if (!Directory.Exists(dir))
+        {
+            return;
+        }
 
         //去除文件夹和子文件的只读属性
         //去除文件夹的只读属性
@@ -394,7 +516,7 @@ public class FileUtil : MonoBehaviour
         System.IO.File.SetAttributes(dir, System.IO.FileAttributes.Normal);
 
         //判断文件夹是否还存在
-        if (Directory.Exists(dir))
+        // if (Directory.Exists(dir))
         {
 
             foreach (string f in Directory.GetFileSystemEntries(dir))
@@ -418,9 +540,118 @@ public class FileUtil : MonoBehaviour
             Directory.Delete(dir);
 
         }
+    }
+    static public void GetFileList(string dir, string ext, List<string> list)
+    {
+        System.IO.DirectoryInfo fileInfo = new DirectoryInfo(dir);
+        //判断文件夹是否还存在
+        if (Directory.Exists(dir))
+        {
+            foreach (string f in Directory.GetFileSystemEntries(dir))
+            {
+                if (File.Exists(f))
+                {
+                    if (GetFileExt(f) == ext)
+                    {
+                        if (list != null)
+                        {
+                            list.Add(f);
+                        }
+                    }
+                }
+                else
+                {
+                    //循环递归删除子文件夹
+                    GetFileList(f, ext, list);
+                }
 
+            }
 
-
+        }
 
     }
+
+    static public void DeleteMetaFiles(string dir)
+    {
+
+        //去除文件夹和子文件的只读属性
+        //去除文件夹的只读属性
+        System.IO.DirectoryInfo fileInfo = new DirectoryInfo(dir);
+        fileInfo.Attributes = FileAttributes.Normal & FileAttributes.Directory;
+
+        //去除文件的只读属性
+        System.IO.File.SetAttributes(dir, System.IO.FileAttributes.Normal);
+
+        //判断文件夹是否还存在
+        if (Directory.Exists(dir))
+        {
+
+            foreach (string f in Directory.GetFileSystemEntries(dir))
+            {
+
+                if (File.Exists(f))
+                {
+                    string ext = GetFileExt(f);
+                    if (ext == "meta")
+                    {
+                        File.Delete(f);
+                    }
+                }
+                else
+                {
+                    //循环递归删除子文件夹
+                    DeleteMetaFiles(f);
+                }
+
+            }
+
+        }
+
+    }
+
+    static public void CopyOneFile(string src, string dst, bool rewrite = true)
+    {
+        File.Copy(src, dst, rewrite);
+    }
+    static public void CopyFile(System.IO.DirectoryInfo path, string desPath)
+    {
+        string sourcePath = path.FullName;
+        System.IO.FileInfo[] files = path.GetFiles();
+        foreach (System.IO.FileInfo file in files)
+        {
+            string sourceFileFullName = file.FullName;
+            string destFileFullName = sourceFileFullName.Replace(sourcePath, desPath);
+            file.CopyTo(destFileFullName, true);
+        }
+    }
+    static public void CopyDir(string sPath, string dPath)
+    {
+        string[] directories = System.IO.Directory.GetDirectories(sPath);
+        if (!System.IO.Directory.Exists(dPath))
+            System.IO.Directory.CreateDirectory(dPath);
+        System.IO.DirectoryInfo dir = new System.IO.DirectoryInfo(sPath);
+        System.IO.DirectoryInfo[] dirs = dir.GetDirectories();
+        CopyFile(dir, dPath);
+        if (dirs.Length > 0)
+        {
+            foreach (System.IO.DirectoryInfo temDirectoryInfo in dirs)
+            {
+                string sourceDirectoryFullName = temDirectoryInfo.FullName;
+                string destDirectoryFullName = sourceDirectoryFullName.Replace(sPath, dPath);
+                if (!System.IO.Directory.Exists(destDirectoryFullName))
+                {
+                    System.IO.Directory.CreateDirectory(destDirectoryFullName);
+                }
+                CopyFile(temDirectoryInfo, destDirectoryFullName);
+                CopyDir(sourceDirectoryFullName, destDirectoryFullName);
+            }
+        }
+
+    }
+    static public void DeleteDir2(string dir)
+    {
+        DirectoryInfo di = new DirectoryInfo(dir);
+        di.Delete(true);
+    }
+
 }

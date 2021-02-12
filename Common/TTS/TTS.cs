@@ -26,7 +26,10 @@ public class TTS
 
     public void Speak(string text)
     {
-
+            if (MusicBgPlay.main == null)
+            {
+               return;
+            }
         bool ret = Common.GetBool(AppString.STR_KEY_BACKGROUND_MUSIC);
         if (ret)
         {
@@ -35,9 +38,9 @@ public class TTS
 
         if (Common.isAndroid || Common.isiOS)
         {
-            TTSBasePlatformWrapper platformWrapper = TTSPlatformWrapper.platform;
-
-            platformWrapper.Speak(text);
+            //TTSBasePlatformWrapper platformWrapper = TTSPlatformWrapper.platform;
+            // platformWrapper.Speak(text);
+            SpeakWeb(text);
         }
         else
         {

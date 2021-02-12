@@ -17,9 +17,24 @@ public class AppScene : AppSceneBase
         }
         else
         {
-            SetRootViewController(MainViewController.main);
+            Init();
         }
 
+    }
+
+    public async void Init()
+    {
+        string tmp = await CloudRes.main.CheckNeedShow();
+        if (CloudRes.main.isNeedShow)
+        {
+            Debug.Log("CheckVersion AppScene CloudRes resVersionWeb=" + CloudRes.main.resVersionWeb + " resVersionLocal=" + CloudRes.main.resVersionLocal);
+            SetRootViewController(CloudResViewController.main);
+        }
+        else
+        {
+
+            SetRootViewController(MainViewController.main);
+        }
     }
 
 

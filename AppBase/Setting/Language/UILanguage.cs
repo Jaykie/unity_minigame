@@ -30,7 +30,7 @@ public class UILanguage : UIViewPop, ITableViewDataSource
         textTitle.color = AppRes.colorTitle;
         textTitle.text = Language.main.GetString("STR_LANGUAGE");
         LoadPrefab();
-        TextureUtil.UpdateImageTexture(imageBg, AppRes.IMAGE_SETTING_BG, true);
+       // TextureUtil.UpdateImageTexture(imageBg, AppRes.IMAGE_SETTING_BG, true);
     }
 
     // Use this for initialization
@@ -45,7 +45,7 @@ public class UILanguage : UIViewPop, ITableViewDataSource
         tableView.dataSource = this;
 
 
-        LayOutChild();
+        LayOut();
     }
 
     // Update is called once per frame
@@ -59,14 +59,16 @@ public class UILanguage : UIViewPop, ITableViewDataSource
 
         if (Device.isDeviceDidRotation)
         {
-            LayOutChild();
+            LayOut();
         }
     }
 
 
-    void LayOutChild()
+   public  override  void LayOut()
     {
         float w, h;
+        base.LayOut();
+
         //Vector2 sizeCanvas = ViewControllerManager.sizeCanvas;
         Vector2 sizeCanvas = AppSceneBase.main.sizeCanvas;
         {

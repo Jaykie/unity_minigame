@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 [RequireComponent(typeof(MeshRenderer), typeof(MeshFilter))]
-public class MeshTexture : MonoBehaviour
+public class MeshTexture : UIView
 {
-    public GameObject objGame;
-    public Camera mainCam;
+    // public GameObject objGame; 
     private Mesh mesh;
-    MeshRenderer meshRender;
+    public MeshRenderer meshRender;
     Material mat;
     private Vector3[] vertices;
     private int[] triangles;
@@ -18,11 +17,14 @@ public class MeshTexture : MonoBehaviour
     MeshCollider meshCollider;
     public Material matDefault;
 
+    Texture2D texMain;
+
     /// <summary>
     /// Awake is called when the script instance is being loaded.
     /// </summary>
-    void Awake()
+    public void Awake()
     {
+        base.Awake();
         listPoint = new List<Vector3>();
         mesh = GetComponent<MeshFilter>().mesh;
         meshRender = GetComponent<MeshRenderer>();
@@ -36,17 +38,13 @@ public class MeshTexture : MonoBehaviour
 
     }
     // Use this for initialization
-    void Start()
+    public void Start()
     {
-
+        base.Start();
         // Draw();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
+  
 
     public void EnableTouch(bool enable)
     {
@@ -120,6 +118,7 @@ public class MeshTexture : MonoBehaviour
     }
     public void UpdateTexture(Texture tex)
     {
+        texMain = tex as Texture2D;
         if (meshRender != null)
         {
             meshRender.material.SetTexture("_MainTex", tex);
@@ -129,6 +128,10 @@ public class MeshTexture : MonoBehaviour
 
     }
 
+    public Texture2D GetTexMain()
+    {
+        return texMain;
+    }
     public void UpdateSize(float w, float h)
     {
         width = w;

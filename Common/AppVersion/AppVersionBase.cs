@@ -62,13 +62,20 @@ public class AppVersionBase
             }
             else
             {
-                appCheckForAppstore = true;
+                if (isFirstCreat)
+                {
+                    appCheckForAppstore = true;
+                }
+                // appCheckForAppstore = true;
             }
         }
         else
         {
 
-
+            if (isFirstCreat)
+            {
+                // appCheckForAppstore = true;
+            }
             int ret = string.Compare(appver, strVersionStore);
             Debug.Log("Appversion stroe:version:" + strVersionStore + " ret=" + ret);
             if (ret >= 0)
@@ -101,7 +108,8 @@ public class AppVersionBase
 
         Debug.Log("Appversion:appCheckForAppstore=" + appCheckForAppstore + " isNetWorkOk=" + isNetWorkOk);
 
-        if ((!appCheckForAppstore) && isNetWorkOk)
+        // if ((!appCheckForAppstore) && isNetWorkOk)
+        if (!appCheckForAppstore)
         {
             int v = Common.Bool2Int(true);
             PlayerPrefs.SetInt(AppVersion.STRING_KEY_APP_CHECK_FINISHED, v);

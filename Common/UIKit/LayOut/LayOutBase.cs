@@ -24,7 +24,14 @@ public class LayOutBase : MonoBehaviour
         DOWN,
         LEFT,
         RIGHT,
-        CENTER
+        CENTER,
+        UP_LEFT,
+        UP_RIGHT,
+        DOWN_LEFT,
+        DOWN_RIGHT,
+        Horizontal,
+        Vertical,
+        SAME_POSTION,
     }
 
 
@@ -32,10 +39,17 @@ public class LayOutBase : MonoBehaviour
     public DispLayHorizontal dispLayHorizontal;
     public bool enableLayout = true;
     public bool enableHide = true;//是否过虑Hide
+
+    public bool enableOffsetAdBanner = false;
+    public bool enableOffsetScreen = false;//全面屏 四周的偏移
+    public bool isOnlyForLandscape = false;
+    public bool isOnlyForPortrait = false;
+
+
     public Vector2 space = Vector2.zero;
 
     protected TextAnchor childAlignment;
-    public Align align=Align.CENTER;
+    public Align align = Align.CENTER;
 
 
     public virtual void LayOut()
@@ -43,44 +57,61 @@ public class LayOutBase : MonoBehaviour
 
     }
 
+    public bool Enable()
+    {
+        bool ret = true;
+        if (!enableLayout)
+        {
+            ret = false;
+        }
+        if (isOnlyForLandscape)
+        {
+            if (!Device.isLandscape)
+            {
+                ret = false;
+            }
+        }
+        if (isOnlyForPortrait)
+        {
+            if (Device.isLandscape)
+            {
+                ret = false;
+            }
+        }
+
+        return ret;
+    }
+
     public int GetChildCount(bool includeHide = true)
     {
-        int count = 0;
-        foreach (Transform child in this.gameObject.GetComponentsInChildren<Transform>(true))
-        {
-            if (child == null)
-            {
-                // 过滤已经销毁的嵌套子对象 
-                continue;
-            }
-            GameObject objtmp = child.gameObject;
-            if (this.gameObject == objtmp)
-            {
-                continue;
-            }
-
-            if (!includeHide)
-            {
-                if (!objtmp.activeSelf)
-                {
-                    //过虑隐藏的
-                    continue;
-                }
-            }
-
-            LayoutElement le = objtmp.GetComponent<LayoutElement>();
-            if (le != null && le.ignoreLayout)
-            {
-                continue;
-            }
-
-            if (objtmp.transform.parent != this.gameObject.transform)
-            {
-                //只找第一层子物体
-                continue;
-            }
-            count++;
-        }
-        return count;
+        return LayoutUtil.main.GetChildCount(this.gameObject, includeHide);
     }
+
+    public bool IsSprite()
+    {
+        UISprite uisp = this.gameObject.GetComponent<UISprite>();
+        if (uisp != null)
+        {
+            return true;
+        }
+        SpriteRenderer rd = this.gameObject.GetComponent<SpriteRenderer>();
+        if (rd != null)
+        {
+            return true;
+        }
+
+        return false;
+    }
+    public SpriteRenderer GetSpriteRenderer(GameObject obj)
+    {
+        GameObject objSR = obj;
+        UISprite uisp = obj.GetComponent<UISprite>();
+        if (uisp != null)
+        {
+            objSR = uisp.objSp;
+        }
+        SpriteRenderer rd = objSR.GetComponent<SpriteRenderer>();
+        return rd;
+    }
+
 }

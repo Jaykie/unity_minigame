@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 public class LayOutScale : LayOutBase
 {
+    public GameObject target;
     public Type _scaleType;
     public float ratio = 1f;
 
@@ -58,6 +59,8 @@ public class LayOutScale : LayOutBase
     {
         MIN = 0,
         MAX,
+        SCREEN_MAX,//按屏幕 最大化
+        TARGET,//相对目标 
     }
 
     void Awake()
@@ -81,6 +84,11 @@ public class LayOutScale : LayOutBase
 
     public override void LayOut()
     {
+        if (!Enable())
+        {
+            return;
+        }
+        base.LayOut();
         UpdateType(scaleType);
     }
 
@@ -100,6 +108,32 @@ public class LayOutScale : LayOutBase
                     this.ScaleObj(this.gameObject, true);
                 }
                 break;
+            case Type.TARGET:
+                {
+                    this.ScaleObjByTarget(this.gameObject);
+                }
+                break;
+
+
+            case Type.SCREEN_MAX:
+                {
+                    Vector2 sizeCanvas = AppSceneBase.main.sizeCanvas;
+                    {
+                        RectTransform rectTransform = this.GetComponent<RectTransform>();
+                        float w_image = rectTransform.rect.width;
+                        float h_image = rectTransform.rect.height;
+                        print(rectTransform.rect);
+                        float scalex = sizeCanvas.x / w_image;
+                        float scaley = sizeCanvas.y / h_image;
+                        float scale = Mathf.Max(scalex, scaley);
+                        this.transform.localScale = new Vector3(scale, scale, 1.0f);
+                        //屏幕坐标 现在在屏幕中央
+                        this.transform.position = new Vector2(Screen.width / 2, Screen.height / 2);
+
+                    }
+                }
+                break;
+
 
         }
     }
@@ -111,9 +145,22 @@ public class LayOutScale : LayOutBase
         float x, y, w = 0, h = 0;
         RectTransform rctranParent = this.transform.parent as RectTransform;
         RectTransform rctran = this.transform as RectTransform;
-        SpriteRenderer rd = obj.GetComponent<SpriteRenderer>();
-        if (rd != null)
+
+        if (IsSprite())
         {
+            SpriteRenderer rd = GetSpriteRenderer(obj);
+            if (rd == null)
+            {
+                return;
+            }
+            if (rd.sprite == null)
+            {
+                return;
+            }
+            if (rd.sprite.texture == null)
+            {
+                return;
+            }
             w = rd.sprite.texture.width / 100f;
             h = rd.sprite.texture.height / 100f;
         }
@@ -161,8 +208,6 @@ public class LayOutScale : LayOutBase
         w_parent -= (this.offsetMin.x + this.offsetMax.x);
         h_parent -= (this.offsetMin.y + this.offsetMax.y);
 
-
-
         float scale = 1f;
         if (w != 0 && h != 0)
         {
@@ -176,7 +221,23 @@ public class LayOutScale : LayOutBase
             }
         }
 
-        Debug.Log("LayOutScale scale=" + scale + " w_parent=" + w_parent + " h_parent=" + h_parent);
+
+
+        Debug.Log("LayOutScale scale=" + scale + " w_parent=" + w_parent + " h_parent=" + h_parent + " w=" + w + " h=" + h);
         obj.transform.localScale = new Vector3(scale, scale, 1f);
+    }
+
+
+    void ScaleObjByTarget(GameObject obj)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        float scalex = target.transform.localScale.x * ratio;
+        float scaley = target.transform.localScale.x * ratio;
+        //Debug.Log("LayOutScale scale=" + scale + " w_parent=" + w_parent + " h_parent=" + h_parent + " w=" + w + " h=" + h);
+        obj.transform.localScale = new Vector3(scalex, scaley, 1f);
     }
 }

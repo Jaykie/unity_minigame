@@ -69,7 +69,7 @@ public class UIScreenShotController : UIView
         indexDevice = 0;
         deviceInfoNow = listDevice[indexDevice];
         SetScreen(deviceInfoNow.width, deviceInfoNow.height);
-
+        GotoDevice(indexDevice);
 
 
     }
@@ -96,18 +96,22 @@ public class UIScreenShotController : UIView
                 // SceneManager.LoadScene("ScreenShotScene");
             }
             UpdateTitle();
-            LayOutChild();
+
+            AppSceneBase.main.OnResize();
+            LayOut();
         }
+        //  LayOut();
     }
     public void InitShowShot()
     {
         LoadShot();
         UpdateTitle();
-        LayOutChild();
+        LayOut();
     }
 
-    void LayOutChild()
+    public override void LayOut()
     {
+        base.LayOut();
         screenDisplayWordWidth = Common.ScreenToWorldWidth(mainCam, deviceInfoNow.width);
         screenDisplayWordHeight = Common.ScreenToWorldHeight(mainCam, deviceInfoNow.height);
 
@@ -121,6 +125,15 @@ public class UIScreenShotController : UIView
         //     objSpriteBg.transform.localScale = new Vector3(scalex, scaley, 1f);
 
         // }
+        ShotItemInfo info = screenShotConfig.GetPage(deviceInfoNow, indexScreenShot);
+        if (info != null)
+        {
+            if (info.controller != null)
+            {
+                info.controller.LayOutView();
+            }
+        }
+
     }
 
 
@@ -140,7 +153,7 @@ public class UIScreenShotController : UIView
         }
         int w_new = w;
         int h_new = h;
-        if (Common.isWin)
+       if (Common.isWin)
         {
             //windows 超出屏幕不显示,需要適配屏幕大小
             float scalex = ScreenDeviceInfo.WIDTH_SCREEN_PC * 1.0f / w;
@@ -221,20 +234,27 @@ public class UIScreenShotController : UIView
 
         return ret;
     }
-    public static string GetRootDir()
+
+    public static string GetRootDirIcon()
+    {
+        //ResourceData ProjectIcon
+        string ret = AppsConfig.ROOT_DIR_PC + "/ResourceData/" + Common.appType + "/" + Common.appKeyName;
+        return ret;
+    }
+    public static string GetRootDirOutPut()
     {
         string ret = "";
         //         ret = "/Users/moon/sourcecode/unity/product_unity/ScreenShot";
         // #if UNITY_STANDALONE_WIN
         //         ret = "/moon/ScreenShot";
         // #endif
-        ret = AppsConfig.ROOT_DIR_PC + "/ProjectIcon/" + Common.appType + "/" + Common.appKeyName;
+        ret = AppsConfig.ROOT_DIR_PC + "/ProjectOutPut/" + Common.appType + "/" + Common.appKeyName;
         return ret;
     }
     string GetSaveDir(ShotDeviceInfo info)
     {
         string ret = "";
-        string rootDir = GetRootDir();
+        string rootDir = GetRootDirOutPut();
         if (info.width > info.height)
         {
             ret = rootDir + "/screenshot/heng";
@@ -254,7 +274,7 @@ public class UIScreenShotController : UIView
         }
         else if (deviceInfoNow.name == ScreenDeviceInfo.DEVICE_NAME_ICON)
         {
-            ret = rootDir + "/" + info.name;
+            ret = GetRootDirIcon() + "/" + info.name;
             if (info.isIconHd)
             {
                 ret += "hd";
@@ -509,6 +529,9 @@ public class UIScreenShotController : UIView
 
     public void OnClickScreenShotNext()
     {
+        // LayOut();
+        // return;
+
         indexScreenShot++;
         if (indexScreenShot >= totalScreenShot)
         {
@@ -535,7 +558,7 @@ public class UIScreenShotController : UIView
             btnClear.gameObject.SetActive(false);
         }
 
-        string dir = GetRootDir();
+        string dir = GetRootDirOutPut();
         if (Directory.Exists(dir))
         {
             //删除文件夹
@@ -608,7 +631,12 @@ public class UIScreenShotController : UIView
         indexDevice = FindDeviceByName(ScreenDeviceInfo.DEVICE_NAME_ICON);
         GotoDevice(indexDevice);
     }
-
+    public void OnClickBtnAdHome()
+    {
+        isClickNextPreDevice = true;
+        indexDevice = FindDeviceByName(ScreenDeviceInfo.DEVICE_NAME_AD);
+        GotoDevice(indexDevice);
+    }
     public void OnClickBtnCopyRight()
     {
         indexScreenShot = 0;
@@ -963,9 +991,9 @@ public class UIScreenShotController : UIView
         }
         if (deviceInfoNow.name == ScreenDeviceInfo.DEVICE_NAME_ICON)
         {
-            filepath = filedir + "/icon.png";
+            filepath = filedir + "/icon.jpg";//png
             //没有alpha
-            isSavePng24Bit = true;
+            //isSavePng24Bit = true;
         }
         if (deviceInfoNow.name == ScreenDeviceInfo.DEVICE_NAME_COPY_RIGHT_HUAWEI)
         {

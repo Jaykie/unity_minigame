@@ -151,7 +151,7 @@ public class ColorImage
     {
         if (isBit24)
         {
-            SetImageColor(pt, color);
+            SetImageColorRGB24(pt, color);
         }
         int idx = GetIndexOfImage(pt);
         //argb

@@ -8,13 +8,11 @@ public class UIHomeAppCenter : UIView
     public const string AD_JSON_FILE_KIDS = "applist_home_kids.json";
     public const string AD_JSON_FILE_SMALL_GAME = "applist_home_minigame.json";
 
-    //微信小程序id:wx621ff1107207384c
-    public const string APPCENTER_HTTP_URL_HEAD = "";//http://www.mooncore.cn/moonma/app_center/
-    //http://www.mooncore.cn/moonma/app_center/applist_home_smallgame.json
-    public const string APPCENTER_HTTP_URL_HOME_SMALL_GAME = "https://6d6f-moonma-dbb297-1258816908.tcb.qcloud.la/Unity/app_center/applist_home_minigame.json?sign=4b79dab72806704c30be94312351cacd&t=1561688564";
+    //儿童连连乐 微信小程序id:wx3e44af039aee1b96   
+    public const string APPCENTER_HTTP_URL_HOME_SMALL_GAME = "https://6c69-lianlianle-shkb3-1259451541.tcb.qcloud.la/AppCenter/applist_home_minigame.json?sign=df5d132d6ba14d440de4586d9bb66845&t=1589273169";
 
     //http://www.mooncore.cn/moonma/app_center/applist_home_kids.json
-    public const string APPCENTER_HTTP_URL_HOME_KIDS_GAME = "https://6d6f-moonma-dbb297-1258816908.tcb.qcloud.la/Unity/app_center/applist_home_kids.json?sign=0dc2a5bf8e85d12b9515afb3cf87cfe1&t=1561688516";
+    public const string APPCENTER_HTTP_URL_HOME_KIDS_GAME = "https://6c69-lianlianle-shkb3-1259451541.tcb.qcloud.la/AppCenter/applist_home_kids.json?sign=2354d163fe32793f4512ad648eafc6b9&t=1589273008";
     public Button btnAppIcon0;
     public Button btnAppIcon1;
     public Button btnAppIcon2;
@@ -26,7 +24,7 @@ public class UIHomeAppCenter : UIView
     /// <summary>
     /// Awake is called when the script instance is being loaded.
     /// </summary>
-    void Awake()
+    public void Awake()
     {
         //先不显示
         if (btnAppIcon0)
@@ -46,9 +44,10 @@ public class UIHomeAppCenter : UIView
 
 
         StartParserAppList();
+        LayOut();
     }
     // Use this for initialization
-    void Start()
+    public void Start()
     {
         LayOut();
     }
@@ -60,6 +59,7 @@ public class UIHomeAppCenter : UIView
 
     public override void LayOut()
     {
+        base.LayOut();
         float x = 0, y = 0, w = 0, h = 0;
         //layoutappicon 
 
@@ -204,6 +204,7 @@ public class UIHomeAppCenter : UIView
                 btn.GetComponent<Image>().sprite = TextureUtil.CreateSpriteFromTex(RoundRectTexture(tex));
 
             }
+            LayOut();
         }
 
 
@@ -313,7 +314,7 @@ public class UIHomeAppCenter : UIView
 
     public void DoClickBtnAppIcon(int idx)
     {
-        if (Config.main.APP_FOR_KIDS && (!AppVersion.appCheckHasFinished))
+        if (Config.main.APP_FOR_KIDS)
         {
             ShowParentGate(idx);
         }

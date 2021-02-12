@@ -144,6 +144,7 @@ public class TextureUtil : MonoBehaviour
         tex.ReadPixels(rc, 0, 0);
         tex.Apply();
         RenderTexture.active = prev;
+        // RenderTexture.active = null;
         return tex;
     }
 
@@ -160,13 +161,31 @@ public class TextureUtil : MonoBehaviour
         Texture2D texRet = RenderTexture2Texture2D(rt, format, new Rect(0, 0, rt.width, rt.height));
         return texRet;
     }
+    static public Texture2D GetSubRenderTexture(RenderTexture rt, Rect rc, bool flipY = false)
+    {
+        // rc.x =0;
 
+        // rc.width = Screen.width/2;
+        Debug.Log("GetSubRenderTexture rc=" + rc);
+        // rc.y = 0;
+        // rc.height = Screen.height*0.7f;
+        if (flipY)
+        {
+            rc.y = rt.height - rc.y - rc.height;
+        }
+        return RenderTexture2Texture2D(rt, rc);
+    }
 
-    static public Texture2D GetSubTexture(Texture2D tex, Rect rc)
+    static public Texture2D GetSubTexture(Texture2D tex, Rect rc, bool flipY = false)
     {
         int w = tex.width;
         int h = tex.height;
-        RenderTexture rt = new RenderTexture(w, h, 0);
+        if (flipY)
+        {
+            rc.y = tex.height - rc.y - rc.height;
+        }
+        // RenderTexture rt = new RenderTexture(w, h, 0);
+        RenderTexture rt = new RenderTexture(w, h, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Linear);
         Graphics.Blit(tex, rt);
         Texture2D texRet = RenderTexture2Texture2D(rt, rc);
         return texRet;
@@ -340,15 +359,25 @@ public class TextureUtil : MonoBehaviour
             Vector2 offsetMax = rctranOrigin.offsetMax;
             Sprite sp = CreateSpriteFromTex(tex, border);
             image.sprite = sp;
+            if (border != Vector4.zero)
+            {
+                image.type = Image.Type.Sliced;
+            }
             if (isUpdateSize)
             {
                 RectTransform rctran = image.GetComponent<RectTransform>();
 
                 rctran.sizeDelta = new Vector2(tex.width, tex.height);
 
-                //sizeDelta 会自动修改offsetMin和offsetMax 所以需要还原
-                rctran.offsetMin = offsetMin;
-                rctran.offsetMax = offsetMax;
+                if ((rctran.anchorMin == new Vector2(0.5f, 0.5f)) && (rctran.anchorMax == new Vector2(0.5f, 0.5f)))
+                {
+                }
+                else
+                {
+                    //sizeDelta 会自动修改offsetMin和offsetMax 所以需要还原
+                    rctran.offsetMin = offsetMin;
+                    rctran.offsetMax = offsetMax;
+                }
                 Debug.Log("rctranOrigin rctran.offsetMin=" + rctran.offsetMin + " rctran.offsetMax=" + rctran.offsetMax);
 
             }
@@ -393,11 +422,31 @@ public class TextureUtil : MonoBehaviour
     {
         if (tex)
         {
+            RectTransform rctranOrigin = image.GetComponent<RectTransform>();
+            Vector2 offsetMin = rctranOrigin.offsetMin;
+            Vector2 offsetMax = rctranOrigin.offsetMax;
             image.texture = tex;
+            if (border != Vector4.zero)
+            {
+                // image.type = Image.Type.Sliced;
+            }
             if (isUpdateSize)
             {
-                RectTransform rctan = image.GetComponent<RectTransform>();
-                rctan.sizeDelta = new Vector2(tex.width, tex.height);
+                RectTransform rctran = image.GetComponent<RectTransform>();
+
+                rctran.sizeDelta = new Vector2(tex.width, tex.height);
+
+                if ((rctran.anchorMin == new Vector2(0.5f, 0.5f)) && (rctran.anchorMax == new Vector2(0.5f, 0.5f)))
+                {
+                }
+                else
+                {
+                    //sizeDelta 会自动修改offsetMin和offsetMax 所以需要还原
+                    rctran.offsetMin = offsetMin;
+                    rctran.offsetMax = offsetMax;
+                }
+                Debug.Log("rctranOrigin rctran.offsetMin=" + rctran.offsetMin + " rctran.offsetMax=" + rctran.offsetMax);
+
             }
 
         }

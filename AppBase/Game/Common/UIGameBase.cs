@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class UIGameBase : UIView
 {
 
-    public const int GAME_AD_INSERT_SHOW_STEP = 2;
+    public const int GAME_AD_INSERT_SHOW_STEP = 1;
     public const string STR_KEYNAME_VIEWALERT_USER_GUIDE = "keyname_viewalert_user_guide";
     public const string STR_KEYNAME_VIEWALERT_GAME_FINISH = "keyname_viewalert_game_finish";
     public const string STR_KEYNAME_VIEWALERT_GOLD = "keyname_viewalert_gold";
@@ -153,10 +153,15 @@ public class UIGameBase : UIView
     public void UpdateLanguage()
     {
         ItemInfo info = LevelManager.main.GetPlaceItemInfo(LevelManager.main.placeLevel);
-        string strlan = Common.GAME_RES_DIR + "/language/" + info.language + ".csv";
+        if(info==null){
+            return;
+        }
+        string strlan = CloudRes.main.rootPathGameRes +"/language/" + info.language + ".csv";
         languageGame = new Language();
         languageGame.Init(strlan);
         languageGame.SetLanguage(Language.main.GetLanguage());
+
+
     }
     public void UpdateBtnMusic()
     { 

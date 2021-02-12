@@ -28,9 +28,10 @@ public class UISettingControllerBase : UIView, ITableViewDataSource
     UICellBase cellPrefab;
     public GameObject objTableViewTemplate;
     public TableView tableView;
-    public Text textTitle;
-    public Image imageBar;
-    public Image imageBg;
+    public UIText textTitle;
+    public UIImage imageBar;
+    public UIButton btnBack;
+    // public Image imageBg;
     public int numRows;
     private int numInstancesCreated = 0;
 
@@ -44,19 +45,19 @@ public class UISettingControllerBase : UIView, ITableViewDataSource
     {
         heightCell = 160;
         LoadPrefab();
-        TextureUtil.UpdateImageTexture(imageBg, AppRes.IMAGE_SETTING_BG, true);//IMAGE_SETTING_BG
+        //TextureUtil.UpdateImageTexture(imageBg, AppRes.IMAGE_SETTING_BG, true);//IMAGE_SETTING_BG
         // 
-        {
-            string str = Language.main.GetString(AppString.STR_SETTING);
-            textTitle.text = str;
-            int fontsize = textTitle.fontSize;
-            float str_w = Common.GetStringLength(str, AppString.STR_FONT_NAME, fontsize);
-            RectTransform rctran = imageBar.transform as RectTransform;
-            Vector2 sizeDelta = rctran.sizeDelta;
-            float oft = 0;
-            sizeDelta.x = str_w + fontsize + oft * 2;
-            rctran.sizeDelta = sizeDelta;
-        }
+        // {
+        //     string str = Language.main.GetString(AppString.STR_SETTING);
+        //    // textTitle.text = str;
+        //     int fontsize = textTitle.fontSize;
+        //     float str_w = Common.GetStringLength(str, AppString.STR_FONT_NAME, fontsize);
+        //     RectTransform rctran = imageBar.transform as RectTransform;
+        //     Vector2 sizeDelta = rctran.sizeDelta;
+        //     float oft = 0;
+        //     sizeDelta.x = str_w + fontsize + oft * 2;
+        //     rctran.sizeDelta = sizeDelta;
+        // }
         listItem = new List<object>();
         UpdateItem();
         oneCellNum = 1;
@@ -70,7 +71,16 @@ public class UISettingControllerBase : UIView, ITableViewDataSource
     // Use this for initialization
     void Start()
     {
+        if (this.controller != null)
+        {
+            if (this.controller.naviController != null)
+            {
+                btnBack.gameObject.SetActive(false);
+            }
+        }
         LayOut();
+
+        OnUIDidFinish(0.5f);
     }
 
     // Update is called once per frame
@@ -91,19 +101,20 @@ public class UISettingControllerBase : UIView, ITableViewDataSource
 
     public override void LayOut()
     {
+        base.LayOut();
         //Vector2 sizeCanvas = ViewControllerManager.sizeCanvas;
         Vector2 sizeCanvas = AppSceneBase.main.sizeCanvas;
-        {
-            RectTransform rctran = imageBg.GetComponent<RectTransform>();
-            float w_image = rctran.rect.width;
-            float h_image = rctran.rect.height;
-            float scalex = sizeCanvas.x / w_image;
-            float scaley = sizeCanvas.y / h_image;
-            float scale = Mathf.Max(scalex, scaley);
-            imageBg.transform.localScale = new Vector3(scale, scale, 1.0f);
-            //屏幕坐标 现在在屏幕中央
-            imageBg.transform.position = new Vector2(Screen.width / 2, Screen.height / 2);
-        }
+        // {
+        //     RectTransform rctran = imageBg.GetComponent<RectTransform>();
+        //     float w_image = rctran.rect.width;
+        //     float h_image = rctran.rect.height;
+        //     float scalex = sizeCanvas.x / w_image;
+        //     float scaley = sizeCanvas.y / h_image;
+        //     float scale = Mathf.Max(scalex, scaley);
+        //     imageBg.transform.localScale = new Vector3(scale, scale, 1.0f);
+        //     //屏幕坐标 现在在屏幕中央
+        //     imageBg.transform.position = new Vector2(Screen.width / 2, Screen.height / 2);
+        // }
 
 
     }
@@ -134,19 +145,23 @@ public class UISettingControllerBase : UIView, ITableViewDataSource
     {
         if (isShow)
         {
-            // LanguageViewController lan = LanguageViewController.main;
-            // lan.Show(null, null);
-            // lan.ui.callbackClose = OnUILanguageDidClose;
-
-            PopUpManager.main.Show<UILanguage>("Common/Prefab/Setting/UILanguage", popup =>
+            string strPrefabApp = "App/Prefab/Setting/UILanguage";
+            string strPrefabDefault = "Common/Prefab/Setting/UILanguage";
+            string strPrefab = strPrefabApp;
+            GameObject obj = PrefabCache.main.Load(strPrefabApp);
+            if (obj == null)
+            {
+                strPrefab = strPrefabDefault;
+            }
+            PopUpManager.main.Show<UIViewPop>(strPrefab, popup =>
          {
              Debug.Log("UIViewAlert Open ");
 
-             popup.callbackClose = OnUILanguageDidClose;
+            //  popup.callbackClose = OnUILanguageDidClose;
 
          }, popup =>
          {
-
+                OnUILanguageDidClose();
 
          });
 
@@ -159,11 +174,11 @@ public class UISettingControllerBase : UIView, ITableViewDataSource
 
     }
 
-    public void OnUILanguageDidClose(UILanguage language)
+    public void OnUILanguageDidClose()
     {
         int tag = PlayerPrefs.GetInt(AppString.STR_KEY_LANGUAGE);
         SystemLanguage lan = (SystemLanguage)tag;
-        Language.main.SetLanguage(lan,true);
+        Language.main.SetLanguage(lan, true);
 
         {
             string str = Language.main.GetString(AppString.STR_SETTING);

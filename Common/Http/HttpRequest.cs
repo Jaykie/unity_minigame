@@ -13,6 +13,7 @@ public class HttpRequest
     public int index;
     HTTPRequest reqHttp;
     public string strUrl;
+    public bool isEnableCache = true;
     public OnHttpRequestFinishedDelegate Callback { get; set; }
 
     public HttpRequest(OnHttpRequestFinishedDelegate callback)
@@ -30,16 +31,22 @@ public class HttpRequest
         {
             ret = true;
         }
+        if (!isEnableCache)
+        {
+            ret = false;
+        }
         return ret;
     }
     public void Get(string url)
     {
-        // Debug.Log("HttpRequest Get");
-        string filePath = GetCatchFilePathOfUrl(url);
+        Debug.Log("HttpRequest Get start");
+    
         strUrl = url;
-        isReadFromCatch = false; 
+        isReadFromCatch = false;
         if (EnableReadFromCache())
         {
+             Debug.Log("HttpRequest Get EnableReadFromCache");
+            string filePath = GetCatchFilePathOfUrl(url);
             bool isExist = File.Exists(filePath);
             if (isExist)
             {
@@ -65,12 +72,12 @@ public class HttpRequest
         }
 
         // StartCoroutine(WWWGet(url));
-        Debug.Log("HTTPRequest:url=" + url);
+        Debug.Log("HttpRequest Get:url=" + url);
         //@moon:HTTPRequest 如果用局部变量 windows 10 uwp il2cpp 运行时socket io会crash,故而用成员变量
         reqHttp = new HTTPRequest(new Uri(url), HTTPMethods.Get, OnRequestFinished);
         //ios6 ua
         //该ua会导致小米网址无法获取版本号
-        // req.AddHeader("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A403 Safari/8536.25");
+        // reqHttp.AddHeader("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A403 Safari/8536.25");
         reqHttp.Send();
     }
     void OnRequestFinished(HTTPRequest req, HTTPResponse response)

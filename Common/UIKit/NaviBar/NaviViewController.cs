@@ -44,7 +44,14 @@ public class NaviViewController : UIViewController
             rootController.LayOutView();
         }
     }
-
+   public override void UpdateLanguage()
+    {
+        base.UpdateLanguage();
+        if(uiNaviBar!=null)
+        {
+            uiNaviBar.UpdateLanguage();
+        }
+    }
     public void CreateContent()
     {
         string classname = "Content";
@@ -62,8 +69,13 @@ public class NaviViewController : UIViewController
     }
     public void CreateBar()
     {
-        string strPrefab = "Common/Prefab/NaviBar/UINaviBar";
-        GameObject obj = (GameObject)Resources.Load(strPrefab);
+        string strPrefabCommon = "Common/Prefab/NaviBar/UINaviBar";
+        string strPrefabApp = "App/Prefab/NaviBar/UINaviBar";
+        GameObject obj = (GameObject)PrefabCache.main.Load(strPrefabApp);
+        if (obj == null)
+        {
+            obj = (GameObject)PrefabCache.main.Load(strPrefabCommon);
+        }
         uiNaviBarPrefab = obj.GetComponent<UINaviBar>();
 
         //Debug.Log("rctranPrefab.offsetMin=" + rctranPrefab.offsetMin + " rctranPrefab.offsetMax=" + rctranPrefab.offsetMax);
@@ -145,7 +157,20 @@ public class NaviViewController : UIViewController
             uiNaviBar.gameObject.SetActive(!isHide);
         }
     }
-
+    public void ShowTitle(bool isShow)
+    {
+        if (uiNaviBar)
+        {
+            uiNaviBar.ShowTitle(isShow);
+        }
+    }
+    public void UpdateTitle(string title)
+    {
+        if (uiNaviBar)
+        {
+            uiNaviBar.UpdateTitle(title);
+        }
+    }
     public void OnUINaviBarClickBack(UINaviBar bar)
     {
         Pop();

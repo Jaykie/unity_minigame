@@ -9,6 +9,7 @@ public class ItemInfo
     public string type;
     public string pic;
     public string title;
+    public string detail;
     public string description;
     public string artist;
     public string url;
@@ -18,6 +19,7 @@ public class ItemInfo
     public string sound;
     public string game;
     public string gameType;
+    public string gameId;
     public string language;
     public int tag;
     public int index;
@@ -26,4 +28,8 @@ public class ItemInfo
     public GameObject obj;
     public float time;
     public bool isAd;
+}
+
+public class DBItemInfoBase
+{
 }

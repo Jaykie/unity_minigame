@@ -13,7 +13,7 @@ public class Config
     // private static Plist plistAppName;
     private static Config instanceAppName;
 
-    public static string osDefault = Source.IOS;
+    public static string osDefault = Source.ANDROID;
     public List<SharePlatformInfo> listSharePlatform;
 
     public List<ItemInfo> listAppStore;
@@ -71,6 +71,11 @@ public class Config
             if (Common.JsonDataContainsKey(rootJsonAppname, key))
             {
                 appname = (string)rootJsonAppname[key];
+            }
+            else
+            {
+
+
             }
         }
 
@@ -152,6 +157,27 @@ public class Config
         }
     }
 
+    public string urlGameRes
+    {
+        get
+        {
+            JsonData data = JsonUtil.GetJsonData(rootJsonCommon, "CloudRes");
+            return JsonUtil.GetString(data, "GameRes", "");
+        }
+    }
+    public string urlVersionGameRes
+    {
+        get
+        {
+            JsonData data = JsonUtil.GetJsonData(rootJsonCommon, "CloudRes");
+            // if (data == null)
+            // {
+            //     Debug.Log("CloudRes Config.main.urlVersionGameRes= data == null");
+            // }
+            return JsonUtil.GetString(data, "version", "");
+        }
+    }
+
     public bool isHaveShare
     {
         get
@@ -191,12 +217,19 @@ public class Config
                 if (Config.main.channel == Source.GP)
                 {
                     //GP市场内购
-                    ret = true;
+                    ret = false;//true
                 }
             }
             if (Common.isWinUWP)
             {
                 ret = false;
+            }
+            if (Common.isiOS)
+            {
+                if (Config.main.isNoIDFASDK)
+                {
+                    ret = false;
+                }
             }
             return ret;
         }
@@ -239,6 +272,25 @@ public class Config
         }
     }
 
+    public string PrivacyPolicy
+    {
+        get
+        {
+            if (Language.main.IsChinese())
+            {
+                return GetString("PrivacyPolicy", "PrivacyPolicy_chyfemail163@163.com.txt");
+            }
+            else
+            {
+                return GetString("PrivacyPolicy_en", "PrivacyPolicy_chyfemail163@163.com_en.txt");
+
+            }
+
+
+        }
+    }
+
+
     public bool isHaveShop
     {
         get
@@ -251,6 +303,35 @@ public class Config
                 }
             }
             string key = "HAVE_SHOP";
+            bool ret = GetBoolKeyCommon(key, false);
+            return ret;
+        }
+    }
+
+    public bool isiOS
+    {
+        get
+        {
+            bool ret = false;
+#if UNITY_IOS && !UNITY_EDITOR
+        ret = true;
+#endif
+
+            return ret;
+        }
+    }
+
+
+    // ios IDFA sdk 身份识别
+    public bool isNoIDFASDK
+    {
+        get
+        {
+            // if (!isiOS)
+            // {
+            //     return false;
+            // }
+            string key = "NoIDFASDK";
             bool ret = GetBoolKeyCommon(key, false);
             return ret;
         }
@@ -340,7 +421,20 @@ public class Config
         rootJson = null;
         ParseJson(ishd);
     }
+    public string GetAppStoreAcount(string store)
+    {
+        string key = "appstore_acount";
+        string acount_default = "chyfemail163@163.com";
+        bool ishave = Common.JsonDataContainsKey(rootJsonCommon, key);
+        if (!ishave)
+        {
+            return acount_default;
+        }
+        JsonData json = rootJsonCommon[key];
+        return JsonUtil.GetString(json, store, acount_default);
 
+
+    }
     public string GetAppIdOfStore(string store)
     {
         JsonData jsonAppId = rootJson["APPID"];
@@ -484,7 +578,10 @@ public class Config
 
         }
 
-
+        if (Common.isiOS)
+        {
+            fileName = "config_ios";
+        }
         if (Common.isAndroid)
         {
             fileName = "config_android";

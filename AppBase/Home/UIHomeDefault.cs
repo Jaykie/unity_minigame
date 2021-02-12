@@ -12,7 +12,7 @@ public class UIHomeDefault : UIHomeBase
     void Awake()
     {
         base.Awake();
-        TextureUtil.UpdateRawImageTexture(imageBg, AppRes.IMAGE_HOME_BG, true);
+       // TextureUtil.UpdateRawImageTexture(imageBg, AppRes.IMAGE_HOME_BG, true);
         string appname = Common.GetAppNameDisplay();
         TextName.text = appname;
         timeAction = 0.3f;
@@ -158,6 +158,8 @@ public class UIHomeDefault : UIHomeBase
     }
     public void OnClickBtnPlay()
     {
+      
+        
         if (!isActionFinish)
         {
             return;
@@ -180,6 +182,7 @@ public class UIHomeDefault : UIHomeBase
 
     public override void LayOut()
     {
+        base.LayOut();
         Vector2 sizeCanvas = this.frame.size;
         float x = 0, y = 0, w = 0, h = 0;
         RectTransform rctranAppIcon = uiHomeAppCenter.transform as RectTransform;
@@ -198,6 +201,6 @@ public class UIHomeDefault : UIHomeBase
             rctran.anchoredPosition = new Vector2(pt.x, pt.y);
         }
 
-        LayoutChildBase();
+        base.LayOut();
     }
 }

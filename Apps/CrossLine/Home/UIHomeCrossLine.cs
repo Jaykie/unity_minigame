@@ -43,7 +43,8 @@ public class UIHomeCrossLine : UIHomeBase
         isActionFinish = false;
         RunActionImageName();
         //   actionBtnLearn.RunAction();
-        LayOut();
+        LayOut(); 
+          OnUIDidFinish(2f);
 
     }
 
@@ -111,7 +112,7 @@ public class UIHomeCrossLine : UIHomeBase
         Vector2 toPos = new Vector2(ptNormal.x, ptNormal.y);
         rctran.DOLocalMove(toPos, duration).OnComplete(() =>
                   {
-                      Invoke("OnUIDidFinish", 1f);
+                    
                       isActionFinish = true;
                       Invoke("LayOut", 0.2f);
                   });
@@ -168,7 +169,7 @@ public class UIHomeCrossLine : UIHomeBase
 
     public override void LayOut()
     {
-
+base.LayOut();
         Vector2 sizeCanvas = this.frame.size;
         float x = 0, y = 0, w = 0, h = 0;
         RectTransform rctranAppIcon = uiHomeAppCenter.transform as RectTransform;
@@ -239,7 +240,7 @@ public class UIHomeCrossLine : UIHomeBase
 
         }
 
-        LayoutChildBase();
+      base.LayOut();
     }
 
     public void OnClickBtnPlay()

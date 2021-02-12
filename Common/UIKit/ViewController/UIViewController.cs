@@ -165,7 +165,7 @@ public class UIViewController
         //Debug.Log("rctran.offsetMin=" + rctran.offsetMin + " rctran.offsetMax=" + rctran.offsetMax);
 
     }
-    public void UpdateLanguage()
+    public virtual void UpdateLanguage()
     {
         if (view == null)
         {

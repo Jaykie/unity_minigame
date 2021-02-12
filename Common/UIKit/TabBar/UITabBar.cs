@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public delegate void OnUITabBarClickDelegate(UITabBar bar,UITabBarItem item);
+public delegate void OnUITabBarClickDelegate(UITabBar bar, UITabBarItem item);
 
 public class UITabBar : UIView
 {
-    public Image imageBg;
+    public UIImage imageBg;
     UITabBarItem uiTabBarItem;
     UITabBarItem uiTabBarItemPrefab;
-	public GameObject objLayoutItem;
+    List<UITabBarItem> listItem = new List<UITabBarItem>();
     public OnUITabBarClickDelegate callbackClick { get; set; }
 
     /// <summary>
@@ -18,43 +18,64 @@ public class UITabBar : UIView
     /// </summary>
     void Awake()
     {
-        string strPrefab = "Common/Prefab/TabBar/UITabBarItem";
-        GameObject obj = (GameObject)Resources.Load(strPrefab);
-        uiTabBarItemPrefab = obj.GetComponent<UITabBarItem>();
+        string strPrefab = "App/Prefab/TabBar/UITabBarItem";
+        string strPrefabDefault = "Common/Prefab/TabBar/UITabBarItem";
+        GameObject obj = PrefabCache.main.Load(strPrefab);
+        if (obj == null)
+        {
+            obj = PrefabCache.main.Load(strPrefabDefault);
+        }
+        if (obj != null)
+        {
+            uiTabBarItemPrefab = obj.GetComponent<UITabBarItem>();
+        }
     }
     // Use this for initialization
-    void Start()
+    public void Start()
     {
-
+        base.Start();
+        // LayOut();
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        // LayOut();
     }
 
 
     public void CreateTabItem()
-    { 
+    {
         uiTabBarItem = (UITabBarItem)GameObject.Instantiate(uiTabBarItemPrefab);
-        uiTabBarItem.transform.parent = objLayoutItem.transform;
+        uiTabBarItem.transform.parent = this.transform;
         uiTabBarItem.callbackClick = OnUITabBarItemClick;
-        UIViewController.ClonePrefabRectTransform(uiTabBarItemPrefab.gameObject,uiTabBarItem.gameObject);
+        UIViewController.ClonePrefabRectTransform(uiTabBarItemPrefab.gameObject, uiTabBarItem.gameObject);
     }
 
-    public void AddItem(TabBarItemInfo info,int idx)
+    public void AddItem(TabBarItemInfo info, int idx)
     {
-		CreateTabItem();
-		uiTabBarItem.index = idx;
-		uiTabBarItem.UpdateItem(info);
+        CreateTabItem();
+        uiTabBarItem.index = idx;
+        uiTabBarItem.UpdateItem(info);
+        listItem.Add(uiTabBarItem);
     }
 
     public void OnUITabBarItemClick(UITabBarItem ui)
     {
-		 if (callbackClick != null)
+        if (callbackClick != null)
         {
-            callbackClick(this,ui);
+            callbackClick(this, ui);
         }
-    } 
+    }
+    public float GetBarHeight()
+    {
+        RectTransform rctran = this.transform.GetComponent<RectTransform>();
+        return rctran.rect.size.y;
+    }
+
+    public void SelectItem(int idx, bool isSel)
+    {
+        UITabBarItem ui = listItem[idx];
+        ui.SelectItem(isSel);
+    }
 }

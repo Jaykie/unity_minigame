@@ -7,12 +7,11 @@ using UnityEngine.UI;
 
 public class UIMoreAppController : UIView, ITableViewDataSource
 {
-    //微信小程序id:wx621ff1107207384c
-
+    //    //儿童连连乐 微信小程序id:wx3e44af039aee1b96   
     //public const string APPCENTER_HTTP_URL_HOME = "http://42.96.196.180/moonma/app_center/applist_home.json";
-    public const string APPCENTER_HTTP_URL_HOME_KIDS_GAME = "https://6d6f-moonma-dbb297-1258816908.tcb.qcloud.la/Unity/app_center/applist_moreapp_kids.json?sign=03a98060722081f3f1eb4214765177b9&t=1561688618";
-    public const string APPCENTER_HTTP_URL_HOME_SMALL_GAME = "https://6d6f-moonma-dbb297-1258816908.tcb.qcloud.la/Unity/app_center/applist_moreapp_minigame.json?sign=5a5971a8613fc2ab9e6264b96ed81089&t=1561688651";
-    public const string APPCENTER_HTTP_URL_SORT = "http://www.mooncore.cn/moonma/app_center/applist_sort.json";
+    public const string APPCENTER_HTTP_URL_HOME_KIDS_GAME = "https://6c69-lianlianle-shkb3-1259451541.tcb.qcloud.la/AppCenter/applist_moreapp_kids.json?sign=87d3ec64c02d7eb3009d6babef86fa21&t=1589272924";
+    public const string APPCENTER_HTTP_URL_HOME_SMALL_GAME = "https://6c69-lianlianle-shkb3-1259451541.tcb.qcloud.la/AppCenter/applist_moreapp_minigame.json?sign=94fd38be95dafaf874eb3fdd21b1505d&t=1589259514";
+ 
     public GameObject objTopBar;
     public GameObject objTableViewTemplate;
     public RawImage imageBg;
@@ -25,7 +24,7 @@ public class UIMoreAppController : UIView, ITableViewDataSource
     public int numRows;
     private int numInstancesCreated = 0;
 
-    private MoreAppParser moreAppParser; 
+    private MoreAppParser moreAppParser;
 
     List<object> listItem;
     int oneCellNum;
@@ -39,10 +38,10 @@ public class UIMoreAppController : UIView, ITableViewDataSource
     {
         listItem = new List<object>();
         //bg
-        TextureUtil.UpdateRawImageTexture(imageBg, AppRes.IMAGE_MOREAPP_BG, true);
+       // TextureUtil.UpdateRawImageTexture(imageBg, AppRes.IMAGE_MOREAPP_BG, true);
         StartParse();
         LoadPrefab();
-        heightCell = 512; 
+        heightCell = 512;
 
         oneCellNum = 1;
         if (Screen.width > Screen.height)
@@ -96,7 +95,7 @@ public class UIMoreAppController : UIView, ITableViewDataSource
             cellPrefab = obj.GetComponent<UICellBase>();
         }
         {
-            GameObject obj = PrefabCache.main.Load(AppRes.PREFAB_MOREAPP_CELL_ITEM);
+            GameObject obj = PrefabCache.main.Load("AppCommon/Prefab/MoreApp/UIMoreAppCellItem");
             if (obj == null)
             {
                 obj = PrefabCache.main.Load(AppCommon.PREFAB_MOREAPP_CELL_ITEM);
@@ -123,7 +122,7 @@ public class UIMoreAppController : UIView, ITableViewDataSource
 
     }
     public void OnClickBtnBack()
-    { 
+    {
         PopViewController pop = (PopViewController)this.controller;
         if (pop != null)
         {
@@ -131,18 +130,67 @@ public class UIMoreAppController : UIView, ITableViewDataSource
         }
     }
 
+    public void ShowParentGate(int idx)
+    {
+        Debug.Log("ShowParentGate idx=" + idx);
+        ParentGateViewController.main.index = idx;
+        ParentGateViewController.main.Show(null, null);
+        ParentGateViewController.main.ui.callbackClose = OnUIParentGateDidCloseAppCenter;
 
+    }
+
+    public void OnUIParentGateDidCloseAppCenter(UIParentGate ui, bool isLongPress)
+    {
+        if (isLongPress)
+        {
+            Debug.Log("OnUIParentGateDidCloseAppCenter");
+            GotoAppUrl(ParentGateViewController.main.index);
+        }
+    }
     public void OnCellItemDidClick(UICellItemBase item)
     {
-        ItemInfo info = listItem[item.index] as ItemInfo;
-        string strAppUrl = info.url;
-        if (Common.BlankString(strAppUrl))
+        if (Config.main.APP_FOR_KIDS)
+        {
+            ShowParentGate(item.index);
+        }
+        else
+        {
+            GotoAppUrl(item.index);
+        }
+    }
+    void GotoAppUrl(int idx)
+    {
+        if (listItem == null)
         {
             return;
         }
-        Application.OpenURL(strAppUrl);
-    }
+        ItemInfo info = listItem[idx] as ItemInfo;
+        string appstorePackage = "";
+        string appstore = Source.APPSTORE;
+        if (Common.isAndroid)
+        {
+            if (Config.main.channel == Source.TAPTAP)
+            {
+                appstore = Source.TAPTAP;
+                appstorePackage = AppVersion.PACKAGE_APPSTORE_TAPTAP;
+            }
 
+            if (Config.main.channel == Source.XIAOMI)
+            {
+                appstore = Source.XIAOMI;
+                appstorePackage = AppVersion.PACKAGE_APPSTORE_XIAOMI;
+            }
+            if (Config.main.channel == Source.HUAWEI)
+            {
+                appstore = Source.HUAWEI;
+                appstorePackage = AppVersion.PACKAGE_APPSTORE_HUAWEI;
+            }
+
+        }
+        AppVersion.main.GotoToAppstoreApp(appstore, info.id, appstorePackage, info.url);
+
+
+    }
 
     #region ITableViewDataSource
 

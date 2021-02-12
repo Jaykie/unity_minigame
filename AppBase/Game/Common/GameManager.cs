@@ -20,6 +20,8 @@ public class GameManager
 
     public bool isShowGameAdInsert;
 
+    public string pathGamePrefab;
+
     static private GameManager _main = null;
     public static GameManager main
     {
@@ -98,5 +100,43 @@ public class GameManager
         //     game.PreLoadDataForWeb();
         // }
 
+    }
+
+ 
+    public void ShowPrivacy()
+    {
+         if ( GameManager.main.isLoadGameScreenShot)
+        {
+            return;
+        }
+        //   if (Common.isiOS)
+        // {
+        //     // return;
+        // }
+        if (Common.GetBool(UIPrivacy.KEY_DISABLE_UIPRIVACY))
+        {
+            // if(Application.isEditor)
+            // {
+
+            // }
+            return;
+        }
+        string strPrefab = ConfigPrefab.main.GetPrefab("UIPrivacy");
+        Debug.Log("ShowPrivacy strPrefab=" + strPrefab);
+        // strPrefab = "Common/Prefab/Setting/UILanguage";
+        // strPrefab = "Common/Prefab/Privacy/UIPrivacy";
+        //
+        // Common/Prefab/Privacy/UIPrivacy.prefab
+
+
+        PopUpManager.main.Show<UIViewPop>(strPrefab, popup =>
+     {
+         Debug.Log("UIViewAlert Open ");
+
+     }, popup =>
+     {
+         // OnUILanguageDidClose();
+
+     });
     }
 }

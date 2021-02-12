@@ -12,6 +12,7 @@ public class Language
     private LTLocalization ltLocalization;
     static private Language _common = null;
     static private Language _appCommon = null;
+
     static private Language _main = null;
     public static Language main//GameData
     {
@@ -27,7 +28,6 @@ public class Language
                 //_common.SetLanguage(SystemLanguage.Chinese);
 
                 //appcommon
-
                 fileName = "AppCommon/language/language";//.csv//resource
                 if (FileUtil.FileIsExist(fileName))
                 {
@@ -57,7 +57,7 @@ public class Language
             if (_game == null)
             {
                 _game = new Language();
-                string filepath = Common.GAME_RES_DIR + "/language/language.csv";
+                string filepath = CloudRes.main.rootPathGameRes + "/language/language.csv";
                 _game.Init(filepath);
                 _game.SetLanguage(main.GetLanguage());
             }
@@ -86,26 +86,33 @@ public class Language
     }
     public void SetLanguage(SystemLanguage lan, bool isUpdateUI = false)
     {
+        Debug.Log("SetLanguage lan=" + lan);
+
         // Init();
         ltLocalization.SetLanguage(lan);
-        if (_common != null)
+        if (this == Language.main)
         {
-            _common.ltLocalization.SetLanguage(lan);
-        }
-        if (_game != null)
-        {
-            _game.ltLocalization.SetLanguage(lan);
-        }
-        if (_appCommon != null)
-        {
-            _appCommon.ltLocalization.SetLanguage(lan);
+            if (_common != null)
+            {
+                _common.ltLocalization.SetLanguage(lan);
+            }
+            if (_game != null)
+            {
+                _game.ltLocalization.SetLanguage(lan);
+            }
+            if (_appCommon != null)
+            {
+                _appCommon.ltLocalization.SetLanguage(lan);
+            }
+            //更新ui
+            if (isUpdateUI)
+            {
+                AppSceneBase.main.UpdateLanguage();
+            }
         }
 
-        //更新ui
-        if (isUpdateUI)
-        {
-            AppSceneBase.main.UpdateLanguage();
-        }
+
+
     }
 
     public bool IsChinese()
@@ -139,6 +146,7 @@ public class Language
         {
             str = _common.ltLocalization.GetText(key);
         }
+
         return str;
 
     }

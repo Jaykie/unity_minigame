@@ -30,7 +30,7 @@ public class SettingViewController : PopViewController
     void Init()
     {
         {
-            GameObject obj = PrefabCache.main.Load(AppRes.PREFAB_SETTING);
+            GameObject obj = PrefabCache.main.Load("App/Prefab/Setting/UISettingController");
             if (obj == null)
             {
                 obj = PrefabCache.main.Load(AppCommon.PREFAB_SETTING);
@@ -41,6 +41,10 @@ public class SettingViewController : PopViewController
 
     public void CreateUI()
     {
+        if (this.naviController != null)
+        {
+            this.naviController.HideNavibar(true);
+        }
         uiSetting = (UISettingControllerBase)GameObject.Instantiate(uiSettingPrefab);
         uiSetting.SetController(this);
         UIViewController.ClonePrefabRectTransform(uiSettingPrefab.gameObject, uiSetting.gameObject);

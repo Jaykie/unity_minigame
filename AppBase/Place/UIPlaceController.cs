@@ -13,8 +13,8 @@ public class UIPlaceController : UIPlaceBase, ITableViewDataSource
     UICellItemBase cellItemPrefab;
     UICellBase cellPrefab;//GuankaItemCell GameObject 
     public TableView tableView;
-    public Image imageBar;
-    public RawImage imageBg;
+    public UIImage imageBar;
+    // public RawImage imageBg;
     public int numRows;
     private int numInstancesCreated = 0;
 
@@ -54,9 +54,9 @@ public class UIPlaceController : UIPlaceBase, ITableViewDataSource
 
         listItem = LevelManager.main.ParsePlaceList();
         //bg
-        TextureUtil.UpdateRawImageTexture(imageBg, AppRes.IMAGE_PLACE_BG, true);//IMAGE_GAME_BG
+        //TextureUtil.UpdateRawImageTexture(imageBg, AppRes.IMAGE_PLACE_BG, true);//IMAGE_GAME_BG
 
-        string strlan = Common.GAME_RES_DIR + "/place/language/language.csv";
+        string strlan = CloudRes.main.rootPathGameRes +"/place/language/language.csv";
         if (FileUtil.FileIsExistAsset(strlan))
         {
             languagePlace = new Language();
@@ -69,18 +69,6 @@ public class UIPlaceController : UIPlaceBase, ITableViewDataSource
         }
 
 
-        {
-            string str = Language.main.GetString(AppString.STR_PLACE);
-            textTitle.text = str;
-            int fontsize = textTitle.fontSize;
-            float str_w = Common.GetStringLength(str, AppString.STR_FONT_NAME, fontsize);
-            RectTransform rctran = imageBar.transform as RectTransform;
-            Vector2 sizeDelta = rctran.sizeDelta;
-            float oft = 0;
-            sizeDelta.x = str_w + fontsize + oft * 2;
-            rctran.sizeDelta = sizeDelta;
-            //rctran.anchoredPosition = new Vector2(sizeCanvas.x / 2, rctran.anchoredPosition.y);
-        }
 
 
         // oneCellNum = 2;
@@ -114,7 +102,7 @@ public class UIPlaceController : UIPlaceBase, ITableViewDataSource
     void Start()
     {
         LayOut();
-        OnUIDidFinish();
+        OnUIDidFinish(0.2f);
     }
 
     // Update is called once per frame
@@ -144,19 +132,30 @@ public class UIPlaceController : UIPlaceBase, ITableViewDataSource
 
     public override void LayOut()
     {
+        base.LayOut();
         Vector2 sizeCanvas = AppSceneBase.main.sizeCanvas;
-        {
-            RectTransform rectTransform = imageBg.GetComponent<RectTransform>();
-            float w_image = rectTransform.rect.width;
-            float h_image = rectTransform.rect.height;
-            float scalex = sizeCanvas.x / w_image;
-            float scaley = sizeCanvas.y / h_image;
-            float scale = Mathf.Max(scalex, scaley);
-            imageBg.transform.localScale = new Vector3(scale, scale, 1.0f);
-            //屏幕坐标 现在在屏幕中央
-            imageBg.transform.position = new Vector2(Screen.width / 2, Screen.height / 2);
-        }
+        // {
+        //     RectTransform rectTransform = imageBg.GetComponent<RectTransform>();
+        //     float w_image = rectTransform.rect.width;
+        //     float h_image = rectTransform.rect.height;
+        //     float scalex = sizeCanvas.x / w_image;
+        //     float scaley = sizeCanvas.y / h_image;
+        //     float scale = Mathf.Max(scalex, scaley);
+        //     imageBg.transform.localScale = new Vector3(scale, scale, 1.0f);
+        //     //屏幕坐标 现在在屏幕中央
+        //     imageBg.transform.position = new Vector2(Screen.width / 2, Screen.height / 2);
+        // }
 
+        // {
+        //     string str = textTitle.text; 
+        //     int fontsize = textTitle.fontSize;
+        //     float str_w = Common.GetStringLength(str, AppString.STR_FONT_NAME, fontsize);
+        //     RectTransform rctran = imageBar.transform as RectTransform;
+        //     Vector2 sizeDelta = rctran.sizeDelta;
+        //     float oft = 0;
+        //     sizeDelta.x = str_w + fontsize + oft * 2;
+        //     rctran.sizeDelta = sizeDelta; 
+        // }
 
     }
 

@@ -48,7 +48,7 @@ public class ScreenShotConfig
                     controller = HowToPlayViewController.main;
                     break;
                 case 4:
-                    LevelManager.main.gameLevel = 1;
+                    LevelManager.main.gameLevel = 2;
                     controller = GameViewController.main;
                     break;
 

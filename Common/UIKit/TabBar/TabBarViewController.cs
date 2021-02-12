@@ -6,7 +6,10 @@ public class TabBarItemInfo
 {
     public UIViewController controller;
     public string title;
-
+    public string keyTitle;
+    public string pic;
+    public string keyColor;
+    public string keyColorSel;//选中
 }
 
 public class TabBarViewController : UIViewController
@@ -43,6 +46,15 @@ public class TabBarViewController : UIViewController
             rootController.LayOutView();
         }
     }
+
+    public override void UpdateLanguage()
+    {
+        base.UpdateLanguage();
+        if (uiTabBar != null)
+        {
+            uiTabBar.UpdateLanguage();
+        }
+    }
     public void CreateContent()
     {
         string classname = "Content";
@@ -62,7 +74,7 @@ public class TabBarViewController : UIViewController
         CreateContent();
 
         string strPrefab = "Common/Prefab/TabBar/UITabBar";
-        GameObject obj = (GameObject)Resources.Load(strPrefab);
+        GameObject obj = PrefabCache.main.Load(strPrefab);
         uiTabBarPrefab = obj.GetComponent<UITabBar>();
 
         uiTabBar = (UITabBar)GameObject.Instantiate(uiTabBarPrefab);
@@ -95,7 +107,10 @@ public class TabBarViewController : UIViewController
         TabBarItemInfo info = listItem[idx];
         return info;
     }
-
+    public void ShowImageBg(bool isShow)
+    {
+        uiTabBar.imageBg.gameObject.SetActive(isShow);
+    }
     public void DestroyController()
     {
         if (objController == null)
@@ -133,6 +148,10 @@ public class TabBarViewController : UIViewController
             Debug.Log("SelectItem null,idx=" + idx);
             return;
         }
+        for (int i = 0; i < listItem.Count; i++)
+        {
+            uiTabBar.SelectItem(i, (i == idx) ? true : false);
+        }
 
         DestroyController();
 
@@ -145,5 +164,14 @@ public class TabBarViewController : UIViewController
     public void OnUITabBarClick(UITabBar bar, UITabBarItem item)
     {
         SelectItem(item.index);
+    }
+    public float GetBarHeight()
+    {
+        float h = 0;
+        if (uiTabBar != null)
+        {
+            h = uiTabBar.GetBarHeight();
+        }
+        return h;
     }
 }

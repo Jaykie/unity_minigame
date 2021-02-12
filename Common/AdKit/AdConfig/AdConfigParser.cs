@@ -98,7 +98,9 @@ public class AdConfigParser
                 //xiaomi 审核中,广告用国外的 admob
                 // ret = false;
             }
+            ret = true;
         }
+
         return ret;
     }
     public string GetAdSource(int type)
@@ -136,7 +138,7 @@ public class AdConfigParser
     }
     public string GetAppId(string source)
     {
-        string ret = "";
+        string ret = "0";
         AdInfo info = GetAdInfo(source);
         if (info != null)
         {
@@ -147,7 +149,7 @@ public class AdConfigParser
 
     public string GetAdKey(string source, int type)
     {
-        string ret = "";
+        string ret = "0";
         AdInfo info = GetAdInfo(source);
         if (info != null)
         {

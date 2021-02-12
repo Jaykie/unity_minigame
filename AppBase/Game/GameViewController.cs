@@ -12,6 +12,7 @@ public class GameViewController : PopViewController
     static private bool isShowComment = false;
     static public string gameType = Common.appType;
     static public string dirRootPrefab = "AppCommon/Prefab/Game";
+    string dirRootPrefabApp = "App/Prefab/Game";
     static private GameViewController _main = null;
     public static GameViewController main
     {
@@ -96,29 +97,39 @@ public class GameViewController : PopViewController
     }
     void LoadGame()
     {
-        string name = gameType;
-        string strPrefab = dirRootPrefab + "/" + GetGamePrefabName();
-
-        Debug.Log("strPrefab=" + strPrefab);
-        //Resources.Load 文件可以不区分大小写字母
         GameObject obj = null;
-        if (!Device.isLandscape)
+        string name = gameType;
+        string strPrefab = dirRootPrefabApp + "/" + GetGamePrefabName();
+        obj = PrefabCache.main.Load(strPrefab);
+        if (obj == null)
         {
-            string strPrefab_shu = strPrefab + "_shu";
-            GameObject objShu = PrefabCache.main.Load(strPrefab_shu);
-            if (objShu != null)
+            strPrefab = dirRootPrefab + "/" + GetGamePrefabName();
+            if (!Common.isBlankString(GameManager.main.pathGamePrefab))
             {
-                obj = objShu;
+                strPrefab = GameManager.main.pathGamePrefab;
             }
-            else
+            Debug.Log("strPrefab=" + strPrefab);
+            //Resources.Load 文件可以不区分大小写字母
+
+            // if (!Device.isLandscape)
+            // {
+            //     // string strPrefab_shu = strPrefab + "_shu";
+            //     // GameObject objShu = PrefabCache.main.Load(strPrefab_shu);
+            //     // if (objShu != null)
+            //     // {
+            //     //     obj = objShu;
+            //     // }
+            //     // else
+            //     {
+            //         obj = PrefabCache.main.Load(strPrefab);
+            //     }
+            // }
+            // else
             {
                 obj = PrefabCache.main.Load(strPrefab);
             }
         }
-        else
-        {
-            obj = PrefabCache.main.Load(strPrefab);
-        }
+
 
         if (obj == null)
         {
@@ -134,7 +145,7 @@ public class GameViewController : PopViewController
         //gameBasePrefab.LoadPrefab();
     }
 
-    bool EnableUIAdBanner()
+    public bool EnableUIAdBanner()
     {
         if (!AdKitCommon.main.enableBanner)
         {

@@ -6,13 +6,17 @@ using Moonma.AdKit.AdBanner;
 using Moonma.AdKit.AdInsert;
 using Moonma.AdKit.AdVideo;
 using Moonma.AdKit.AdConfig;
+using Moonma.AdKit.AdNative;
+
 public delegate void OnAdKitFinishDelegate(AdKitCommon.AdType type, AdKitCommon.AdStatus status, string str);
 public class AdKitCommon : MonoBehaviour
 {
+    public const int INSERT_NOAD_DAY = 1;
     public enum AdType
     {
         BANNER = 0,
         INSERT,
+        NATIVE,
         VIDEO
     }
     public enum AdStatus
@@ -25,8 +29,30 @@ public class AdKitCommon : MonoBehaviour
     public static AdKitCommon main;
     public bool enableBanner = true;
     bool isAdVideoFinish;
+    public float heightAdWorld;
+    public float heightAdScreen;
+    public float heightAdCanvas;
+    public int adinsertNoadDay;
     public OnAdKitFinishDelegate callbackFinish { get; set; }
     public OnAdKitFinishDelegate callbackAdVideoFinish { get; set; }
+
+    public async void GetIPInfo()
+    {
+        // return;
+        Debug.Log("IPInfo GetIPInfo start");
+        int ret = 0;
+         Debug.Log("IPInfo GetIPInfo   0");
+        await IPInfo.main.GetIpInfoAsync();
+         Debug.Log("IPInfo GetIPInfo   1");
+        if (IPInfo.main.IsHuaweiAppStoreCheck())
+        {
+            ret = INSERT_NOAD_DAY;
+        }
+         Debug.Log("IPInfo GetIPInfo   2");
+        adinsertNoadDay = ret;
+
+        Debug.Log("IPInfo GetIPInfo adinsertNoadDay =" + adinsertNoadDay);
+    }
 
 
     /// <summary>
@@ -39,7 +65,8 @@ public class AdKitCommon : MonoBehaviour
             main = this;
         }
         isAdVideoFinish = false;
-        enableBanner = true;
+        // GetIPInfo();
+        // enableBanner = true;
     }
 
     // Use this for initialization
@@ -102,13 +129,26 @@ public class AdKitCommon : MonoBehaviour
 
     }
 
+    public void AdBannerSetScreenOffsetY(float y)
+    {
+        AdBanner.SetScreenOffset(0, (int)y);
+    }
+
     public void InitAdInsert()
     {
         if (Common.noad)
         {
             return;
         }
-
+        GetIPInfo();
+        if (Config.main.channel == Source.HUAWEI)
+        {
+            // 华为不能  应用频繁弹窗恶意广告
+            if (Common.GetDayIndexOfUse() <= adinsertNoadDay)
+            {
+                return;
+            }
+        }
         bool isShowAdInsert = false;
         if (AppVersion.appCheckHasFinished)
         {
@@ -164,6 +204,38 @@ public class AdKitCommon : MonoBehaviour
         AdVideo.ShowAd();
     }
 
+
+
+    public void ShowAdInsertWithStep(int step, bool isAlwasy)
+    {
+        int _step = step;
+        if (_step <= 0)
+        {
+            _step = 1;
+        }
+        GameManager.main.isShowGameAdInsert = false;
+        bool isshow = false;
+        if (isAlwasy)
+        {
+            isshow = true;
+        }
+        else
+        {
+            if ((LevelManager.main.gameLevel != 0) && ((LevelManager.main.gameLevel % _step) == 0))
+            //if ((LevelManager.main.gameLevel % _step) == 0)
+            {
+                isshow = true;
+            }
+        }
+        if (isshow)
+        {
+            AdKitCommon.main.InitAdInsert();
+            AdKitCommon.main.ShowAdInsert(100);
+            GameManager.main.isShowGameAdInsert = true;
+        }
+    }
+
+
     public void ShowAdInsert(int rate)
     {
 
@@ -183,6 +255,15 @@ public class AdKitCommon : MonoBehaviour
             {
                 return;
             }
+
+            if (Config.main.channel == Source.HUAWEI)
+            {
+                // 华为不能  应用频繁弹窗恶意广告
+                if (Common.GetDayIndexOfUse() <= adinsertNoadDay)
+                {
+                    return;
+                }
+            }
         }
 
 
@@ -194,6 +275,31 @@ public class AdKitCommon : MonoBehaviour
         //show 之前重新设置广告
         //InitAdInsert();
         AdInsert.ShowAd();
+    }
+
+    //原生开机广告
+    public void ShowAdNativeSplash(string source)
+    {
+        if (!AppVersion.appCheckHasFinished)
+        {
+            return;
+        }
+
+        if (Common.noad)
+        {
+            return;
+        }
+
+        if (Common.isAndroid)
+        {
+            if (Common.GetDayIndexOfUse() <= Config.main.NO_AD_DAY)
+            {
+                return;
+            }
+        }
+
+        AdNative.ShowSplash(source);
+
     }
 
     //c++调用c#的回调
@@ -220,6 +326,11 @@ public class AdKitCommon : MonoBehaviour
         string strH = str.Substring(idx + 1);
         int.TryParse(strH, out h);
         Debug.Log("AdBannerDidReceiveAd::w=" + w + " h=" + h);
+
+        Vector2 sizeCanvas = AppSceneBase.main.sizeCanvas;
+        AdKitCommon.main.heightAdScreen = h + Device.heightSystemHomeBar;
+        AdKitCommon.main.heightAdWorld = Common.ScreenToWorldHeight(AppSceneBase.main.mainCamera, h);
+        AdKitCommon.main.heightAdCanvas = Common.ScreenToCanvasHeigt(sizeCanvas, h);
         // if (gameBaseRun != null)
         // {
         //     gameBaseRun.AdBannerDidReceiveAd(w, h);
@@ -228,6 +339,7 @@ public class AdKitCommon : MonoBehaviour
         {
             callbackFinish(AdType.BANNER, AdStatus.SUCCESFULL, str);
         }
+        AppSceneBase.main.LayoutChild();
 
     }
     public void AdBannerDidReceiveAdFail(string adsource)
@@ -318,6 +430,20 @@ public class AdKitCommon : MonoBehaviour
         }
 
     }
+
+    //AdNative CallBack
+    public void AdNativeDidFail(string adsource)
+    {
+        Debug.Log("AdNativeDidFail adsource=" + adsource);
+        if (callbackFinish != null)
+        {
+            callbackFinish(AdType.NATIVE, AdStatus.FAIL, adsource);
+        }
+    }
+    public void AdNativeDidLoad(string str)
+    {
+    }
+
 
     //c++调用c#的回调
     public void AdVideoCallbackUnity(string source, string method)

@@ -10,14 +10,16 @@ using UnityEngine.SceneManagement;
 //containing this component as a cell in a TableView
 public class UISettingCellItem : UICellItemBase
 {
-    public Text textTitle;
-    public Image imageBg;
-    public Image imageArrow;
-    public Button btnSwitch;
-    public const string IMAGE_BTN_SWITCH_UNSEL = "AppCommon/UI/Common/BtnSwitchUnsel";
-    public const string IMAGE_BTN_SWITCH_SEL = "AppCommon/UI/Common/BtnSwitchsel";
-    static public string[] strImageBg = { AppRes.IMAGE_CELL_BG_BLUE, AppRes.IMAGE_CELL_BG_ORINGE, AppRes.IMAGE_CELL_BG_YELLOW };
-
+    public UIText textTitle;
+    public UIImage imageBg;
+    public UIImage imageArrow;
+    public UIButton btnSwitch;
+    static public string[] strImageBg = { "IMAGE_CELL_BG_BLUE", "IMAGE_CELL_BG_ORINGE", "IMAGE_CELL_BG_YELLOW" };
+    void Start()
+    {
+        this.LayOut();
+        Invoke("LayOut", 0.1f);
+    }
     public override void UpdateItem(List<object> list)
     {
         if (index < list.Count)
@@ -36,10 +38,12 @@ public class UISettingCellItem : UICellItemBase
                 bool ret = Common.GetBool(AppString.KEY_ENABLE_PLAYSOUND);
                 UpdateBtnSwitch(ret);
             }
+            string key = strImageBg[index % 3];
+            imageBg.keyImage = key;
+            imageBg.UpdateImageByKey(key);
 
-            Vector4 border = AppRes.borderCellSettingBg;
-            TextureUtil.UpdateImageTexture(imageBg, strImageBg[index % 3], false, border);
         }
+        this.LayOut();
     }
     bool IsShowSwitchButton(ItemInfo info)
     {
@@ -62,15 +66,16 @@ public class UISettingCellItem : UICellItemBase
     }
     void UpdateBtnSwitch(bool isSel)
     {
-        Image img = btnSwitch.GetComponent<Image>();
-        if (isSel)
-        {
-            img.sprite = TextureUtil.CreateSpriteFromTex(TextureCache.main.Load(IMAGE_BTN_SWITCH_SEL));
-        }
-        else
-        {
-            img.sprite = TextureUtil.CreateSpriteFromTex(TextureCache.main.Load(IMAGE_BTN_SWITCH_UNSEL));
-        }
+        // Image img = btnSwitch.GetComponent<Image>();
+        // if (isSel)
+        // {
+        //     img.sprite = TextureUtil.CreateSpriteFromTex(TextureCache.main.Load(IMAGE_BTN_SWITCH_SEL));
+        // }
+        // else
+        // {
+        //     img.sprite = TextureUtil.CreateSpriteFromTex(TextureCache.main.Load(IMAGE_BTN_SWITCH_UNSEL));
+        // }
+        btnSwitch.UpdateSwitch(isSel);
     }
     public void CellSwitchDidClick()
     {
@@ -97,10 +102,14 @@ public class UISettingCellItem : UICellItemBase
             bool ret = Common.GetBool(AppString.KEY_ENABLE_PLAYSOUND);
             bool value = !ret;
             Common.SetBool(AppString.KEY_ENABLE_PLAYSOUND, value);
-            UpdateBtnSwitch(value); 
+            UpdateBtnSwitch(value);
         }
 
     }
 
+    public override void LayOut()
+    {
+        base.LayOut();
+    }
 }
 

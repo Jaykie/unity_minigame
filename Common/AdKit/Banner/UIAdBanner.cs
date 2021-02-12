@@ -27,7 +27,8 @@ public class UIAdBanner : UIView
     bool isDownloadBg;
     bool isDownloadIcon;
     int indexAd;
-
+    public float offsetY = 0;
+    bool isDestroy = false;
     /// <summary>
     /// Awake is called when the script instance is being loaded.
     /// </summary>
@@ -40,8 +41,21 @@ public class UIAdBanner : UIView
         TextureUtil.UpdateRawImageTexture(imageAd, "Common/UI/Home/AdBannerIconAd", true);
 
         StartParseAd();
+        LayOut();
     }
 
+    void Start()
+    {
+        isDestroy = false;
+        LayOut();
+    }
+    /// <summary>
+    /// This function is called when the MonoBehaviour will be destroyed.
+    /// </summary>
+    void OnDestroy()
+    {
+        isDestroy = true;
+    }
     public void OnUpdateTime()
     {
         UpdateItem();
@@ -63,6 +77,7 @@ public class UIAdBanner : UIView
         isDownloadIcon = false;
 
         httpReqBg = new HttpRequest(OnHttpRequestFinishedImage);
+        Debug.Log("UIAdBanner info.pic=" + info.pic);
         httpReqBg.Get(info.pic);
 
         httpReqIcon = new HttpRequest(OnHttpRequestFinishedImage);
@@ -74,9 +89,18 @@ public class UIAdBanner : UIView
             indexAd = 0;
         }
     }
+    public void SetBottomOffsetY(float y)
+    {
+        offsetY = y;
+        // LayOutRelation ly = this.gameObject.GetComponent<LayOutRelation>();
+        // ly.offset = new Vector2(0,y);
+        // ly.LayOut();
+        LayOut();
+    }
 
     public override void LayOut()
     {
+        base.LayOut();
         float x, y, w, h, oft;
         RectTransform rctran = this.gameObject.GetComponent<RectTransform>();
         RectTransform rctranBg = imageBg.GetComponent<RectTransform>();
@@ -85,18 +109,27 @@ public class UIAdBanner : UIView
 
         RectTransform rctranTitle = textTitle.GetComponent<RectTransform>();
         RectTransform rctranDetail = textDetail.GetComponent<RectTransform>();
-
+        //banner 显示在屏幕底部
+        Vector2 sizeCanvas = AppSceneBase.main.sizeCanvas;
         float scale = 1f;
         float ratio = 1f;
         float x_left = 0;
         oft = 16;
+        w = rctran.rect.width;
+        h = rctran.rect.height;
+        int w_screen = (int)Common.CanvasToScreenWidth(sizeCanvas, w);
+        int h_screen = (int)Common.CanvasToScreenWidth(sizeCanvas, h);
+        Debug.Log("UIAdBanner AdBannerDidReceiveAd::w=" + w_screen + " h=" + h_screen);
+        AdKitCommon.main.AdBannerDidReceiveAd(w_screen.ToString() + ":" + h_screen.ToString());
 
-        //banner 显示在屏幕底部
-        Vector2 sizeCanvas = AppSceneBase.main.sizeCanvas;
+
         x = 0;
         y = Common.ScreenToCanvasHeigt(sizeCanvas, Device.heightSystemHomeBar);
-        rctran.anchoredPosition = new Vector2(x, y);
-
+        // rctran.anchoredPosition = new Vector2(x, y);
+        if (imageBg.texture == null)
+        {
+            return;
+        }
 
         {
             w = imageBg.texture.width;
@@ -109,6 +142,11 @@ public class UIAdBanner : UIView
             {
                 scalex = rctran.rect.width / w;
             }
+            LayOutRelation ly = this.GetComponent<LayOutRelation>();
+            if (ly != null)
+            {
+                ly.offset = new Vector2(0, offsetY);
+            }
 
             //scalex = scalex/2;
             //scale = Common.GetBestFitScale(w, h, rctran.rect.width, rctran.rect.height) * ratio;
@@ -120,10 +158,10 @@ public class UIAdBanner : UIView
 
             w = rctran.rect.width;
             h = rctran.rect.height;
-            int w_screen = (int)Common.CanvasToScreenWidth(sizeCanvas, w);
-            int h_screen = (int)Common.CanvasToScreenWidth(sizeCanvas, h);
-            Debug.Log("UIAdBanner AdBannerDidReceiveAd::w=" + w_screen + " h=" + h_screen);
-            AdKitCommon.main.AdBannerDidReceiveAd(w_screen.ToString() + ":" + h_screen.ToString());
+            // int w_screen = (int)Common.CanvasToScreenWidth(sizeCanvas, w);
+            // int h_screen = (int)Common.CanvasToScreenWidth(sizeCanvas, h);
+            // Debug.Log("UIAdBanner AdBannerDidReceiveAd::w=" + w_screen + " h=" + h_screen);
+            // AdKitCommon.main.AdBannerDidReceiveAd(w_screen.ToString() + ":" + h_screen.ToString());
 
 
 
@@ -294,6 +332,8 @@ public class UIAdBanner : UIView
             parserJson(data, listAd);
             Debug.Log("UIAdBanner OnHttpRequestFinished listAd Count=" + listAd.Count);
             Invoke("OnUpdateTime", 0);
+        }else{
+            Debug.Log("UIAdBanner OnHttpRequestFinished Fail");
         }
     }
 
@@ -306,6 +346,10 @@ public class UIAdBanner : UIView
         if (isSuccess)
         {
             if (!GameViewController.main.isActive)
+            {
+                // return;
+            }
+            if (isDestroy)
             {
                 return;
             }

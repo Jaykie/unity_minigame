@@ -77,6 +77,7 @@ public class LoadTexture : MonoBehaviour
     static public Texture2D LoadFromRGBData(byte[] data, int w, int h)
     {
         Texture2D tex = null;
+
         //android Bitmap 读出来的Rgb数据是RGBA32
         tex = new Texture2D(w, h, TextureFormat.RGBA32, false);//RGBA32  ARGB32
         byte[] pixselImage = tex.GetRawTextureData();
@@ -135,7 +136,12 @@ public class LoadTexture : MonoBehaviour
 
     static public Texture2D LoadFromResource(string file)
     {
-        Texture2D tex = (Texture2D)Resources.Load(FileUtil.GetFileBeforeExtWithOutDot(file));
+        Object obj = Resources.Load(FileUtil.GetFileBeforeExtWithOutDot(file));
+        if(obj==null){
+            Debug.Log("LoadFromResource file="+file);
+            return null;
+        }
+        Texture2D tex = (Texture2D)obj;
         return tex;
     }
 

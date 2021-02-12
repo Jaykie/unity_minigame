@@ -7,35 +7,36 @@ namespace Moonma.Media
 {
 internal class AndroidWrapper : BasePlatformWrapper
 	{
-		public const string JAVA_CLASS_AD = "com.moonma.common.AdBannerCommon";
-        public   void InitAd(string source)
-		{ 
-		Debug.Log("AndroidWrapper:InitAd");
-
-				using(var javaClass = new AndroidJavaClass(JAVA_CLASS_AD))
-				{
-					Debug.Log("AndroidWrapper:InitAd CallStatic");
-					javaClass.CallStatic("adBanner_setAd",source);
-				}
-		}
-
-	   public override void Open(string url)
+	    public const string JAVA_CLASS = "com.moonma.common.MediaPlayer"; 
+	    public override void Open(string url)
         {
-
+		    using(var javaClass = new AndroidJavaClass(JAVA_CLASS))
+            { 
+                javaClass.CallStatic("Open",url);
+            }
         }
 
         public override void Close()
         {
-
+		    using(var javaClass = new AndroidJavaClass(JAVA_CLASS))
+            { 
+                javaClass.CallStatic("Close");
+            }
         }
 
         public override void Play()
         {
-
+		    using(var javaClass = new AndroidJavaClass(JAVA_CLASS))
+            { 
+                javaClass.CallStatic("Play");
+            }
         }
         public override void Pause()
         {
-
+		    using(var javaClass = new AndroidJavaClass(JAVA_CLASS))
+            { 
+                javaClass.CallStatic("Pause");
+            }
         }
 
     }

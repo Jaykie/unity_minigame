@@ -81,6 +81,7 @@ public class LayOutGrid : LayOutBase
     {
         LayOut();
     }
+
     // r 行 ; c 列  返回中心位置
     public Vector2 GetItemPostion(GameObject obj, int r, int c)
     {
@@ -95,7 +96,7 @@ public class LayOutGrid : LayOutBase
 
         if (childControlWidth)
         {
-            item_w = (w - (space.x * (col - 1))) / col;
+            item_w = (w - (space.x * (col + 1))) / col;
             rctranItem.sizeDelta = new Vector2(item_w, rctranItem.sizeDelta.y);
         }
         else
@@ -105,7 +106,7 @@ public class LayOutGrid : LayOutBase
 
         if (childControlHeight)
         {
-            item_h = (h - (space.y * (row - 1))) / row;
+            item_h = (h - (space.y * (row + 1))) / row;
             rctranItem.sizeDelta = new Vector2(rctranItem.sizeDelta.x, item_h);
         }
         else
@@ -117,8 +118,18 @@ public class LayOutGrid : LayOutBase
 
         float x_left = 0, y_bottom = 0;
 
-        float w_total = item_w * col + (space.x * (col - 1));
-        float h_total = item_h * row + (space.y * (row - 1));
+        if (childForceExpandWidth)
+        {
+            space.x = (w - item_w * col) / (col + 1);
+        }
+
+        if (childForceExpandHeight)
+        {
+            space.y = (h - item_h * row) / (row + 1);
+        }
+
+        float w_total = item_w * col + (space.x * (col + 1));
+        float h_total = item_h * row + (space.y * (row + 1));
 
         if (childForceExpandWidth)
         {
@@ -141,8 +152,12 @@ public class LayOutGrid : LayOutBase
 
         }
 
-        x = x_left + item_w * c + item_w / 2 + space.x * c;
 
+        x = x_left + item_w * c + item_w / 2 + space.x * (c + 1);
+        if (childForceExpandWidth)
+        {
+            // x += space.x;
+        }
 
         if (childForceExpandHeight)
         {
@@ -163,8 +178,11 @@ public class LayOutGrid : LayOutBase
                 y_bottom = -h_total / 2;
             }
         }
-        y = y_bottom + item_h * r + item_h / 2 + space.y * r;
-
+        y = y_bottom + item_h * r + item_h / 2 + space.y * (r + 1);
+        if (childForceExpandHeight)
+        {
+            //y += space.y;
+        }
         return new Vector2(x, y);
 
     }
@@ -173,10 +191,11 @@ public class LayOutGrid : LayOutBase
     {
         int idx = 0;
         int r = 0, c = 0;
-        if (!enableLayout)
+        if (!Enable())
         {
             return;
         }
+        base.LayOut();
         /* 
         foreach (Transform child in objMainWorld.transform)这种方式遍历子元素会漏掉部分子元素
         */
@@ -196,10 +215,21 @@ public class LayOutGrid : LayOutBase
                 continue;
             }
 
-            LayoutElement le = objtmp.GetComponent<LayoutElement>();
-            if (le != null && le.ignoreLayout)
             {
-                continue;
+                LayoutElement le = objtmp.GetComponent<LayoutElement>();
+                if (le != null && le.ignoreLayout)
+                {
+                    continue;
+                }
+            }
+
+            {
+                LayOutElement le = objtmp.GetComponent<LayOutElement>();
+                if (le != null && le.ignoreLayout)
+                {
+                    continue;
+                }
+
             }
 
             if (!enableHide)

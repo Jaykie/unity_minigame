@@ -7,6 +7,8 @@ using UnityEngine.UI;
 public class UIImage : UIView
 {
     public Image image;
+    public string keyImage2;
+
 
 
     /// Awake is called when the script instance is being loaded.
@@ -14,16 +16,15 @@ public class UIImage : UIView
     public void Awake()
     {
         base.Awake();
-        var pic = this.GetKeyImage();
-        // var board = null;
-        // if (cc.ImageRes.main().ContainsBoard(this.keyImage))
-        // {
-        //     board = cc.ImageRes.main().GetImageBoardSync(this.keyImage);
-        // }
-        if (!Common.isBlankString(pic))
+        string keyPic = keyImage;
+        if (Device.isLandscape)
         {
-            UpdateImage(pic);
+            if (!Common.BlankString(keyImageH))
+            {
+                keyPic = keyImageH;
+            }
         }
+        UpdateImageByKey(keyPic);
     }
     // Use this for initialization
     public void Start()
@@ -31,9 +32,60 @@ public class UIImage : UIView
         base.Start();
     }
 
-    public void UpdateImage(string pic)
+    public void UpdateImageByKey(string key)
     {
-        TextureUtil.UpdateImageTexture(image, pic, true);
+        string pic = "";
+        if (!Common.isBlankString(key))
+        {
+            pic = ImageRes.main.GetImage(key);
+        }
+
+        if (!Common.isBlankString(pic))
+        {
+            UpdateImage(pic, key);
+        }
+    }
+
+// 绝对路径
+    public void UpdateImage(string pic, string key = "")
+    {
+        string strKey = key;
+        if (Common.isBlankString(key))
+        {
+            strKey = this.keyImage;
+        }
+        if (Common.isBlankString(pic))
+        {
+            return;
+        }
+        bool isBoard = ImageRes.main.IsHasBoard(strKey);
+        Vector4 board = Vector4.zero;
+        if (isBoard)
+        {
+            board = ImageRes.main.GetImageBoard(strKey);
+        }
+        if (board != Vector4.zero)
+        {
+            //  image.imagety
+        }
+        RectTransform rctranOrigin = this.GetComponent<RectTransform>();
+        Vector2 offsetMin = rctranOrigin.offsetMin;
+        Vector2 offsetMax = rctranOrigin.offsetMax;
+
+        Texture2D tex = TextureCache.main.Load(pic);
+        TextureUtil.UpdateImageTexture(image, tex, true, board);
+        RectTransform rctan = this.GetComponent<RectTransform>();
+        rctan.sizeDelta = new Vector2(tex.width, tex.height);
+        Debug.Log("UpdateImage pic=" + pic + "isBoard=" + isBoard + " keyImage=" + strKey + " tex.width=" + tex.width);
+        if ((rctan.anchorMin == new Vector2(0.5f, 0.5f)) && (rctan.anchorMax == new Vector2(0.5f, 0.5f)))
+        {
+        }
+        else
+        {
+            //sizeDelta 会自动修改offsetMin和offsetMax 所以需要还原
+            rctan.offsetMin = offsetMin;
+            rctan.offsetMax = offsetMax;
+        }
         LayOut();
     }
 

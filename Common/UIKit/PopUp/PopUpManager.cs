@@ -15,6 +15,7 @@ public class PopUpManager : MonoBehaviour
 
     public static PopUpManager main;
     Action<UIViewPop> _onClose;
+    public GameObject panel;
     void Init()
     {
 
@@ -23,6 +24,14 @@ public class PopUpManager : MonoBehaviour
     void Awake()
     {
         main = this;
+    }
+    public void ShowPannl(bool show)
+    {
+        if (panel == null)
+        {
+            return;
+        }
+        panel.gameObject.SetActive(show);
     }
     public void Show<T>(string pathPrefab, Action<T> onOpened = null, Action<UIViewPop> onClose = null, bool darkenBackground = true) where T : UIViewPop
     {
@@ -47,12 +56,15 @@ public class PopUpManager : MonoBehaviour
         // }
         yield return null;
         GameObject objPrefab = PrefabCache.main.Load(popupName);
-
+        if (objPrefab == null)
+        {
+            objPrefab = PrefabCache.main.LoadByKey(popupName);
+        }
         Canvas canvas = AppSceneBase.main.canvasMain;
-        var panel = new GameObject("Panel");
+        panel = new GameObject("Panel");
         var panelImage = panel.AddComponent<Image>();
         var color = Color.black;
-        color.a = 0;
+        color.a = 0.5f;
         panelImage.color = color;
         var panelTransform = panel.GetComponent<RectTransform>();
         panelTransform.anchorMin = new Vector2(0, 0);

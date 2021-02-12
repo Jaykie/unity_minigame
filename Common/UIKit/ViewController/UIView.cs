@@ -87,7 +87,7 @@ public class UIView : MonoBehaviour
     public string keyColor;
 
     public string keyImage;
-
+    public string keyImageH;//only for landscap 横屏
     static public Rect GetFrame(RectTransform rctran)
     {
         Rect rc = Rect.zero;
@@ -106,16 +106,32 @@ public class UIView : MonoBehaviour
     // Use this for initialization
     public void Start()
     {
+        LayOut();
     }
 
     public virtual void LayOut()
     {
         LayOutInternal();
+
+        // 统一更新一次 解决子UIView更新后整体没有更新的bug
+        Invoke("LayOutInternal", 0.1f);
     }
 
     public virtual void UpdateLanguage()
     {
-
+        foreach (UIView child in this.gameObject.GetComponentsInChildren<UIView>(true))
+        {
+            if (child == null)
+            {
+                continue;
+            }
+            GameObject objtmp = child.gameObject;
+            if (this.gameObject == objtmp)
+            {
+                continue;
+            }
+            child.UpdateLanguage();
+        }
     }
     public UIViewController GetControllerInternal()
     {
@@ -149,6 +165,10 @@ public class UIView : MonoBehaviour
 
     public void SetController(UIViewController con)
     {
+        if(con==null)
+        {
+            return;
+        }
         controller = con;
         //this.transform.parent = controller.objController.transform;
         this.transform.SetParent(controller.objController.transform);
@@ -171,18 +191,31 @@ public class UIView : MonoBehaviour
         Color ret = def;
         if (!Common.isBlankString(keyColor))
         {
-            ret = ColorConfig.main.GetColor(keyColor);
+            ret = GetColorOfKey(keyColor);
         }
         return ret;
     }
 
+    public Color GetColorOfKey(string key)
+    {
+        Color ret = Color.black;
+        if (!Common.isBlankString(key))
+        {
+            ret = ColorConfig.main.GetColor(key);
+        }
+        return ret;
+    }
 
     public string GetKeyText()
     {
+        return GetTextOfKey(keyText);
+    }
+    public string GetTextOfKey(string key)
+    {
         string ret = "";
-        if (!Common.isBlankString(keyText))
+        if (!Common.isBlankString(key))
         {
-            ret = Language.main.GetString(keyText);
+            ret = Language.main.GetString(key);
         }
         return ret;
     }
@@ -196,9 +229,14 @@ public class UIView : MonoBehaviour
         }
         return ret;
     }
-    public void OnUIDidFinish()
+    public void OnUIDidFinish(float delay = 0)
     {
-        DoUIFinish();
+        float time = delay;
+        if (time <= 0)
+        {
+            time = 0.1f;
+        }
+        Invoke("DoUIFinish", time);
     }
 
     void DoUIFinish()
@@ -210,5 +248,36 @@ public class UIView : MonoBehaviour
                 controller.callbackUIFinish();
             }
         }
+
+        // Common.UnityStartUpFinish();
     }
+
+    public Vector2 GetBoundSize()
+    {
+        Vector2 ret = Vector2.zero;
+        Renderer rd = null;
+        UISprite uisp = this.gameObject.GetComponent<UISprite>();
+        if (uisp != null)
+        {
+            rd = uisp.objSp.GetComponent<Renderer>();
+        }
+        if (rd == null)
+        {
+            rd = this.gameObject.GetComponent<Renderer>();
+        }
+
+        if (rd != null)
+        {
+            ret = rd.bounds.size;
+        }
+
+        return ret;
+    }
+
+     public void SetActive(bool isActive)
+    {
+        this.gameObject.SetActive(isActive);
+        LayOut();
+    }
+
 }

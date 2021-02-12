@@ -32,7 +32,7 @@ public class UIShop : UIView, ITableViewDataSource
     //public GameObject objTopBar;
     //public GameObject objTableViewTemplate;
     public Image imageBg;
-    public Image imageBar;
+    public UIImage imageBar;
     public UIText textTitle;
     public Text textAd;
 
@@ -64,7 +64,7 @@ public class UIShop : UIView, ITableViewDataSource
 
         InitAd();
         //bg 
-        TextureUtil.UpdateImageTexture(imageBg, AppRes.IMAGE_SETTING_BG, true);
+       // TextureUtil.UpdateImageTexture(imageBg, AppRes.IMAGE_SETTING_BG, true);
 
         textAd.text = Language.main.GetString("STR_SHOP_TIP_AD");
         textAd.gameObject.SetActive(false);
@@ -87,7 +87,16 @@ public class UIShop : UIView, ITableViewDataSource
             info.id = ID_GOLD_VIDEO;//Common.GetAppPackage() + ".gold0";
             info.isIAP = false;
             listItem.Add(info);
+        } 
+        bool isHave = true; 
+        if (Common.isAndroid)
+        { 
+            if (Config.main.channel == Source.HUAWEI)
+            {
+               isHave = false; 
+            }
         }
+        if(isHave)
         {
             ShopItemInfo info = new ShopItemInfo();
             info.gold = GOLD_COMMENT;

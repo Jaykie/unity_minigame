@@ -33,6 +33,7 @@ public class AppSceneBase : ScriptBase
 
     void Awake()
     {
+        Debug.Log("AppSceneBase Awake");
         if (AppSceneBase.main == null)
         {
             AppSceneBase.main = this;
@@ -45,10 +46,12 @@ public class AppSceneBase : ScriptBase
             SetCanvasScalerMatch(canvasCamera.gameObject);
         }
         Common.CleanCache();
+        AdConfig.main.InitSDK();
         InitValue();
 
         //Component
         this.gameObject.AddComponent<AdKitCommon>();
+        this.gameObject.AddComponent<AnimateCommon>();
         this.gameObject.AddComponent<IAPCommon>();
         this.gameObject.AddComponent<ShareCommon>();
         this.gameObject.AddComponent<TTSCommon>();
@@ -131,7 +134,7 @@ public class AppSceneBase : ScriptBase
         }
     }
 
-    void OnResize()
+    public void OnResize()
     {
         //InitScalerMatch 和 InitUiScaler 异步执行
         InitUiScaler();
@@ -208,13 +211,14 @@ public class AppSceneBase : ScriptBase
         if (!AppVersion.appCheckHasFinished)
         {
             appVersion.callbackFinished = OnAppVersionFinished;
+            appVersion.StartParseVersion();
         }
         else
         {
             appVersion.callbackFinished = null;
             RunApp();
         }
-        appVersion.StartParseVersion();
+
     }
 
     public virtual void RunApp()
@@ -347,6 +351,25 @@ public class AppSceneBase : ScriptBase
             }
 
         }
+
+        if (rootViewController != null)
+        {
+            UIView ui = rootViewController.view;
+            if (ui != null)
+            {
+                ui.LayOut();
+            }
+
+        }
+        int len = AppSceneBase.main.listPopup.Count;
+        for (int i = 0; i < len; i++)
+        {
+            UIViewPop ui = AppSceneBase.main.listPopup[i];
+            if (ui != null)
+            {
+                ui.LayOut();
+            }
+        }
     }
     void OnHttpRequestFinished(HttpRequest req, bool isSuccess, byte[] data)
     {
@@ -368,26 +391,31 @@ public class AppSceneBase : ScriptBase
         }
 
     }
-    public void UpdateWorldBg(string pic)
+    public void UpdateWorldBg(string pic,bool isByKey=false)
     {
-        bool is_cache = TextureCache.main.IsInCache(pic);
+        string picnew = pic;
+        if(isByKey)
+        {
+            picnew = ImageRes.main.GetImage(pic);
+        }
+        bool is_cache = TextureCache.main.IsInCache(picnew);
         if (is_cache)
         {
-            Texture2D tex = TextureCache.main.Load(pic);
-            OnGetBgFileDidFinish(true, tex, true, pic);
+            Texture2D tex = TextureCache.main.Load(picnew);
+            OnGetBgFileDidFinish(true, tex, true, picnew);
         }
         else
         {
             if (Common.isWeb)
             {
                 httpReqBg = new HttpRequest(OnHttpRequestFinished);
-                httpReqBg.Get(HttpRequest.GetWebUrlOfAsset(pic));
+                httpReqBg.Get(HttpRequest.GetWebUrlOfAsset(picnew));
             }
             else
             {
-                Texture2D tex = LoadTexture.LoadFileAuto(pic);
-                Debug.Log("UpdateWorldBg::pic=" + pic + " w=" + tex.width + " h=" + tex.height);
-                OnGetBgFileDidFinish(true, tex, true, pic);
+                Texture2D tex = LoadTexture.LoadFileAuto(picnew);
+                Debug.Log("UpdateWorldBg::picnew=" + picnew + " w=" + tex.width + " h=" + tex.height);
+                OnGetBgFileDidFinish(true, tex, true, picnew);
             }
         }
 
@@ -421,6 +449,16 @@ public class AppSceneBase : ScriptBase
     {
         mainCamera.gameObject.SetActive(isShow);
     }
+
+    public void ShowCanvas(bool isShow)
+    {
+        canvasMain.gameObject.SetActive(isShow);
+    }
+
+    public void ShowRootViewController(bool isShow)
+    {
+        rootViewController.objController.SetActive(isShow);
+    }
     public void UpdateLanguage()
     {
         if (rootViewController != null)
@@ -436,4 +474,20 @@ public class AppSceneBase : ScriptBase
     }
 
 
+    //android callback
+    public void OnAndroidGlobalLayout(string str)
+    {
+        Debug.Log("OnAndroidGlobalLayout::str=" + str);
+        LayoutChild();
+    }
+
+
+    public void OnWebViewDidFinish(string html)
+    {
+        AppVersionHuawei.main.OnWebViewDidFinish(html);
+    }
+    public void OnWebViewDidFail(string html)
+    {
+        AppVersionHuawei.main.OnWebViewDidFail(html);
+    }
 }

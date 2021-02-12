@@ -14,24 +14,7 @@ public class UICellItemBase : UIView
     bool isItemLock = false;
     public OnUICellItemClickDelegate callbackClick { get; set; }
     /// Awake is called when the script instance is being loaded.
-    /// </summary>
-    void Awake()
-    {
-
-    }
-    // Use this for initialization
-    void Start()
-    {
-
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
+    /// </summary> 
     public virtual int GetCellHeight()
     {
         return 0;
@@ -39,8 +22,8 @@ public class UICellItemBase : UIView
     public virtual void UpdateItem(List<object> list)
     {
         Debug.Log("UICellItemBase UpdateItem");
-    }
-    public virtual bool IsLock()
+    } 
+      public virtual bool IsLock()
     {
         return false;
     }

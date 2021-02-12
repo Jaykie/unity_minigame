@@ -46,6 +46,7 @@ public class HomeViewController : UIViewController
         CreateUI();
         Debug.Log("HomeViewCon)troller ViewDidLoad");
 
+        // 开机广告
         //if ((!isAdVideoHasFinish) && (runCount >= RUN_COUNT_SHOW_AD) && (!GameManager.main.isShowGameAdInsert))
         if (runCount == 0)
         {
@@ -56,15 +57,45 @@ public class HomeViewController : UIViewController
             //     uiHome.OnClickBtnAdVideo();
             // }
 
-            //至少在home界面显示一次开机插屏
-            int type = AdConfigParser.SOURCE_TYPE_INSERT;
-            string source = Source.GDT;
-            AdInsert.InitAd(source);
-            AdKitCommon.main.ShowAdInsert(100);
+
+            AdKitCommon.main.callbackFinish = OnAdKitCallBack;
+            if (Common.isiOS)
+            {
+                //原生开机插屏
+                AdKitCommon.main.ShowAdNativeSplash(Source.ADMOB);
+            }
+            else
+            {
+                //至少在home界面显示一次开机插屏  
+                ShowAdInsert();
+
+            }
 
         }
         runCount++;
+
+        if (Application.isEditor)
+        {
+            AppVersionHuawei app = AppVersionHuawei.main;
+            app.StartParseVersion();
+
+
+            // TestIPInfo();
+        }
     }
+
+    public async void TestIPInfo()
+    {
+        int ret = 0;
+        await IPInfo.main.GetIpInfoAsync();
+        if (IPInfo.main.IsHuaweiAppStoreCheck())
+        {
+            ret = 1;
+        }
+
+        Debug.Log("IPInfo adinsertNoadDay =" + ret);
+    }
+
     public override void ViewDidUnLoad()
     {
         base.ViewDidUnLoad();
@@ -90,6 +121,8 @@ public class HomeViewController : UIViewController
         uiHome.SetController(this);
         UIViewController.ClonePrefabRectTransform(uiHomePrefab.gameObject, uiHome.gameObject);
         uiHome.Init();
+
+        GameManager.main.ShowPrivacy();
     }
 
 
@@ -100,6 +133,31 @@ public class HomeViewController : UIViewController
         return name;
     }
 
+
+    void ShowAdInsert()
+    {
+        if (Config.main.channel == Source.HUAWEI)
+        {
+            // return;
+        }
+        string source = Source.GDT;//GDT
+        if (Common.isiOS)
+        {
+            // source = Source.CHSJ;
+        }
+        AdInsert.InitAd(source);
+        AdKitCommon.main.ShowAdInsert(100);
+    }
+    public void OnAdKitCallBack(AdKitCommon.AdType type, AdKitCommon.AdStatus status, string str)
+    {
+        if (type == AdKitCommon.AdType.NATIVE)
+        {
+            if (status == AdKitCommon.AdStatus.FAIL)
+            {
+                ShowAdInsert();
+            }
+        }
+    }
     public void OnAdKitAdVideoFinish(AdKitCommon.AdType type, AdKitCommon.AdStatus status, string str)
     {
         //if (type == AdKitCommon.AdType.VIDEO)
