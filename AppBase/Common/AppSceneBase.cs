@@ -38,6 +38,10 @@ public class AppSceneBase : ScriptBase
         {
             AppSceneBase.main = this;
         }
+        else{
+             Debug.Log("AppSceneBase main is not null");
+            // return;
+        }
         isReLayout = false;
         IPInfo.main.StartParserInfo();
         InitScalerMatch();

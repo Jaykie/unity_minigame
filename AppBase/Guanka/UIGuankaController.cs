@@ -30,20 +30,7 @@ public class UIGuankaController : UIGuankaBase, ITableViewDataSource
     HttpRequest httpReqLanguage;
     int indexClick;
 
-    static public bool isHaveUnlockLevel
-    {
-        get
-        {
-            string key = "key_HaveUnlockLevel";
-            return Common.Int2Bool(PlayerPrefs.GetInt(key, 0));
-        }
-        set
-        {
-            string key = "key_HaveUnlockLevel";
-            PlayerPrefs.SetInt(key, Common.Bool2Int(value));
 
-        }
-    }
 
     /// <summary>
     /// Awake is called when the script instance is being loaded.
@@ -298,7 +285,7 @@ public class UIGuankaController : UIGuankaBase, ITableViewDataSource
                 }
 
 
-                if ((Config.main.isNoIDFASDK&&Common.isiOS) && (!isHaveUnlockLevel))
+                if ((Config.main.isNoIDFASDK&&Common.isiOS) && (!GameManager.main.isHaveUnlockLevel))
                 {
                     enable = false;
                     // 内购解锁
@@ -379,7 +366,7 @@ public class UIGuankaController : UIGuankaBase, ITableViewDataSource
 
         if ((str == IAP.UNITY_CALLBACK_BUY_DID_FINISH) || (str == IAP.UNITY_CALLBACK_BUY_DID_RESTORE))
         {
-            isHaveUnlockLevel = true;
+            GameManager.main.isHaveUnlockLevel = true;
 
             Loom.QueueOnMainThread(() =>
             {

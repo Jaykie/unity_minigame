@@ -309,6 +309,10 @@ public class FileUtil
 
     static public bool FileIsExist(string file)
     {
+        if (Common.BlankString(file))
+        {
+            return false;
+        }
         if (File.Exists(file))
         {
             return true;
@@ -338,7 +342,7 @@ public class FileUtil
     //file 为相对路径
     static public bool FileIsExistAsset(string file)
     {
-        if(Common.BlankString(file))
+        if (Common.BlankString(file))
         {
             return false;
         }

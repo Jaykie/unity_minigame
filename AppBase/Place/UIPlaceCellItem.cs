@@ -16,6 +16,13 @@ public class UIPlaceCellItem : UICellItemBase
         textTitle.gameObject.SetActive(false);
         TextureUtil.UpdateImageTexture(imageBg.image, info.pic, true);
         imageIcon.gameObject.SetActive(info.isAd);
+        if ((Config.main.isNoIDFASDK && Common.isiOS) && (!GameManager.main.isHaveUnlockLevel))
+        {
+            imageIcon.UpdateImageByKey("icon_lock");
+        }else{
+            imageIcon.UpdateImageByKey("BtnIconVideo");
+        }
+
         LayOut();
     }
     public override bool IsLock()

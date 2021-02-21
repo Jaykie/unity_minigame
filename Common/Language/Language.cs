@@ -90,8 +90,15 @@ public class Language
 
         // Init();
         ltLocalization.SetLanguage(lan);
+
+     
         if (this == Language.main)
         {
+            
+            
+            int lanTag = PlayerPrefs.GetInt(AppString.STR_KEY_LANGUAGE);
+           // Application.systemLanguage = (SystemLanguage)lanTag;
+
             if (_common != null)
             {
                 _common.ltLocalization.SetLanguage(lan);

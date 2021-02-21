@@ -1150,7 +1150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   keyText: STR_Privacy_Yes
-  keyColor: 
+  keyColor: LevelTitle
   keyImage: 
   keyImageH: 
   title: {fileID: 3537955752328019883}
